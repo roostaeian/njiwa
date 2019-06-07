@@ -6,6 +6,8 @@ import io.njiwa.common.model.Group;
 import io.njiwa.common.rest.types.Roles;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
+import org.picketlink.idm.credential.Password;
+import org.picketlink.idm.model.basic.BasicModel;
 import org.picketlink.idm.model.basic.User;
 
 import javax.annotation.PostConstruct;
@@ -43,8 +45,9 @@ public class Initialiser {
         } catch (Exception ex) {
         } // Ignore error
 
-        //  delUser("admin");
+
         try {
+           // delUser("admin");
             createUser("admin", DEFAULT_ADMIN_GROUP);
         } catch (Exception ex) {
         } // Ignore error
@@ -59,11 +62,20 @@ public class Initialiser {
         createUsers();
     }
 
+    private  void delUser(String admin)
+    {
+
+        IdentityManager identityManager = partitionManager.createIdentityManager();
+        User u = BasicModel.getUser(identityManager,admin);
+        identityManager.remove(u);
+
+    }
+
     private void createUser(String admin, final String defaultAdminGroup) {
         User u = new User(admin);
         IdentityManager identityManager = partitionManager.createIdentityManager();
         identityManager.add(u);
-        identityManager.updateCredential(u, admin + "test");
+        identityManager.updateCredential(u, new Password("test"));
 
         po.doTransaction((po, em) -> {
             Group g = Group.getByName(em, defaultAdminGroup);

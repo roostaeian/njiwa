@@ -32,13 +32,13 @@
               <h1>
        <img src="img/Njiwa-logo-small.png"></h1>
               <div>
-                <input type="text" class="form-control" placeholder="Username" required="" />
+                <input id="username" type="text" class="form-control" placeholder="Username" required="" />
               </div>
               <div>
-                <input type="password" class="form-control" placeholder="Password" required="" />
+                <input id="passwd" type="password" class="form-control" placeholder="Password" required="" />
               </div>
               <div>
-                <button class="btn btn-default" type="button">Log in</button>
+                <button id="login_btn" class="btn btn-default" type="button">Log in</button>
               </div>
 
               <div class="clearfix"></div>
@@ -57,42 +57,40 @@
           </div>
         </div>
 
-        <div id="register" class="animate form registration_form">
-          <section class="login_content">
-            <form>
-              <h1>Create Account</h1>
-              <div>
-                <input type="text" class="form-control" placeholder="Username" required="" />
-              </div>
-              <div>
-                <input type="email" class="form-control" placeholder="Email" required="" />
-              </div>
-              <div>
-                <input type="password" class="form-control" placeholder="Password" required="" />
-              </div>
-              <div>
-                <a class="btn btn-default submit" href="index.html">Submit</a>
-              </div>
-
-              <div class="clearfix"></div>
-
-              <div class="separator">
-                <p class="change_link">Already a member ?
-                  <a href="#signin" class="to_register"> Log in </a>
-                </p>
-
-                <div class="clearfix"></div>
-                <br />
-
-                <div>
-                  <h1><i class="fa fa-paw"></i> Gentelella Alela!</h1>
-                  <p>©2016 All Rights Reserved. Gentelella Alela! is a Bootstrap 3 template. Privacy and Terms</p>
-                </div>
-              </div>
-            </form>
-          </section>
-        </div>
       </div>
     </div>
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/fastclick.js"></script>
+    <script src="js/custom.js"></script>
+    <script src="js/nprogress.js"></script>
+
+<script type="text/javascript">
+  $(document).ready(function() {
+     $('#login_btn').on('click', function() {
+        var u = $('#username').val();
+        var p = $('#passwd').val();
+
+        $.ajax('ui/auth/login', {
+            method: 'POST',
+            dataType: 'JSON',
+            data: JSON.stringify({userId: u, password: p}),
+            contentType: 'application/json; charset=utf-8',
+            traditional: true,
+             success:  function (data) {
+                 var t = data;
+             },
+            error: function (d,s) {
+                var t= d;
+                var x = s;
+            }
+         });
+        return false;
+     });
+
+   });
+</script>
+
   </body>
 </html>
