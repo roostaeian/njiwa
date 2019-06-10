@@ -6,6 +6,7 @@ import io.njiwa.common.model.Group;
 import io.njiwa.common.rest.types.Roles;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
+import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.model.basic.BasicModel;
 import org.picketlink.idm.model.basic.User;
@@ -47,7 +48,7 @@ public class Initialiser {
 
 
         try {
-           // delUser("admin");
+          // delUser("admin");
             createUser("admin", DEFAULT_ADMIN_GROUP);
         } catch (Exception ex) {
         } // Ignore error
@@ -79,7 +80,7 @@ public class Initialiser {
 
         po.doTransaction((po, em) -> {
             Group g = Group.getByName(em, defaultAdminGroup);
-
+            g.assignUser(admin);
             return null;
         });
     }

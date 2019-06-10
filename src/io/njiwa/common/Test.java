@@ -16,7 +16,9 @@ import io.njiwa.common.model.RpaEntity;
 import io.njiwa.common.rest.types.ReportsData;
 import io.njiwa.common.rest.types.ReportsInputColumnsData;
 import io.njiwa.common.rest.types.ReportsInputOrderData;
+import io.njiwa.dp.model.ProfileTemplate;
 import io.njiwa.dp.pedefinitions.EUICCResponse;
+import io.njiwa.dp.pedefinitions.ProfileElement;
 import io.njiwa.sr.model.Eis;
 import io.njiwa.sr.transports.Transport;
 
@@ -226,7 +228,18 @@ public class Test {
         saveRpaEntity(dp);
     }
 
+    private  List testReadPT() throws Exception
+    {
+        FileInputStream f = new FileInputStream("/tmp/8991800099110000870.der");
+        byte[] b =  new byte[ f.available()];
 
+        f.read(b);
+        f.close();
+
+        List<ProfileElement> pl = ProfileTemplate.fromBytes(b);
+
+        return pl;
+    }
 
     @PostConstruct
     public void atStart() {
@@ -236,6 +249,8 @@ public class Test {
             //      bootstrapKeysDB();
 
           //  outputKeyCerts();
+
+         //   testReadPT();
         } catch (Exception ex) {
             String xs = ex.getMessage();
         }

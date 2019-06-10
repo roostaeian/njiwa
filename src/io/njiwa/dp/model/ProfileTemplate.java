@@ -124,7 +124,7 @@ public class ProfileTemplate {
         setMajor_version((int) pHeader.getMajorVersion().value);
         setMinor_version((int) pHeader.getMinorVersion().value);
         setMno(mno);
-        setDerData(profileElementsToBytes(profileElements));
+        setDerData(toBytes(profileElements));
     }
 
     /**
@@ -198,7 +198,7 @@ public class ProfileTemplate {
         return new Utils.Pair<Boolean, String>(res, xs);
     }
 
-    public static byte[] profileElementsToBytes(List<ProfileElement> profileElements) throws Exception {
+    public static byte[] toBytes(List<ProfileElement> profileElements) throws Exception {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         for (ProfileElement p : profileElements) {
             BerByteArrayOutputStream os = new BerByteArrayOutputStream(128, true);
@@ -379,7 +379,12 @@ public class ProfileTemplate {
     }
 
     public List<ProfileElement> profileElements() {
-        ByteArrayInputStream in = new ByteArrayInputStream(getDerData());
+        return fromBytes(getDerData());
+    }
+
+    public static List<ProfileElement> fromBytes(byte[] data)
+    {
+        ByteArrayInputStream in = new ByteArrayInputStream(data);
         List<ProfileElement> pl = new ArrayList<ProfileElement>();
 
         while (in.available() > 0)
@@ -437,7 +442,7 @@ public class ProfileTemplate {
             for (ProfileElement p : profileElements)
                 ParamTarget.patchPE(p, replacements);
 
-        return profileElementsToBytes(profileElements);
+        return toBytes(profileElements);
     }
 
     public int getMajor_version() {
