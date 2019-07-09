@@ -25,10 +25,11 @@
                 <div class="navbar nav_title" style="border: 0;">
                     <a href="index.html" class="site_title">
 
-                       <!-- <i class="fa fa-paw"></i> -->
+                        <!-- <i class="fa fa-paw"></i> -->
 
                         <img src="img/res%2030.png">
-                        <span>Njiwa RSP</span></a>
+                        <span>Njiwa RSP</span>
+                    </a>
                 </div>
 
                 <div class="clearfix"></div>
@@ -47,7 +48,7 @@
                 </div>
                 <!-- /menu profile quick info -->
 
-                <br />
+                <br/>
 
                 <!-- side bar -->
                 <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
@@ -57,7 +58,8 @@
                         <ul class="nav side-menu">
                             <li>
                                 <a><i id="home-link" class="fas fa-home"></i> Home
-                                <span class="fas fa-chevron-down"></span></a>
+                                    <span class="fas fa-chevron-down"></span>
+                                </a>
 
                                 <ul class="nav child_menu">
                                     <li><a class="jumper" id="dashboard-link" data-url="dashboard">Dashboard</a></li>
@@ -66,8 +68,8 @@
 
                             <li>
                                 <a><i class="fas fa-screwdriver"></i> Configurations
-                                <span class="fas fa-chevron-down"></span>
-                            </a>
+                                    <span class="fas fa-chevron-down"></span>
+                                </a>
                                 <ul class="nav child_menu">
                                     <li><a class="jumper" data-url="certs">Certificates</a></li>
                                     <li><a class=jumper" data-url="entities">Entities</a></li>
@@ -110,13 +112,9 @@
         </div>
 
 
-
     </div>
 
 </div>
-
-
-
 
 
 <script src="js/jquery.min.js"></script>
@@ -124,14 +122,81 @@
 <script src="js/fastclick.js"></script>
 <script src="js/custom.js"></script>
 <script src="js/nprogress.js"></script>
-
+<script src="js/jquery.validate.min.js"></script>
 <script src="js/ui.js"></script>
 
 <script type="application/javascript">
     $(document).ready(function () {
         // Force click on dashboard
-        $('#home-link').trigger('click',{});
-        $('#dashboard-link').trigger('click',{});
+        $('#home-link').trigger('click', {});
+        $('#dashboard-link').trigger('click', {});
+
+        try {
+            window.roles = JSON.parse(localStorage.roles);
+        } catch (e) {
+        }
+        try {
+            window.user = JSON.parse(localStorage.user);
+        } catch (e) {
+        }
+        try {
+            window.allRoles = JSON.parse(localStorage.allRoles);
+        } catch (e) {
+        }
+
+        var displayName;
+
+        if (window.user && window.user.firstName) displayName = (window.user.firstName || '') + ' ' + (window.user.lastName || ''); else if (window.user) displayName = window.user.loginName.toTitleCase();
+
+        $('#logon-name').empty().append(displayName);
+
+        // Redirect to login page if we have an error
+        $.ajaxSetup({
+            statusCode: {
+                401: function () {
+                    // Get url
+                    var wurl = window.location.href;
+                    var i = wurl.indexOf('?');
+                    var a = i >= 0 ? wurl.substr(i + 1) : wurl;
+
+                    window.location.replace('login.html' + '?_a=' + encodeURIComponent(a)); // Go to logon page
+                }, 500: function (err) {
+                    alert('Server error! Please contact support');
+                    console.log(err);
+                }
+            }
+        });
+
+
+        // Handle logout
+        $('#logout').on('click', function () {
+
+            $.ajax('ui/auth/logout', {
+                method: 'GET', dataType: 'JSON', traditional: true, success: function (data) {
+                    var t = data;
+                    window.location.replace('login.html');
+                }, error: function (d, s) {
+                    var t = d;
+                    var x = s;
+                }
+            });
+            return false;
+        });
+
+        // Check if logged on
+        $.ajax('ui/auth/check', {
+            method: 'GET', dataType: 'JSON', traditional: true, success: function (data) {
+                var t = data.response;
+                // alert(t);
+                console.log(data);
+                if (!t || t !== 'true')
+                    window.location.replace('login.html');
+            }, error: function (d, s) {
+                var t = d;
+                var x = s;
+            }
+        });
+
     });
 
 </script>

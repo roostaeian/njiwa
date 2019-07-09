@@ -1,0 +1,132 @@
+<div>
+    <div class="page-title">
+        <div class="title_left"><h3>CI & Server Identities</h3></div>
+    </div>
+    <div class="clearfix"></div>
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>Encryption Keys & Certificates</h2>
+                    <div class="clearfix"></div>
+                </div>
+
+                <div class="x_content">
+                    <br/>
+                    <form id="certs-form" class="form-horizontal">
+                        <fieldset>
+                            <legend> CI Certificate</legend>
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="ci-oid">
+                                    Object Identifier:</label>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    <input type="text" class="form-control" id="ci-oid"
+                                           placeholder="Please enter the certificate OID" name="ci-oid"
+                                           data-rule-oid="true">
+
+                                    <p class="help-block">
+                                        Mandatory. This is the ASN.1 Object Identifier for this certificate.</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="ci-iin">
+                                    Certificate IIN:</label>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    <input type="text" class="form-control" id="ci-iin"
+                                           placeholder="Please enter the IIN" name="ci-iin" data-rule-iin="true">
+
+                                    <p class="help-block">
+                                        Optional. This is the Issuer Identification Number. See <a
+                                            href="https://en.wikipedia.org/wiki/Payment_card_number#Issuer_identification_number_(IIN)"
+                                            target="_blank">Wikipedia</a></p>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="ci-cert">PEM-Encoded CI
+                                    Certificate:</label>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    <input type="file" class="btn btn-default fileupload" id="ci-cert"
+                                           data-result="text" placeholder="Please supply CI certificate" name="ci-cert">
+                                    <p class="note" id="ci-cert-note">
+
+                                    </p>
+                                    <p class="help-block">
+                                        Mandatory. This is the PEM-encoded Certification Authority's self-signed
+                                        certificate/elliptic curve public key. </p>
+                                </div>
+                            </div>
+
+
+                        </fieldset>
+
+                        <div id="xstatus"></div>
+
+                        <div class="ln_solid "></div>
+
+                        <div class="col-md-8 col-sm-8 col-xs-12 ">
+                            <button class="btn btn-success pull-right" type="submit">
+                                <i class="fas fa-save"></i>
+
+                                Update
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<script type="application/javascript">
+    $(document).ready(function () {
+
+        // Get info from the server
+        $.ajax('ui/rpa/get_certs', {
+            method: 'GET', dataType: 'JSON', success: function (data) {
+                $('#ci-cert-note').empty();
+                if (data) try {
+                    $('#ci-oid').val(data.ciOID);
+                    $('#ci-iin').val(data.ciIIN);
+                    $('#ci-cert-note')
+                            .append($('<span/>').append('CI Cert: ')
+                                    .append($('<em/>').append(data.ciCertSubject ? data.ciCertSubject : 'Not Set')));
+                } catch (e) {
+                    $('#ci-cert-note')
+                            .append($('<em/>').append('Not Set'));
+                } else $('#ci-cert-note')
+                        .append($('<em/>').append('Not Set'));
+            }, error: function (x) {
+                var t = x;
+            }
+        });
+
+        $('#certs-form').validate({
+
+            submitHandler: function () {
+                var data = {
+                    ciCert: getfupload('ci-cert'), ciIIN: $('#ci-iin').val(), ciOID: $('#ci-oid').val()
+                };
+
+                $.ajax('ui/rpa/update_certs', {
+                    method: 'POST',
+                    dataType: 'JSON',
+                    data: JSON.stringify(data),
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    success: function (data) {
+                        if (data.indexOf('Failed') >= 0) info_display('#xstatus', 'error', data); else info_display('#xstatus', 'info', 'Updated!');
+                    },
+                    error: function (e, s, err) {
+                        var t = err;
+                        info_display('#xstatus', 'error', 'Server error');
+                        console.log(err);
+                    }
+                });
+                return false;
+            }
+        });
+    });
+    // We need following line so we can debug in browser
+    //# sourceURL=certs.js
+</script>

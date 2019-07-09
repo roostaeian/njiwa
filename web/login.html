@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <!-- Meta, title, CSS, favicons, etc. -->
     <meta charset="utf-8">
@@ -20,78 +20,108 @@
 
     <!-- Custom Theme Style -->
     <link href="css/custom.css" rel="stylesheet">
-  </head>
+</head>
 
-  <body class="login">
-    <div>
+<body class="login">
+<div>
 
-      <div class="login_wrapper">
+    <div class="login_wrapper">
         <div class="animate form login_form">
-          <div class="login_content">
-            <form>
-              <h1>
-       <img src="img/Njiwa-logo-small.png"></h1>
-              <div>
-                <input id="username" type="text" class="form-control" placeholder="Username" required="" />
-              </div>
-              <div>
-                <input id="passwd" type="password" class="form-control" placeholder="Password" required="" />
-              </div>
-              <div>
-                <button id="login_btn" class="btn btn-default" type="button">Log in</button>
-              </div>
+            <div class="login_content">
+                <form id="logon_form">
+                    <h1>
+                        <img src="img/Njiwa-logo-small.png"></h1>
+                    <div>
+                        <input id="username" type="text" class="form-control" placeholder="Username" name="username"
+                               required=""/>
+                    </div>
+                    <div>
+                        <input id="passwd" type="password" class="form-control" name="passwd" placeholder="Password"
+                               required=""/>
+                    </div>
+                    <div>
+                        <button id="login_btn" class="btn btn-default" type="submit">Log in</button>
+                    </div>
 
-              <div class="clearfix"></div>
+                    <div class="clearfix"></div>
 
-              <div class="separator">
+                    <div class="separator">
 
-                <div class="clearfix"></div>
-                <br />
+                        <div class="clearfix"></div>
+                        <br/>
 
-                <div>
-                  <h1>Njiwa eUICC Subscription Management</h1>
-                  <p>©2019 Digital Solutions Ltd. -  All Rights Reserved. </p>
-                </div>
-              </div>
-            </form>
-          </div>
+                        <div>
+                            <h1>Njiwa eUICC Subscription Management</h1>
+                            <p>©2019 Digital Solutions Ltd. - All Rights Reserved. </p>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
 
-      </div>
     </div>
+</div>
 
-    <script src="js/jquery.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/fastclick.js"></script>
-    <script src="js/custom.js"></script>
-    <script src="js/nprogress.js"></script>
-
+<script src="js/jquery.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/fastclick.js"></script>
+<script src="js/custom.js"></script>
+<script src="js/nprogress.js"></script>
+<script src="js/jquery.validate.min.js"></script>
 <script type="text/javascript">
-  $(document).ready(function() {
-     $('#login_btn').on('click', function() {
-        var u = $('#username').val();
-        var p = $('#passwd').val();
+    $(document).ready(function () {
 
-        $.ajax('ui/auth/login', {
-            method: 'POST',
-            dataType: 'JSON',
-            data: JSON.stringify({userId: u, password: p}),
-            contentType: 'application/json; charset=utf-8',
-            traditional: true,
-             success:  function (data) {
-                 var t = data;
-                 window.location.replace('index.html');
-             },
-            error: function (d,s) {
-                var t= d;
-                var x = s;
-            }
-         });
-        return false;
-     });
 
-   });
+        var validator = $('#logon_form').validate({
+            rules: {
+                username: {
+                    required: true
+                }, passwd: {
+                    required: true
+                }
+            }, messages: {
+                username: {required: 'Please enter your user name'}, passwd: {required: 'Please enter your password'}
+            }, submitHandler: function () {
+                var u = $('#username').val();
+                var p = $('#passwd').val();
+
+                $.ajax('ui/auth/login', {
+                    method: 'POST',
+                    dataType: 'JSON',
+                    data: JSON.stringify({userId: u, password: p}),
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    success: function (data) {
+                        var t = data;
+
+                        if (data && data.response) {
+                            localStorage.user =  JSON.stringify(data.response);
+                            localStorage.allRoles = JSON.stringify(data.allRoles);
+                            localStorage.roles = JSON.stringify(data.roles);
+                            window.location.replace('index.html');
+                        } else validator.showErrors({passwd: 'Invalid user name or password'});
+
+                    },
+                    error: function (d, s, error) {
+                        var t = d;
+                        var x = s;
+                        validator.showErrors({username: error});
+                    }
+                });
+            },
+            focusCleanup: true, // Do not change code below
+            /* errorPlacement: function (error, element) {
+                $('#errors').show();
+                $('#errors').html('').append(error.html());
+                //   error.insertAfter(element.parent());
+            } */
+
+
+        });
+
+
+    });
 </script>
 
-  </body>
+</body>
 </html>

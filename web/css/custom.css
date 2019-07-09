@@ -822,7 +822,7 @@ a:focus {
     margin-left: 0 !important;
     line-height: 59px;
     display: block;
-    height: 55px;
+    height: 66px;
     margin: 0;
     padding-left: 10px
 }
@@ -4239,8 +4239,16 @@ table thead .checkbox.radio { margin-top:-7px;margin-top:-21px; }
 }
 
 /** bootstrap-datetimepicker **/
-.input-group.date .input-group-addon{
+.input-group.date .input-group-addon {
     border-radius: 0px !important;
     background-color: #ffff !important;
 }
 /** /bootstrap-datetimepicker **/
+
+/* Other custom stuff */
+.note {
+    margin-top: 5px;
+    padding: 0 1px;
+    line-height: 15px;
+    font-size: 11px;
+}

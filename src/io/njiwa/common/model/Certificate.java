@@ -44,6 +44,9 @@ public class Certificate {
     public static final String SM_DP_DISCRETIONARY_DATA_EXTENSION_OID = BASE_OID + ".1.1";
     public static final String SM_DP_CERT_SIGNATURE_EXTENSION_OID = BASE_OID + ".1.2";
     public static final String CI_KEY_PARAM_TYPE_REFERENCE_EXTENSION_OID = BASE_OID + ".1.3";
+
+    public static final String CI_CERTIFICATE_ALIAS = "ci";
+
     @javax.persistence.Id
     @Column(name = "id", unique = true, nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "certificates")
