@@ -1214,6 +1214,11 @@ public class Utils {
         }
 
         public static ECPrivateKey decodePrivateKey(byte[] input, int keyParamRef) throws Exception {
+
+            Pair<ECParameterSpec,KeyFactory> p  = decodeKeyParam(keyParamRef);
+            ECParameterSpec params = p.k;
+            KeyFactory kf = p.l;
+            /*
             KeyFactory kf = KeyFactory.getInstance("ECDSA", "BC");
             // Get Algo
             AlgorithmParameterSpec spec = KNOWN_ECC_CURVES.get(keyParamRef);
@@ -1228,6 +1233,8 @@ public class Utils {
 
             } else
                 params = (ECParameterSpec) spec;
+
+             */
             // Decode BigInt
             ObjectInputStream bis = new ObjectInputStream(new ByteArrayInputStream(input));
 
@@ -1237,6 +1244,32 @@ public class Utils {
         }
 
         public static ECPublicKey decodePublicKey(byte[] input, int keyParamRef) throws Exception {
+            Pair<ECParameterSpec,KeyFactory> p  = decodeKeyParam(keyParamRef);
+            ECParameterSpec params = p.k;
+            KeyFactory kf = p.l;
+            /*
+            KeyFactory kf = KeyFactory.getInstance("ECDSA", "BC");
+            // Get Algo
+            AlgorithmParameterSpec spec = KNOWN_ECC_CURVES.get(keyParamRef);
+
+            ECParameterSpec params;
+            // http://stackoverflow.com/questions/26159149/how-can-i-get-a-publickey-object-from-ec-public-key-bytes
+            if (spec instanceof ECGenParameterSpec) {
+                ECGenParameterSpec xspec = (ECGenParameterSpec) spec;
+                String cname = xspec.getName();
+                ECNamedCurveParameterSpec ecspec = ECNamedCurveTable.getParameterSpec(cname);
+                params = new ECNamedCurveSpec(cname, ecspec.getCurve(), ecspec.getG(), ecspec.getN());
+
+            } else
+                params = (ECParameterSpec) spec;
+            */
+            ECPoint point = ECPointUtil.decodePoint(params.getCurve(), input);
+            ECPublicKeySpec publicKeySpec = new ECPublicKeySpec(point, params);
+            return (ECPublicKey) kf.generatePublic(publicKeySpec);
+        }
+
+        private static Pair<ECParameterSpec,KeyFactory> decodeKeyParam(int keyParamRef) throws Exception
+        {
             KeyFactory kf = KeyFactory.getInstance("ECDSA", "BC");
             // Get Algo
             AlgorithmParameterSpec spec = KNOWN_ECC_CURVES.get(keyParamRef);
@@ -1252,9 +1285,7 @@ public class Utils {
             } else
                 params = (ECParameterSpec) spec;
 
-            ECPoint point = ECPointUtil.decodePoint(params.getCurve(), input);
-            ECPublicKeySpec publicKeySpec = new ECPublicKeySpec(point, params);
-            return (ECPublicKey) kf.generatePublic(publicKeySpec);
+            return new Pair<>(params,kf);
         }
 
         public static int keyLength(ECKey key) {
