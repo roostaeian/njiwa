@@ -1,0 +1,221 @@
+<div>
+
+  <!-- Table view -->
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>External Remote Provisioning Entities</h2>
+                    <div class="clearfix"></div>
+                </div>
+
+                <div class="x_content">
+
+                    <table id="entities" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0"
+                           width="100%">
+                        <thead>
+                        <tr>
+                        <th>OID</th>
+                            <th>IIN</th>
+                            <th>Type</th>
+                            <th>Certificate DN</th>
+                            <th>&nbsp;</th>
+                        </tr>
+                        </thead>
+                    </table>
+
+
+                </div>
+            </div>
+
+        </div>
+
+
+    </div>
+
+    <!-- The add/remove thingie... -->
+    <div class="row" id="details">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel">
+
+
+                <div class="x_content">
+                    <br/>
+                    <form id="certs-form" class="form-horizontal">
+                        <fieldset>
+                            <legend> SM-SR & SM-DP Data</legend>
+                            <div class="form-group">
+                                <label class="control-label  col-md-3 col-sm-3 col-xs-12" for="oid">
+                                    Object Identifier:</label>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    <input type="text" class="form-control input-sm" id="oid"
+                                           placeholder="Please enter the server instance OID" name="oid"
+                                           data-rule-oid="true" required>
+
+                                    <p class="help-block">
+                                        Mandatory. This is the ASN.1 Object Identifier for the server (both SM-SR & SM-DP).
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="iin">
+                                    Issuer Identification Number:</label>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    <input type="text" class="form-control input-sm" id="iin"
+                                           placeholder="Please enter the IIN" name="iin" data-rule-iin="true" required>
+
+                                    <p class="help-block">
+                                        Optional. This is the server instance IIN for the other entity. See <a
+                                            href="https://en.wikipedia.org/wiki/Payment_card_number#Issuer_identification_number_(IIN)"
+                                            target="_blank">Wikipedia</a>
+                                    </p>
+
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="cert">PEM-Encoded Secure Messaging
+                                    Certificate:</label>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    <input type="file" class="btn btn-default btn-sm fileupload" id="cert"
+                                           data-result="text" name="cert">
+                                    <p class="note" id="cert-note">
+
+                                    </p>
+                                    <p class="help-block">
+                                        Optional. This is the PEM-encoded
+                                        certificate/elliptic curve public key. This is used for some secure messaging transactions (e.g. EUM EID registration).
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="dsa">PEM-Encoded DSA
+                                    Certificate:</label>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    <input type="file" class="btn btn-default btn-sm fileupload" id="dsa"
+                                           data-result="text" name="cert">
+                                    <p class="note" id="dsa-note">
+
+                                    </p>
+                                    <p class="help-block">
+                                        Mandatory. This is the PEM-encoded
+                                        certificate for the entity. It is used to authenticate the  Web Service calls to us by the entity.
+
+                                    </p>
+                                </div>
+                            </div>
+
+
+
+
+                        </fieldset>
+
+                        <div id="xstatus"></div>
+
+                        <div class="ln_solid "></div>
+
+                        <div class="col-md-8 col-sm-8 col-xs-12 ">
+                            <button class="btn btn-success pull-right" type="submit">
+                                <i class="fas fa-save"></i>
+                                <span id="button-text">Update</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+
+<script type="application/javascript">
+
+
+    $(document).ready(function () {
+
+        // Load datatable
+        $('#entities').dataTable({
+           // ajaxSource: 'ui/rpa/all',
+            ajax: {
+               url: 'ui/rpa/all',
+                dataSrc: '',
+            },
+           columns: [
+               {data: 'oid'},
+               {data: 'certificateIIN'},
+               {data:'type'},
+               {data:'x509Subject'},
+               {
+                   data: 'id',
+               orderable: false,
+                   createdCell: function (td, cellData, rowData, row, col) {
+                       $(td).attr('nowrap', 'nowrap');
+                   },
+                   render: function (data,type,row,meta) {
+                       var islocal = row.islocal;
+                       if (type === 'display' /*&& !islocal*/) {
+                           var et = $('<button/>', {class: 'btn btn-xs btn-primary edit-rpa-entity'})
+                                   .attr('data-aid',row.id)
+                                 //  .data('aid',row)
+                                   .append($('<i/>', {class: 'fa fa-edit'}))
+                                   .append(' Edit');
+                           var dt = $('<button/>', {class: 'btn btn-xs btn-primary delete-rpa-entity'})
+                                   .attr('data-aid',row.id)
+                                  // .data('aid',row)
+                                   .append($('<i/>', {class: 'fa fa-trash'}))
+                                   .append(' Delete');
+                           return ($('<span/>')
+                                   .append(et)
+                                   .append(' ')
+                                   .append(dt))[0].outerHTML;
+                       } else
+                           return '';
+                   }
+               }
+           ]
+        });
+
+        $('#details').hide(); // Do not show.
+
+        // Get info from the server
+       //  paint_display();
+
+        $('#certs-form').validate({
+
+            submitHandler: function () {
+                var data = {
+                    ecCertKey: getfupload('cert'), iIN: $('#iin').val(), oID: $('#oid').val(),
+                    dsaCertKey: getfupload('dsa')
+                };
+                // var show_download = $('#show-download').is(':checked');
+                $.ajax('ui/rpa/update_local_certs', {
+                    method: 'POST',
+                    dataType: 'JSON',
+                    data: JSON.stringify(data),
+                    contentType: 'application/json; charset=utf-8',
+                    traditional: true,
+                    success: function (data) {
+                        if (data.indexOf('Failed') >= 0)
+                            info_display('#xstatus', 'error', data);
+                        else {
+                            info_display('#xstatus', 'success', 'Updated!');
+                            $('#signing-data-links').show();
+                            paint_display(); // Show stuff
+                        }
+
+                    },
+                    error: function (e, s, err) {
+                        var t = err;
+                        info_display('#xstatus', 'error', 'Server error');
+                        console.log(err);
+                    }
+                });
+                return false;
+            }
+        });
+    });
+    // XX We need following line so we can debug in browser
+    //# sourceURL=rpa-entities.js
+</script>
