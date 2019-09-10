@@ -12,6 +12,10 @@
 
     <!-- Custom Theme Style -->
     <link href="css/custom.css" rel="stylesheet">
+
+    <!-- Switchery -->
+    <link href="css/switchery.min.css" rel="stylesheet">
+
     <meta charset="UTF-8">
     <title>Njiwa eUICC Remote Subscription Management Console</title>
 </head>
@@ -56,8 +60,8 @@
                         <h3>General</h3>
 
                         <ul class="nav side-menu">
-                            <li>
-                                <a><i id="home-link" class="fas fa-home"></i> Home
+                            <li class="parent-menu">
+                                <a id="home-link" class="parent-link"> <i  class="fas fa-home"></i> Home
                                     <span class="fas fa-chevron-down"></span>
                                 </a>
 
@@ -66,13 +70,13 @@
                                 </ul>
                             </li>
 
-                            <li>
-                                <a><i class="fas fa-screwdriver"></i> Configurations
+                            <li class="parent-menu">
+                                <a id="conf-link" class="parent-link"><i class="fas fa-screwdriver"></i> Configurations
                                     <span class="fas fa-chevron-down"></span>
                                 </a>
                                 <ul class="nav child_menu">
-                                    <li><a class="jumper" data-url="certs">Certificates</a></li>
-                                    <li><a class=jumper" data-url="entities">Entities</a></li>
+                                    <li><a class="jumper" id="ci-link"  data-url="ci">Certificate Issuer Data</a></li>
+                                    <li><a class="jumper" id="localcerts-link" data-url="local-certs">Our Keys & Data</a></li>
 
                                 </ul>
                             </li>
@@ -123,13 +127,18 @@
 <script src="js/custom.js"></script>
 <script src="js/nprogress.js"></script>
 <script src="js/jquery.validate.min.js"></script>
+<script src="js/switchery.min.js"></script>
 <script src="js/ui.js"></script>
 
 <script type="application/javascript">
     $(document).ready(function () {
         // Force click on dashboard
-        $('#home-link').trigger('click', {});
-        $('#dashboard-link').trigger('click', {});
+        var xlast_link = localStorage.lastlink;
+        var last_link = '#'+(xlast_link && xlast_link !== 'undefined'  ? JSON.parse(xlast_link) : 'dashboard-link');
+        var plink = $(last_link).closest('.parent-menu').find('.parent-link');
+
+        $(plink).trigger('click', {});
+        $(last_link).trigger('click', {});
 
         try {
             window.roles = JSON.parse(localStorage.roles);
@@ -161,7 +170,7 @@
 
                     window.location.replace('login.html' + '?_a=' + encodeURIComponent(a)); // Go to logon page
                 }, 500: function (err) {
-                    alert('Server error! Please contact support');
+                    // alert('Server error! Please contact support');
                     console.log(err);
                 }
             }

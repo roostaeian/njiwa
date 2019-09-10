@@ -21,11 +21,8 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "dp_isdps",
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"euicc_id", "iccid"}, name = "dp_isdp_key_ct")
-        }, indexes = {
+         indexes = {
         @Index(columnList = "euicc_id", name = "dp_isdp_idx1"),
-
 }
 )
 @SequenceGenerator(name = "dp_isdp", sequenceName = "dp_isdps_seq")

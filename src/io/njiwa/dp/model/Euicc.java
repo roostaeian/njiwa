@@ -23,9 +23,7 @@ import java.util.List;
  */
 @Entity
 @Table(name = "dp_euiccs",
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"eid"}, name = "dp_euicc_key_ct")
-        }, indexes = {
+         indexes = {
         @Index(columnList = "eid", name = "dp_euicc_idx1"),
 
 }

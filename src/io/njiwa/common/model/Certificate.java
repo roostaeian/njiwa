@@ -29,10 +29,7 @@ import java.util.Date;
  * Created by bagyenda on 20/04/2016.
  */
 @Entity
-@Table(name = "certificates", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"idx", "keyset_id"}, // Index must be unique in keyset. Right?!
-                name = "cert_idx_ct")
-}, indexes = {
+@Table(name = "certificates", indexes = {
         @Index(columnList = "idx,keyset_id", name = "cert_idx1")
 })
 @SequenceGenerator(name = "certificates", sequenceName = "certificate_seq", allocationSize = 1)
@@ -46,6 +43,8 @@ public class Certificate {
     public static final String CI_KEY_PARAM_TYPE_REFERENCE_EXTENSION_OID = BASE_OID + ".1.3";
 
     public static final String CI_CERTIFICATE_ALIAS = "ci";
+    public static final String LOCAL_SM_SR_KEYSTORE_ALIAS = "sm-sr-local";
+    public static final String LOCAL_SM_DP_KEYSTORE_ALIAS = "sm-dp-local";
 
     @javax.persistence.Id
     @Column(name = "id", unique = true, nullable = false, updatable = false)

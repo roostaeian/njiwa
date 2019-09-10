@@ -12,15 +12,19 @@
 
 package io.njiwa.common.rest;
 
+import io.njiwa.common.ECKeyAgreementEG;
 import io.njiwa.common.PersistenceUtility;
 import io.njiwa.common.Utils;
 import io.njiwa.common.model.Certificate;
 import io.njiwa.common.rest.annotations.RestRoles;
 import io.njiwa.common.rest.types.Roles;
 import io.njiwa.common.rest.types.RpaEntityForm;
+import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.openssl.PEMKeyPair;
 import org.bouncycastle.openssl.PEMParser;
+import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
 
 import javax.inject.Inject;
@@ -33,6 +37,7 @@ import javax.ws.rs.core.Response;
 import java.io.StringReader;
 import java.security.Key;
 import java.security.KeyStore;
+import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.List;
 
@@ -114,19 +119,69 @@ public class RpaEntity {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/get_certs")
-    public Response getCerts()
-    {
+    @Path("/get_ci_cert")
+    @RestRoles({Roles.SMSRAdmin, Roles.SMDPAdmin})
+    public Response getCiCert() {
         return po.doTransaction((PersistenceUtility po, EntityManager em) -> {
             io.njiwa.common.model.RpaEntity ci = io.njiwa.common.model.RpaEntity.getCIEntity(em);
-            if (ci == null)
-                return null;
+            if (ci == null) return null;
 
             CertsInfo cx = new CertsInfo();
-            cx.ciOID = ci.getOid();
-            cx.ciIIN  = ci.getCertificateIIN();
-            cx.ciCertSubject = ci.getX509Subject();
+            cx.oID = ci.getOid();
+            cx.iIN = ci.getCertificateIIN();
+            cx.certSubject = ci.getX509Subject();
             return Response.ok(io.njiwa.common.rest.Utils.buildJSON(cx)).build();
+        });
+
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    @Path("/get_local_signing_data/{type}")
+    public Response getSigningData(@PathParam("type")  final String type) {
+
+
+        return po.doTransaction((PersistenceUtility po, EntityManager em) -> {
+             io.njiwa.common.model.RpaEntity.Type t = io.njiwa.common.model.RpaEntity.Type.valueOf(type);
+            // final KeyStore ks = Utils.getKeyStore();
+            io.njiwa.common.model.RpaEntity entity = io.njiwa.common.model.RpaEntity.getLocal(em, t);
+            String iin = entity.getCertificateIIN();
+            X509Certificate certificate = entity.secureMessagingCert();
+            try {
+                byte[] sdata = ECKeyAgreementEG.makeCertSigningData(certificate, t == io.njiwa.common.model.RpaEntity.Type.SMSR ? ECKeyAgreementEG.SM_SR_DEFAULT_DISCRETIONARY_DATA : ECKeyAgreementEG.SM_DP_DEFAULT_DISCRETIONARY_DATA, (byte) 0, iin, ECKeyAgreementEG.DST_VERIFY_KEY_TYPE);
+                String fname = type + "-signing-req-data.der";
+                return Response.ok(sdata, MediaType.APPLICATION_OCTET_STREAM).header("Content-Disposition", "attachment; filename=\"" + fname + "\"").build();
+            } catch (Exception ex) {
+                String x = ex.getMessage();
+            }
+            return Response.serverError().build();
+        });
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/get_local_certs")
+    @RestRoles({Roles.SMSRAdmin, Roles.SMDPAdmin})
+    public Response getLocalCert() {
+        return po.doTransaction((PersistenceUtility po, EntityManager em) -> {
+            io.njiwa.common.model.RpaEntity entity = io.njiwa.common.model.RpaEntity.getLocal(em,
+                    io.njiwa.common.model.RpaEntity.Type.SMSR);
+
+            try {
+                CertsInfo cx = new CertsInfo();
+                cx.oID = entity.getOid();
+                cx.iIN = entity.getCertificateIIN();
+                cx.certSubject = entity.getX509Subject();
+
+                KeyStore ks = Utils.getKeyStore();
+                if (entity.getWskeyStoreAlias() != null) {
+                    X509Certificate certificate = (X509Certificate) ks.getCertificate(entity.getWskeyStoreAlias());
+                    if (certificate != null) cx.dsaCertSubject = certificate.getSubjectDN().getName();
+                }
+                return Response.ok(io.njiwa.common.rest.Utils.buildJSON(cx)).build();
+            } catch (Exception ex) {
+                return null;
+            }
         });
 
     }
@@ -134,11 +189,81 @@ public class RpaEntity {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/update_certs")
+    @Path("/update_local_certs")
     @RestRoles({Roles.SMSRAdmin, Roles.SMDPAdmin})
-    public Response updateCerts(final CertsInfo certsInfo) {
+    public Response updateLocalCerts(final CertsInfo info)  {
 
-        X509Certificate ciCert = certsInfo.getCiCertificate();
+        // Get DSA and SM cerkeys
+        final Utils.Pair<X509Certificate, PrivateKey> kp = info.getECKeyPairFromPEM();
+        try {
+            KeyStore ks = Utils.getKeyStore();
+            char[] pProtector = Utils.getprivateKeyPassword();
+            if (kp != null && kp.l != null) {
+                java.security.cert.Certificate[] clist = {kp.k};
+               // ks.setCertificateEntry(Certificate.LOCAL_SM_SR_KEYSTORE_ALIAS, kp.k);
+               // ks.setCertificateEntry(Certificate.LOCAL_SM_DP_KEYSTORE_ALIAS, kp.k);
+
+
+                ks.setKeyEntry(Certificate.LOCAL_SM_SR_KEYSTORE_ALIAS, kp.l, pProtector, clist);
+                ks.setKeyEntry(Certificate.LOCAL_SM_DP_KEYSTORE_ALIAS, kp.l, pProtector, clist);
+            }
+        } catch (Exception ex) {
+            String xs = ex.getMessage();
+        }
+
+
+        // Save DSA keys
+        final Utils.Pair<X509Certificate, PrivateKey> dsa_kp = info.getDSAKeyPairFromPEM();
+        final String wskeyStoreAlias = Utils.getPrivKeyAlias();
+        if (dsa_kp != null && dsa_kp.l != null && dsa_kp.k != null)
+            Utils.saveServerPrivateKey(wskeyStoreAlias, dsa_kp.l, dsa_kp.k);
+
+        String res = po.doTransaction((PersistenceUtility po, EntityManager em) -> {
+
+            // Make the sm-sr
+            io.njiwa.common.model.RpaEntity entity = io.njiwa.common.model.RpaEntity.getLocal(em,
+                    io.njiwa.common.model.RpaEntity.Type.SMSR);
+
+            if (entity == null) {
+                if (kp == null || kp.k == null || kp.l == null) return "Error: Missing Certificate and Private key";
+                entity = new io.njiwa.common.model.RpaEntity(io.njiwa.common.model.RpaEntity.Type.SMSR,
+                        wskeyStoreAlias, Certificate.LOCAL_SM_SR_KEYSTORE_ALIAS, info.oID,  true, null, (byte) 0, null
+                        , kp.k.getSubjectDN().getName(),
+                        info.iIN
+                        );
+                em.persist(entity);
+            } else {
+                entity.setCertificateIIN(info.iIN);
+                entity.setOid(info.oID);
+            }
+
+            // Make SM-DP
+            entity = io.njiwa.common.model.RpaEntity.getLocal(em, io.njiwa.common.model.RpaEntity.Type.SMDP);
+            if (entity == null) {
+                if (kp == null || kp.k == null || kp.l == null) return "Error: Missing Certificate and Private key";
+                entity = new io.njiwa.common.model.RpaEntity(io.njiwa.common.model.RpaEntity.Type.SMDP,
+                        wskeyStoreAlias,  Certificate.LOCAL_SM_DP_KEYSTORE_ALIAS, info.oID, true, null, (byte) 0, null
+                        , kp.k.getSubjectDN().getName(), info.iIN);
+                em.persist(entity);
+            } else {
+                entity.setCertificateIIN(info.iIN);
+                entity.setOid(info.oID);
+            }
+
+            return "OK";
+        });
+
+        return Response.ok(io.njiwa.common.rest.Utils.buildJSON(res)).build();
+    }
+
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/update_ci_cert")
+    @RestRoles({Roles.SMSRAdmin, Roles.SMDPAdmin})
+    public Response updateCiCert(final CertsInfo certsInfo) {
+
+        X509Certificate ciCert = certsInfo.getCertificateFromPEMCert();
         if (ciCert != null) try {
             // Save it to the keystore
             KeyStore ks = Utils.getKeyStore();
@@ -154,15 +279,14 @@ public class RpaEntity {
                 if (certsInfo.x509Certificate == null) return "Failed: Missing Certificate";
 
                 ci = new io.njiwa.common.model.RpaEntity(io.njiwa.common.model.RpaEntity.Type.CI,
-                        Certificate.CI_CERTIFICATE_ALIAS,
-                        certsInfo.ciOID,
-                        Certificate.CI_CERTIFICATE_ALIAS, true, null, (byte) 0, null,
-                        certsInfo.x509Certificate.getSubjectDN().getName());
+                        Certificate.CI_CERTIFICATE_ALIAS, certsInfo.oID, Certificate.CI_CERTIFICATE_ALIAS, false,
+                        null, (byte) 0, null, certsInfo.x509Certificate.getSubjectDN().getName(),
+                        certsInfo.iIN);
                 em.persist(ci);
             }
 
-            ci.setCertificateIIN(certsInfo.ciIIN);
-            ci.setOid(certsInfo.ciOID);
+            ci.setCertificateIIN(certsInfo.iIN);
+            ci.setOid(certsInfo.oID);
 
             return "OK";
 
@@ -194,7 +318,7 @@ public class RpaEntity {
                 Integer paramRef = form.getECCKeyParameterReference();
                 rpa = new io.njiwa.common.model.RpaEntity(form.getType(), null, null, form.getOid(),
                         Utils.toBool(form.getLocal()), Utils.HEX.h2b(form.getDiscretionaryData()), paramRef == null ?
-                        0 : (byte) (int) paramRef, form.getSignature(), null);
+                        0 : (byte) (int) paramRef, form.getSignature(), null,form.getIin());
             } catch (Exception ex) {
                 Utils.lg.error("Error creating RPA entity: ", ex);
                 ex.printStackTrace();
@@ -265,25 +389,64 @@ public class RpaEntity {
     }
 
     public static class CertsInfo {
-        public String ciCert; // The CI cert as a text
-        public String ciIIN; // The CI IIN
-        public String ciOID; // The CI OID
+        public String cert; // The Certificate  as a pem-encoded text
+        public String iIN; // The  IIN
+        public String oID; // The  OID
 
-        public String ciCertSubject;
+        public String ecCertKey;
+        public String dsaCertKey;
+
+        public String certSubject;
+        public String dsaCertSubject;
+
+
         public X509Certificate x509Certificate;
 
-        public X509Certificate getCiCertificate() {
+        public X509Certificate getCertificateFromPEMCert() {
             try {
-                StringReader r = new StringReader(ciCert);
+                StringReader r = new StringReader(cert);
                 PEMParser pr = new PEMParser(r);
                 Object o = pr.readObject();
-                X509CertificateHolder h = (X509CertificateHolder)o;
+                X509CertificateHolder h = (X509CertificateHolder) o;
                 x509Certificate = new JcaX509CertificateConverter().getCertificate(h);
                 return x509Certificate;
             } catch (Exception e) {
                 String xs = e.getMessage();
             }
             return null;
+        }
+
+        private Utils.Pair<X509Certificate, PrivateKey> getKeyPairFromPEM(String pem) {
+            try {
+                PEMParser pr = new PEMParser(new StringReader(pem));
+                X509Certificate c = null;
+                PrivateKey p = null;
+                Object o;
+                while ((o = pr.readObject()) != null) try {
+                    if (o instanceof X509CertificateHolder)
+                        c = new JcaX509CertificateConverter().getCertificate((X509CertificateHolder) o);
+                    else if (o instanceof PrivateKeyInfo) {
+                        p = new JcaPEMKeyConverter().getPrivateKey((PrivateKeyInfo) o);
+                    } else if (o instanceof PEMKeyPair) {
+                        p =  new JcaPEMKeyConverter().getKeyPair((PEMKeyPair) o).getPrivate();
+                    }
+                } catch (Exception ex) {
+                    String xs = ex.getMessage();
+                }
+                return new Utils.Pair<>(c, p);
+            } catch (Exception ex) {
+                String xs = ex.getMessage();
+            }
+            return null;
+
+        }
+
+        public Utils.Pair<X509Certificate, PrivateKey> getECKeyPairFromPEM() {
+            return getKeyPairFromPEM(ecCertKey);
+        }
+
+        public Utils.Pair<X509Certificate, PrivateKey> getDSAKeyPairFromPEM() {
+            return getKeyPairFromPEM(dsaCertKey);
         }
 
         public CertsInfo() {

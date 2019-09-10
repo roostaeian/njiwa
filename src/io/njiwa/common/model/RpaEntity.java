@@ -35,9 +35,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * What's in our trust store are all potential CIs. Right?
  */
 @Entity
-@Table(name = "rpa_entities", indexes = {@Index(columnList = "entity_oid", name = "rpa_entity_idx1", unique = true),
-        @Index(columnList = "x509subject", name = "rpa_entity_idx2", unique = true), @Index(columnList = "date_added"
-        , name = "rpa_entity_idx3"), @Index(columnList = "wsuserid", name = "rpa_entity_idx4", unique = true),})
+@Table(name = "rpa_entities",
+        indexes = {@Index(columnList = "entity_oid,entity_type", name = "rpa_entity_idx1", unique = true),
+        @Index(columnList = "x509subject,entity_type", name = "rpa_entity_idx2", unique = true),
+                @Index(columnList = "date_added"
+        , name = "rpa_entity_idx3"),
+                @Index(columnList = "wsuserid,entity_type", name = "rpa_entity_idx4", unique = true),})
 @SequenceGenerator(name = "rpa_entity", sequenceName = "rpa_entities_seq", allocationSize = 1)
 @JsonIgnoreProperties(value = {"hibernateLazyInitializer", "wskeyStoreAlias", "sMkeyStoreAlias"})
 @DynamicUpdate
@@ -47,7 +50,7 @@ public class RpaEntity {
     private static final Random RANDOM = new SecureRandom();
 
     // For sorting DNs
-    private static final Map<String, Integer> rdnOrder = new ConcurrentHashMap<String, Integer>() {{
+    private static final Map<String, Integer> rdnOrder = new ConcurrentHashMap<String,Integer>() {{
         put("CN", 1);
         put("L", 2);
         put("ST", 3);
@@ -92,16 +95,19 @@ public class RpaEntity {
     private Type type; //!< Type of entity (MNO, EUM, etc)
     @Column(nullable = true, columnDefinition = "TEXT")
     private String description; //!< Free-form description
+
     @Column(name = "entity_oid", nullable = false, columnDefinition = "TEXT")
     private String oid; //!< The OID is a unique string (ASN.1 OID format) that is used to identify the entity
     // world-wide
     @Column(nullable = false, columnDefinition = "TEXT")
     private String x509Subject; //!< This is the X.509 certificate's subject field. It is extracted from the
     // certificate itself
+
     @Column(nullable = true, columnDefinition = "TEXT")
     private String wskeyStoreAlias; //!< The alias in the java keystore, this is the key used for Web Service
     // authentication.
     // Extracted by the module
+
     @Column(nullable = true, columnDefinition = "TEXT")
     private String sMkeyStoreAlias; //!< The Secure Messaging alias in the java keystore, this is the key used for
     // secure
@@ -169,7 +175,7 @@ public class RpaEntity {
 
     public RpaEntity(Type type, String wskeyStoreAlias, String sMkeyStoreAlias, String oid, boolean islocal,
                      byte[] discretionaryData, byte signatureKeyParameterReference, byte[] signature,
-                     String x509Subject) {
+                     String x509Subject, String certificateIIN) {
         setType(type);
         setWskeyStoreAlias(wskeyStoreAlias);
         setDiscretionaryData(discretionaryData);
@@ -179,6 +185,7 @@ public class RpaEntity {
         setSignature(signature);
         setSignatureKeyParameterReference(signatureKeyParameterReference);
         setOid(oid);
+        setCertificateIIN(certificateIIN);
     }
 
     public static X509Certificate getCI(EntityManager em) throws Exception {
@@ -259,9 +266,11 @@ public class RpaEntity {
 
     public static RpaEntity getLocal(EntityManager em, Type type) {
         try {
-            return em.createQuery("from RpaEntity where islocal = true and type = :t", RpaEntity.class).setParameter(
-                    "t", type).setMaxResults(1).getSingleResult();
+            List<RpaEntity> l =  em.createQuery("from RpaEntity where islocal = true and type = :t", RpaEntity.class).setParameter(
+                    "t", type).getResultList();
+            return l.get(0);
         } catch (Exception ex) {
+            String xs = ex.getMessage();
         }
         return null;
     }

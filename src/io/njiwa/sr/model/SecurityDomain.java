@@ -26,13 +26,9 @@ import java.util.List;
  */
 @Entity
 @Table(name = "securitydomains",
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"eis_id", "aid"}, name = "sd_aid_ct"),
-
-                // with same MSISDN. Right?
-        }, indexes = {
+        indexes = {
         @Index(columnList = "eis_id", name = "sd_idx1"),
-        @Index(columnList = "eis_id,aid", name = "sd_idx2"),
+        @Index(columnList = "eis_id,aid", name = "sd_idx2",unique = true),
 }
 )
 @SequenceGenerator(name = "securitydomains", sequenceName = "securitydomains_seq", allocationSize = 1)

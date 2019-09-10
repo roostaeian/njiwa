@@ -57,6 +57,10 @@ function info_display(el, level, message) {
         }).append(icon_el)
                 .append(' ')
                 .append(message_el);
+       setTimeout(function () { // Clear after a wait period
+           $(el).empty();
+           $(el).removeClassPrefix('alert');
+       }, 2000) ;
     } else {
         $(el).removeClassPrefix('alert');
     }
@@ -65,10 +69,28 @@ function info_display(el, level, message) {
 
 $(document).ready(function () {
 
+
+    $.fn.removeClassPrefix = function (prefix) {
+
+        this.each(function (i, it) {
+            var classes = it.className.split(" ")
+                    .map(function (item) {
+                        return item.indexOf(prefix) === 0 ? "" : item;
+                    });
+            //it.className = classes.join(" ");
+            it.className = $.trim(classes.join(" "));
+
+        });
+
+        return this;
+    };
+
     var body = $('body');
     body.on('click', '.jumper', function () {
         var url = $(this).data('url');
         var div = $(this).data('div') || 'main';
+        var link_id = $(this).attr('id');
+        localStorage.lastlink = JSON.stringify(link_id); // Keep it
 
         $('#' + div).load(url + '.html');
         return false;
@@ -104,16 +126,18 @@ $(document).ready(function () {
     $.validator.addMethod('oid', function (v,el) {
         if (v)
             return true;
-        var re = new RegExp('^[1-9]+([.][0-9]+)*$');
+        // See https://www.regextester.com/96618
+        var re = new RegExp('^([1-9][0-9]{0,3}|0)(\\.([1-9][0-9]{0,3}|0)){5,13}$');
         if (!re.test(v))
             return  false;
         else
         return true;
-    }, 'Please enter a valid OID, e.g. 1.2.3.4');
+    }, 'Please enter a valid OID, e.g. 1.2.3.4....');
 
     $.validator.addMethod('iin', function (v,el) {
         if (v)
             return true;
+        // See https://stackoverflow.com/questions/27796688/regular-expression-for-all-bank-card-numbers
         var re = new RegExp('^[1-9][0-9]{15,19}$');
         if (!re.test(v))
             return  false;
