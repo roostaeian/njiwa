@@ -19,7 +19,7 @@ function getfupload(item_id)
     return null;
 }
 
-function info_display(el, level, message) {
+function info_display(el, level, message, after_fn) {
     var status_class = 'alert ';
     var status_icon = 'fas ';
     switch (level) {
@@ -60,6 +60,8 @@ function info_display(el, level, message) {
        setTimeout(function () { // Clear after a wait period
            $(el).empty();
            $(el).removeClassPrefix('alert');
+           if ($.isFunction(after_fn))
+               after_fn();
        }, 2000) ;
     } else {
         $(el).removeClassPrefix('alert');

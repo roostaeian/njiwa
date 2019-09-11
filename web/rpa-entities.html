@@ -1,6 +1,6 @@
 <div>
 
-  <!-- Table view -->
+    <!-- Table view -->
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
@@ -15,7 +15,7 @@
                            width="100%">
                         <thead>
                         <tr>
-                        <th>OID</th>
+                            <th>OID</th>
                             <th>IIN</th>
                             <th>Type</th>
                             <th>Certificate DN</th>
@@ -24,6 +24,7 @@
                         </thead>
                     </table>
 
+                    <a id="add-new">Add New...</a>
 
                 </div>
             </div>
@@ -43,7 +44,11 @@
                     <br/>
                     <form id="certs-form" class="form-horizontal">
                         <fieldset>
-                            <legend> SM-SR & SM-DP Data</legend>
+                            <input type="hidden" name="id" id="id"/>
+                            <legend>
+                                <span id="title-text"></span>
+                                External RP Entity
+                            </legend>
                             <div class="form-group">
                                 <label class="control-label  col-md-3 col-sm-3 col-xs-12" for="oid">
                                     Object Identifier:</label>
@@ -53,8 +58,22 @@
                                            data-rule-oid="true" required>
 
                                     <p class="help-block">
-                                        Mandatory. This is the ASN.1 Object Identifier for the server (both SM-SR & SM-DP).
-                                    </p>
+                                        Mandatory. This is the ASN.1 Object Identifier for the server (both SM-SR &
+                                        SM-DP). </p>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="type">
+                                    Remote Provisioning Entity Type:
+                                </label>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    <select id="type" name="type" class="form-control" required>
+                                        <option value="" disabled>Please select type</option>
+                                        <option value="EUM">Equipment Manufacturer (EUM)</option>
+                                        <option value="SMSR">Secure Messaging Server (SM-SR)</option>
+                                        <option value="SMDP">Data Preparation Server (SM-DP)</option>
+                                    </select>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -73,7 +92,8 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="cert">PEM-Encoded Secure Messaging
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12" for="cert">PEM-Encoded Secure
+                                    Messaging
                                     Certificate:</label>
                                 <div class="col-md-6 col-sm-6 col-xs-12">
                                     <input type="file" class="btn btn-default btn-sm fileupload" id="cert"
@@ -83,8 +103,8 @@
                                     </p>
                                     <p class="help-block">
                                         Optional. This is the PEM-encoded
-                                        certificate/elliptic curve public key. This is used for some secure messaging transactions (e.g. EUM EID registration).
-                                    </p>
+                                        certificate/elliptic curve public key. This is used for some secure messaging
+                                        transactions (e.g. EUM EID registration). </p>
                                 </div>
                             </div>
 
@@ -99,13 +119,12 @@
                                     </p>
                                     <p class="help-block">
                                         Mandatory. This is the PEM-encoded
-                                        certificate for the entity. It is used to authenticate the  Web Service calls to us by the entity.
+                                        certificate for the entity. It is used to authenticate the Web Service calls to
+                                        us by the entity.
 
                                     </p>
                                 </div>
                             </div>
-
-
 
 
                         </fieldset>
@@ -117,7 +136,7 @@
                         <div class="col-md-8 col-sm-8 col-xs-12 ">
                             <button class="btn btn-success pull-right" type="submit">
                                 <i class="fas fa-save"></i>
-                                <span id="button-text">Update</span>
+                                <!-- <span id="button-text">Update</span> -->
                             </button>
                         </div>
                     </form>
@@ -132,77 +151,115 @@
 
 <script type="application/javascript">
 
+    // XXX we need the external URLs
+    function show_edit_form(xid) {
+        var adding = xid !== undefined;
+        $('#title-text').empty().append(adding ? ' Add ' : ' Update ');
+
+
+        $('#cert-note').empty();
+        $('#dsa-note').empty();
+        $('#certs-form')[0].reset(); // Clear it.
+        if (!adding) {
+            var data = window.elist[xid] || {};
+            $('#iin').val(data.certificateIIN);
+            $('#oid').val(data.oid);
+            $('#type').val(data.type);
+
+            $('#cert-note').append(data.x509Subject || 'Not Set');
+            $('#dsa-note').append(data.hasWsKey ? 'Provided' : 'Not Set');
+        }
+        $('#details').show(500, function () {
+            $('html, body').animate({
+                scrollTop: $('#certs-form').offset().top
+            }, 1000);
+        });
+    }
 
     $(document).ready(function () {
 
+        $('body')
+                .on('click', '.edit-rpa-entity', function () {
+                    var xid = $(this).data('id');
+                    show_edit_form(xid);
+                })
+                .on('click', '.delete-rpa-entity', function () {
+                    var xid = $(this).data('id');
+
+                    if (!confirm('Really remove/delete this external server?')) return false;
+
+                    $.ajax('ui/rpa/'+xid, {
+                        method: 'DELETE', dataType: 'JSON', success: function (res) {
+                            if (res) {
+                                $('#entities').DataTable().draw('full-reset');
+                            } else alert('Failed to delete entity. Please check server logs for details');
+                        }, error: function (data) {
+                            alert('Failed to delete entity. Please check server logs for detailed information.');
+                        }
+                    });
+                });
+
+
         // Load datatable
         $('#entities').dataTable({
-           // ajaxSource: 'ui/rpa/all',
+            // ajaxSource: 'ui/rpa/all',
             ajax: {
-               url: 'ui/rpa/all',
-                dataSrc: '',
-            },
-           columns: [
-               {data: 'oid'},
-               {data: 'certificateIIN'},
-               {data:'type'},
-               {data:'x509Subject'},
-               {
-                   data: 'id',
-               orderable: false,
-                   createdCell: function (td, cellData, rowData, row, col) {
-                       $(td).attr('nowrap', 'nowrap');
-                   },
-                   render: function (data,type,row,meta) {
-                       var islocal = row.islocal;
-                       if (type === 'display' /*&& !islocal*/) {
-                           var et = $('<button/>', {class: 'btn btn-xs btn-primary edit-rpa-entity'})
-                                   .attr('data-aid',row.id)
-                                 //  .data('aid',row)
-                                   .append($('<i/>', {class: 'fa fa-edit'}))
-                                   .append(' Edit');
-                           var dt = $('<button/>', {class: 'btn btn-xs btn-primary delete-rpa-entity'})
-                                   .attr('data-aid',row.id)
-                                  // .data('aid',row)
-                                   .append($('<i/>', {class: 'fa fa-trash'}))
-                                   .append(' Delete');
-                           return ($('<span/>')
-                                   .append(et)
-                                   .append(' ')
-                                   .append(dt))[0].outerHTML;
-                       } else
-                           return '';
-                   }
-               }
-           ]
+                url: 'ui/rpa/all', dataSrc: ''
+            }, columns: [{data: 'oid'}, {data: 'certificateIIN'}, {data: 'type'}, {data: 'x509Subject'}, {
+                data: 'id', orderable: false, createdCell: function (td, cellData, rowData, row, col) {
+                    $(td).attr('nowrap', 'nowrap');
+                }, render: function (data, type, row, meta) {
+                    var islocal = row.islocal;
+                    // Store the data as well
+                    window.elist = window.elist || {};
+                    window.elist[row.id] = row; // Store it.
+                    if (type === 'display' && !islocal) {
+                        var et = $('<button/>', {class: 'btn btn-sm btn-primary edit-rpa-entity'})
+                                .attr('data-aid', row.id)
+                                //  .data('aid',row)
+                                .append($('<i/>', {class: 'fa fa-edit'}));var dt = $('<button/>', {class: 'btn btn-sm btn-primary delete-rpa-entity'})
+                                .attr('data-aid', row.id)
+                                // .data('aid',row)
+                                .append($('<i/>', {class: 'fa fa-trash'}));
+                        return ($('<span/>')
+                                .append(et)
+                                .append(' ')
+                                .append(dt))[0].outerHTML;
+                    } else return '';
+                }
+            }]
         });
 
         $('#details').hide(); // Do not show.
 
         // Get info from the server
-       //  paint_display();
+        //  paint_display();
 
         $('#certs-form').validate({
 
             submitHandler: function () {
                 var data = {
-                    ecCertKey: getfupload('cert'), iIN: $('#iin').val(), oID: $('#oid').val(),
-                    dsaCertKey: getfupload('dsa')
+                    ecCertKey: getfupload('cert'),
+                    iIN: $('#iin').val(),
+                    oID: $('#oid').val(),
+                    dsaCertKey: getfupload('dsa'),
+                    type: $('#type').val(),
+                    id: $('#id').val() || undefined
+
                 };
                 // var show_download = $('#show-download').is(':checked');
-                $.ajax('ui/rpa/update_local_certs', {
+                $.ajax('ui/rpa/update', {
                     method: 'POST',
                     dataType: 'JSON',
                     data: JSON.stringify(data),
                     contentType: 'application/json; charset=utf-8',
                     traditional: true,
                     success: function (data) {
-                        if (data.indexOf('Failed') >= 0)
-                            info_display('#xstatus', 'error', data);
-                        else {
-                            info_display('#xstatus', 'success', 'Updated!');
-                            $('#signing-data-links').show();
-                            paint_display(); // Show stuff
+                        if (data.indexOf('Failed') >= 0) info_display('#xstatus', 'error', data); else {
+                            info_display('#xstatus', 'success', 'Updated!', function () {
+                                $('#details').hide();
+                            });
+                            $('#entities').DataTable().draw('full-reset');
                         }
 
                     },

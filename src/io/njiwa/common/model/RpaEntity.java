@@ -584,6 +584,12 @@ public class RpaEntity {
         this.deniedIPs = deniedIPs;
     }
 
+    @Transient
+    public Boolean getHasWsKey()
+    {
+        return getWskeyStoreAlias() != null;
+    }
+
     public enum Type {
         MNO, SMDP, SMSR, EUM, CI; // But can we have multiple CIs? No
 
