@@ -17,7 +17,6 @@
 
   Mostly these are feature complete as per the [specifications](https://www.gsma.com/newsroom/all-documents/sgp-02-v3-2-remote-provisioning-architecture-for-embedded-uicc-technical-specification/). Please consult the issues list for more information on what's not quite done or needs improvement.
  
- Our future plans (2019-2020) include the eUICC operating system implementation. We will publish detailed plans and specifications during the course of work.
 
 ## System Requirements
  Njiwa is a Java-based server Web Service. It has been developed and tested
