@@ -641,10 +641,12 @@ public class Eis implements RpsElement {
 
             @XmlRootElement(namespace = "http://namespaces.gsma.org/esim-messaging/1")
             public static class Key {
-                @XmlElement
-                public long index;
                 @XmlAttribute(name = "kcv")
                 public String keyCheckValue;
+
+                @XmlElement(name = "Index")
+                public long index;
+
                 @XmlAnyElement
                 List<Component> components;
 
@@ -675,7 +677,7 @@ public class Eis implements RpsElement {
                     return new io.njiwa.common.model.Key((int) index, keyCheckValue, clist);
                 }
 
-                @XmlRootElement
+                @XmlRootElement(name = "KeyComponent")
                 public static class Component {
                     @XmlAttribute
                     public String type; // hex-coded
