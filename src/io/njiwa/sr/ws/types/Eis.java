@@ -48,7 +48,7 @@ public class Eis implements RpsElement {
     @XmlElement(name = "EumCertificateId")
     public String eumCertificateId;
 
-    @XmlAnyElement
+    @XmlElement
     List<ProfileInfo> profiles;
 
     @XmlElement(name = "isd-r")
@@ -326,7 +326,7 @@ public class Eis implements RpsElement {
 
     @XmlRootElement(namespace = "http://namespaces.gsma.org/esim-messaging/1")
     public static class AdditionalProperties {
-        @XmlAnyElement
+        @XmlElement
         public List<Property> properties;
 
         public AdditionalProperties() {
@@ -377,7 +377,7 @@ public class Eis implements RpsElement {
     @XmlRootElement(namespace = "http://namespaces.gsma.org/esim-messaging/1")
     public static class AuditTrail {
 
-        @XmlAnyElement()
+        @XmlElement
         public List<AuditTrailRecord> auditTrailRecords;
 
         public void toModel(io.njiwa.sr.model.Eis eis) {
@@ -499,7 +499,7 @@ public class Eis implements RpsElement {
         @XmlElement(name = "Role")
         public Role role;
 
-        @XmlAnyElement
+        @XmlElement
         public List<KeySet> keySets;
 
 
@@ -576,10 +576,10 @@ public class Eis implements RpsElement {
             @XmlElement(name = "Cntr")
             public long counter;
 
-            @XmlAnyElement
+            @XmlElement
             public List<Key> keys;
 
-            @XmlAnyElement
+            @XmlElement
             public List<Certificate> certificates;
 
             public KeySet() {
@@ -647,7 +647,7 @@ public class Eis implements RpsElement {
                 @XmlElement(name = "Index")
                 public long index;
 
-                @XmlAnyElement
+                @XmlElement
                 List<Component> components;
 
                 public Key() {
