@@ -22,6 +22,7 @@ import io.njiwa.sr.ws.types.Eis;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.annotation.Resource;
+import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.jws.*;
 import javax.jws.soap.SOAPBinding;
@@ -38,10 +39,11 @@ import java.util.Date;
  * <p/>
  * All ES1 functions
  */
-@WebService(name = "ES1", serviceName = Authenticator.SMSR_SERVICE_NAME, targetNamespace = "http://namespaces.gsma" +
-        ".org/esim-messaging/1")
+@WebService(name = "ES1", serviceName = Authenticator.SMSR_SERVICE_NAME,
+        targetNamespace = "http://namespaces.gsma.org/esim-messaging/1")
 @SOAPBinding(style = SOAPBinding.Style.RPC, use = SOAPBinding.Use.LITERAL)
 @HandlerChain(file = "handlers/es1-soap-handler-chain.xml")
+@Stateless
 public class ES1Impl {
     @Inject
     PersistenceUtility po; // For saving objects
