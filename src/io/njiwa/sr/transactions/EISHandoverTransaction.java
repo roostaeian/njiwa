@@ -96,7 +96,7 @@ public class EISHandoverTransaction extends SmSrBaseTransaction {
                             new WsaEndPointReference(sender, "ES7"), originallyTo,requestingEntityId, relatesTO, startDate,
                             hasError ? null : resp);
                 } catch (Exception ex) {
-                    Utils.lg.error(String.format("Failed to issue AuthenticateSMSR reply: %s", ex));
+                    Utils.lg.severe(String.format("Failed to issue AuthenticateSMSR reply: %s", ex));
                 }
                 break;
             case CREATE_ADDITIONAL_KEYSET:
@@ -135,7 +135,7 @@ public class EISHandoverTransaction extends SmSrBaseTransaction {
                     ES7Impl.ES7Client.sendcreateAdditionalKeySetResponse(em, status, new WsaEndPointReference(sender,
                             "ES7"), originallyTo,requestingEntityId, relatesTO, startDate, receipt, dr);
                 } catch (Exception ex) {
-                    Utils.lg.error(String.format("Failed to issue createAdditionalKeyset reply: %s", ex));
+                    Utils.lg.severe(String.format("Failed to issue createAdditionalKeyset reply: %s", ex));
                 }
                 break;
 

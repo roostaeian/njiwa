@@ -147,7 +147,7 @@ public class Authenticator implements SOAPHandler<SOAPMessageContext> {
         String nonce = Utils.XML.getNodeValue(nonceNode);
         long dateDiff = (currentTime.getTime() - clientDate.getTime()) / 1000; // Since it is milliseconds
         if (dateDiff < -10 || dateDiff > maxNonceAge) {
-            Utils.lg.error(String.format("Request to [%s],  has old date: theirs [%s], ours [%s]: denied", uri,
+            Utils.lg.severe(String.format("Request to [%s],  has old date: theirs [%s], ours [%s]: denied", uri,
                     created, currentTime));
             return null;
         }
@@ -191,7 +191,7 @@ public class Authenticator implements SOAPHandler<SOAPMessageContext> {
 
         String scheme = req.getScheme();
         if (scheme == null || !scheme.equalsIgnoreCase("https")) {
-            Utils.lg.error(String.format("Request to [%s] without HTTPS, denied", uri));
+            Utils.lg.severe(String.format("Request to [%s] without HTTPS, denied", uri));
             return false;
         }
 
@@ -223,7 +223,7 @@ public class Authenticator implements SOAPHandler<SOAPMessageContext> {
             }
             NodeList nl = h.getElementsByTagNameNS("*", "Security");
             if (nl == null || nl.getLength() == 0) {
-                Utils.lg.error(String.format("Request to [%s] denied: No security header", uri));
+                Utils.lg.severe(String.format("Request to [%s] denied: No security header", uri));
                 return false;
             }
             Node secNode = nl.item(0);
@@ -241,7 +241,7 @@ public class Authenticator implements SOAPHandler<SOAPMessageContext> {
                 Node sigNode = Utils.XML.getNode("Signature", secNode.getChildNodes());
                 // Process the signature, if any
                 if (sigNode == null) {
-                    Utils.lg.error(String.format("Request to [%s] denied: No signature node", uri));
+                    Utils.lg.severe(String.format("Request to [%s] denied: No signature node", uri));
                     return false;
                 }
                 try {
@@ -287,9 +287,9 @@ public class Authenticator implements SOAPHandler<SOAPMessageContext> {
                     boolean cv = signature.validate(validateContext);
                     // Check core validation status.
                     if (cv == false) {
-                        Utils.lg.error("Signature failed core validation");
+                        Utils.lg.severe("Signature failed core validation");
                         boolean sv = signature.getSignatureValue().validate(validateContext);
-                        Utils.lg.error("signature validation status: " + sv);
+                        Utils.lg.severe("signature validation status: " + sv);
                         //if (sv == false) {
                         // Check the validation status of each Reference.
                         Iterator i = signature.getSignedInfo().getReferences().iterator();
@@ -297,7 +297,7 @@ public class Authenticator implements SOAPHandler<SOAPMessageContext> {
                             Reference r = (Reference) i.next();
                             boolean refValid = r.validate(validateContext);
                             String xuri = r.getURI();
-                            Utils.lg.error("ref [" + xuri + "] validity status: " + refValid);
+                            Utils.lg.severe("ref [" + xuri + "] validity status: " + refValid);
                         }
                         return false;
                     } else {
@@ -310,7 +310,7 @@ public class Authenticator implements SOAPHandler<SOAPMessageContext> {
                         entity = RpaEntity.getEntityByWSKeyAlias(em, alias, eType);
                     }
                 } catch (Exception ex) {
-                    Utils.lg.error("Failed to validate auth: " + ex.getMessage());
+                    Utils.lg.severe("Failed to validate auth: " + ex.getMessage());
                 }
             }
 
@@ -334,7 +334,7 @@ public class Authenticator implements SOAPHandler<SOAPMessageContext> {
                 InetSocketAddress remoteAddress = http.getRemoteAddress();
                 String ip = remoteAddress.getAddress().toString();
                 if (!entity.isAllowedIP(ip)) {
-                    Utils.lg.error("Denied SOAP Request from  [" + entity.toString() + "] with IP [" + ip + "], " +
+                    Utils.lg.severe("Denied SOAP Request from  [" + entity.toString() + "] with IP [" + ip + "], " +
                             "denied by allow/deny settings!");
                     StatsCollector.recordOtherEntityEvent(entity.getOid(), StatsCollector.EventType.IPError);
                     return false; // Do not proceed
@@ -355,7 +355,7 @@ public class Authenticator implements SOAPHandler<SOAPMessageContext> {
             }
             return true;
         } catch (Exception ex) {
-            Utils.lg.error(String.format("Request to [%s] denied: %s", uri, ex));
+            Utils.lg.severe(String.format("Request to [%s] denied: %s", uri, ex));
             return false;
         }
 
@@ -449,7 +449,7 @@ public class Authenticator implements SOAPHandler<SOAPMessageContext> {
                         return () -> key;
                     }
                 } catch (Exception ex) {
-                    Utils.lg.error("Failed to find key: " + ex);
+                    Utils.lg.severe("Failed to find key: " + ex);
                 }
             }
             throw new KeySelectorException("No key found!");

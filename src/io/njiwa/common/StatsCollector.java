@@ -279,7 +279,7 @@ public class StatsCollector {
             try {
                 ctr.tick();
             } catch (Exception ex) {
-                Utils.lg.error("Error recording event: " + ex.getMessage());
+                Utils.lg.severe("Error recording event: " + ex.getMessage());
             }
         }
 
@@ -332,7 +332,7 @@ public class StatsCollector {
             try {
                 ctr.tick();
             } catch (Exception ex) {
-                Utils.lg.error("Error recording event: " + ex.getMessage());
+                Utils.lg.severe("Error recording event: " + ex.getMessage());
             }
         }
     }

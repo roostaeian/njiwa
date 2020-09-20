@@ -338,7 +338,7 @@ public class RpaEntity {
                 }
                 return Response.ok(io.njiwa.common.rest.Utils.buildJSON("OK")).build();
             } catch (Exception ex) {
-                Utils.lg.error("Error creating RPA entity: ", ex);
+                Utils.lg.severe("Error creating RPA entity: " + ex.getMessage());
                 // ex.printStackTrace();
                 return Response.ok(io.njiwa.common.rest.Utils.buildJSON("Error: " + ex.getLocalizedMessage())).build();
             }

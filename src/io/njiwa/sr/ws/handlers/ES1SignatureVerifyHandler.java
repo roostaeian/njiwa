@@ -131,15 +131,15 @@ public class ES1SignatureVerifyHandler implements SOAPHandler<SOAPMessageContext
 
 // Check core validation status.
             if (cv == false) {
-                Utils.lg.error("Signature failed core validation");
+                Utils.lg.severe("Signature failed core validation");
                 boolean sv = signature.getSignatureValue().validate(validateContext);
-                Utils.lg.error("signature validation status: " + sv);
+                Utils.lg.severe("signature validation status: " + sv);
                 //if (sv == false) {
                 // Check the validation status of each Reference.
                 Iterator i = signature.getSignedInfo().getReferences().iterator();
                 for (int j = 0; i.hasNext(); j++) {
                     boolean refValid = ((Reference) i.next()).validate(validateContext);
-                    Utils.lg.error("ref[" + j + "] validity status: " + refValid);
+                    Utils.lg.severe("ref[" + j + "] validity status: " + refValid);
                 }
                 // }
             } else {
@@ -148,7 +148,7 @@ public class ES1SignatureVerifyHandler implements SOAPHandler<SOAPMessageContext
                 context.put(SIGNED_INFO_KEY, Utils.XML.getNodeString(signedInfo));
                 context.setScope(SIGNED_INFO_KEY, MessageContext.Scope.APPLICATION);
                 context.setScope(SIGNATURE_KEY, MessageContext.Scope.APPLICATION);
-                Utils.lg.error("Signature passed core validation");
+                Utils.lg.severe("Signature passed core validation");
 // XXX Should we record the EUM ID? Should we ensure the certificate belongs to the given EUM (not important)
                 return true;
             }

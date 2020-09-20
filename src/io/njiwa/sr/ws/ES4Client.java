@@ -57,7 +57,7 @@ public class ES4Client {
                     status);
         } catch (WSUtils.SuppressClientWSRequest s) {
         } catch (Exception ex) {
-            Utils.lg.error("Failed to issue async prepare SMSR Change Response call: " + ex.getMessage());
+            Utils.lg.severe("Failed to issue async prepare SMSR Change Response call: " + ex.getMessage());
         }
     }
 
@@ -87,7 +87,7 @@ public class ES4Client {
                     status);
         } catch (WSUtils.SuppressClientWSRequest s) {
         } catch (Exception ex) {
-            Utils.lg.error("Failed to issue  SMSR Change Response call: " + ex.getMessage());
+            Utils.lg.severe("Failed to issue  SMSR Change Response call: " + ex.getMessage());
         }
     }
 
@@ -114,7 +114,7 @@ public class ES4Client {
                     Utils.gregorianCalendarFromDate(endDate));
         } catch (WSUtils.SuppressClientWSRequest s) {
         } catch (Exception ex) {
-            Utils.lg.error("Failed to issue async SMSR Change notification call: " + ex.getMessage());
+            Utils.lg.severe("Failed to issue async SMSR Change notification call: " + ex.getMessage());
         }
     }
 

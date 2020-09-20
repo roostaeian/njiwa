@@ -169,7 +169,7 @@ public class RamHttp extends Transport {
             int port = ServerSettings.getRamhttpAdminPort();
             Utils.lg.info(String.format("SCWS Admin startup complete: IP [%s], port = %s", ipAddr, port));
         } catch (Exception ex) {
-            Utils.lg.error(String.format("RAM HTTP Admin startup failed: %s", ex));
+            Utils.lg.severe(String.format("RAM HTTP Admin startup failed: %s", ex));
         }
     }
 
@@ -347,7 +347,7 @@ public class RamHttp extends Transport {
             em.flush(); // Force the changes out. Right?
         } catch (Exception ex) {
             resp = new Utils.Http.Response(Response.Status.NO_CONTENT, null, null, null, closeConn);
-            Utils.lg.error(String.format("RAMHTTP.admin.endpoint: Received request to fetch transaction [%s] but " +
+            Utils.lg.severe(String.format("RAMHTTP.admin.endpoint: Received request to fetch transaction [%s] but " +
                             "failed to find it: %s",
                     bt == null ? -1L : bt.getId(), ex));
         }
@@ -440,7 +440,7 @@ public class RamHttp extends Transport {
                         null, null, closeConn);
         } catch (Exception ex) {
             resp = new Utils.Http.Response(Response.Status.NO_CONTENT, null, null, null, closeConn);
-            Utils.lg.error(String.format("RamHTTP.admin.endpoint: Received response to a transaction [%s] but had " +
+            Utils.lg.severe(String.format("RamHTTP.admin.endpoint: Received response to a transaction [%s] but had " +
                     "problems processing it: %s", tid, ex));
         }
         return resp;
@@ -821,7 +821,7 @@ public class RamHttp extends Transport {
                     socket.close(); // Close it
                     // s.close(); // Do we need this?
                 } catch (Exception ex) {
-                    Utils.lg.error(String.format("Failed to run PSK-TLS http session: %s", ex));
+                    Utils.lg.severe(String.format("Failed to run PSK-TLS http session: %s", ex));
                 }
             }
 
@@ -955,7 +955,7 @@ public class RamHttp extends Transport {
                 if (cause != null)
                     msg += ": " + cause.toString();
                 if (alertLevel == AlertLevel.fatal)
-                    Utils.lg.error(msg);
+                    Utils.lg.severe(msg);
                 else
                     Utils.lg.info(msg);
             }
@@ -965,7 +965,7 @@ public class RamHttp extends Transport {
                 String msg = "TLS-PSK server received alert: " + AlertLevel.getText(alertLevel) + ", "
                         + AlertDescription.getText(alertDescription);
                 if (alertLevel == AlertLevel.fatal)
-                    Utils.lg.error(msg);
+                    Utils.lg.severe(msg);
                 else
                     Utils.lg.info(msg);
             }
@@ -1009,7 +1009,7 @@ public class RamHttp extends Transport {
                 try {
                     pushCmd = makeRAMHttpPushCommand(sim);
                 } catch (Exception ex) {
-                    Utils.lg.error(String.format("RAM.getContext(%s, tid=%s): Failed to make Push command: %s", sim,
+                    Utils.lg.severe(String.format("RAM.getContext(%s, tid=%s): Failed to make Push command: %s", sim,
                             tid, ex));
                 }
             } else

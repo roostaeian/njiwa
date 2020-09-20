@@ -277,11 +277,11 @@ public class Sms extends Transport {
             res = (code / 100 == 2); // Success code.
 
             if (!res)
-                Utils.lg.error(String.format("Failed to send sms to [%s]: http code [%d: %s]",
+                Utils.lg.severe(String.format("Failed to send sms to [%s]: http code [%d: %s]",
                         msidn, code, out.m));
         } catch (Exception ex) {
             res = false;
-            Utils.lg.error(String.format("Failed to send sms to [%s]: %s", msidn, ex));
+            Utils.lg.severe(String.format("Failed to send sms to [%s]: %s", msidn, ex));
         }
 
         return res;
@@ -322,7 +322,7 @@ public class Sms extends Transport {
         try {
             startVsmsc();
         } catch (Exception ex) {
-            Utils.lg.error(String.format("Error starting SMS transport: %s", ex));
+            Utils.lg.severe(String.format("Error starting SMS transport: %s", ex));
         }
     }
 
@@ -332,7 +332,7 @@ public class Sms extends Transport {
         try {
             stopVsmsc();
         } catch (Exception ex) {
-            Utils.lg.error(String.format("Error stopping SMS transport: %s", ex));
+            Utils.lg.severe(String.format("Error stopping SMS transport: %s", ex));
         }
     }
 
@@ -665,7 +665,7 @@ public class Sms extends Transport {
                         // Device wishes to register...
                         dev = makeDev(from, socket);
                         if (dev == null)
-                            Utils.lg.error(String.format("Vsmsc: Failed to create virtual device for [%s]",
+                            Utils.lg.severe(String.format("Vsmsc: Failed to create virtual device for [%s]",
                                     from != null ? from : "n/a"));
                         else {
                             reply = dev.msisdn;
@@ -679,7 +679,7 @@ public class Sms extends Transport {
                         else
                             dev = null;
                         if (dev == null)
-                            Utils.lg.error(String.format("Vsmsc: Failed to de-register device for [%s]",
+                            Utils.lg.severe(String.format("Vsmsc: Failed to de-register device for [%s]",
                                     from != null ? from : "n/a"));
                         else
                             Utils.lg.info(String.format("Vsmsc: Device [%s] de-registered",
@@ -693,7 +693,7 @@ public class Sms extends Transport {
                         dev = devList.get(from);
                         String tpdu = xl[i++];
                         if (dev == null || tpdu == null || tpdu.length() == 0) {
-                            Utils.lg.error(String.format("Vsms: Received 'send' from unregistered device [%s]", from != null ? from : "n/a"));
+                            Utils.lg.severe(String.format("Vsms: Received 'send' from unregistered device [%s]", from != null ? from : "n/a"));
                             continue;
                         }
 
@@ -705,7 +705,7 @@ public class Sms extends Transport {
                         int ch = xtpdu[0];
 
                         if ((ch & 0x03) != 0x01) {
-                            Utils.lg.error(String.format("Vsms: Received non-SUBMIT-SM  from device [%s]",
+                            Utils.lg.severe(String.format("Vsms: Received non-SUBMIT-SM  from device [%s]",
                                     from));
                             continue;
                         }
@@ -832,7 +832,7 @@ public class Sms extends Transport {
                     if (socket != null)
                         socket.close(); // Only works if above didn't capture it
                 } catch (Exception ex) {
-                    Utils.lg.error(String.format("Error in vsmsc: %s", ex));
+                    Utils.lg.severe(String.format("Error in vsmsc: %s", ex));
                     if (out != null)
                         try {
                             out.write("Error".getBytes("UTF-8"));

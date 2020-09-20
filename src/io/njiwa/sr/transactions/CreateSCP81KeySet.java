@@ -146,10 +146,10 @@ public class CreateSCP81KeySet extends SmSrBaseTransaction {
                 l.add(ks);
                 // Added new key set
             } catch (Exception ex) {
-                Utils.lg.error(String.format("CreateSCP81Keys: Failed to create additional keys: %s ", ex));
+                Utils.lg.severe(String.format("CreateSCP81Keys: Failed to create additional keys: %s ", ex));
             }
         else
-            Utils.lg.error(String.format("CreateSCP81Keys: Failed to create additional keys. "));
+            Utils.lg.severe(String.format("CreateSCP81Keys: Failed to create additional keys. "));
 
     }
 

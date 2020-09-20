@@ -115,7 +115,7 @@ public class AuditEISTransaction extends SmSrBaseTransaction {
                     eis.setLastAuditDate(Calendar.getInstance().getTime());
                 }
             } catch (Exception ex) {
-                Utils.lg.error(String.format("Failed to process response to auditeis [tr:%s]: %s",
+                Utils.lg.severe(String.format("Failed to process response to auditeis [tr:%s]: %s",
                         t,
                         ex));
             }

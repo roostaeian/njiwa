@@ -80,7 +80,7 @@ public class ReportsInputColumnsData {
                     op = "=";
                 return new Utils.Pair<>(op, val);
             } catch (Exception ex) {
-                Utils.lg.error("Failed to create search clause for column [" + data + "]: " + ex.getMessage());
+                Utils.lg.severe("Failed to create search clause for column [" + data + "]: " + ex.getMessage());
             }
             return null;
         }

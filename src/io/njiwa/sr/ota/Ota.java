@@ -700,7 +700,7 @@ public class Ota {
             Utils.lg.info(String.format("Received and processed notification [%s]", msg));
             return tr;
         } catch (Exception ex) {
-            Utils.lg.error(String.format("Failed to process notification [%s]: %s", Utils.HEX.b2H(data), ex));
+            Utils.lg.severe(String.format("Failed to process notification [%s]: %s", Utils.HEX.b2H(data), ex));
         }
 
         return null; // Return nothing.
@@ -790,7 +790,7 @@ public class Ota {
 
             // Now map the msg status to a transport and let that transport tell us what to do.
         } else
-            Utils.lg.error(String.format("Failed to find OTA request for [%s], request ID was [%s]", msisdn, reqId));
+            Utils.lg.severe(String.format("Failed to find OTA request for [%s], request ID was [%s]", msisdn, reqId));
 
 
         return content;

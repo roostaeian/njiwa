@@ -365,7 +365,7 @@ public class BipCatTP extends Transport {
                         SmSrTransactionsPeriodicProcessor.sendTrans(em, bt);
 
                     } catch (Exception ex) {
-                        Utils.lg.error(String.format("BIP: Failed to push out trans [%s] on [%s]: %s", tid, msisdn, ex));
+                        Utils.lg.severe(String.format("BIP: Failed to push out trans [%s] on [%s]: %s", tid, msisdn, ex));
                     }
                 } catch (Exception ex) {
                     connection.requestClosure(); // Close it.
@@ -437,7 +437,7 @@ public class BipCatTP extends Transport {
             });
 
         } catch (Exception ex) {
-            Utils.lg.error(String.format("BIP: Failed to process received %d bytes from %s: %s", data.length, msisdn == null ? "n/a" : msisdn, ex));
+            Utils.lg.severe(String.format("BIP: Failed to process received %d bytes from %s: %s", data.length, msisdn == null ? "n/a" : msisdn, ex));
         }
     }
 
@@ -505,7 +505,7 @@ public class BipCatTP extends Transport {
             // Start the cleanup stuff
             CatTP.start(); // Start the lower layer.
         } catch (Exception ex) {
-            Utils.lg.error(String.format("Error starting BIP: %s", ex));
+            Utils.lg.severe(String.format("Error starting BIP: %s", ex));
             ex.printStackTrace();
             return;
         }
@@ -536,7 +536,7 @@ public class BipCatTP extends Transport {
             CatTP.stop();
             cleanupProcessor.shutdownNow();
         } catch (Exception ex) {
-            //  Utils.lg.error(String.format("Error stopping BIP: %s", ex));
+            //  Utils.lg.severe(String.format("Error stopping BIP: %s", ex));
         }
         try {
             notificationsProcessor.shutdown();
@@ -925,7 +925,7 @@ public class BipCatTP extends Transport {
                                         new byte[0]); // Empty IDent as per Sec 9.2.2 of ETSI 102 226
                                 // evt.connection.ident);
                             } else
-                                Utils.lg.error(String.format("CAT_TP: Discarding PDU [%s] received in LISTEN State", pkt));
+                                Utils.lg.severe(String.format("CAT_TP: Discarding PDU [%s] received in LISTEN State", pkt));
 
                             if (evt.connection != null) {
                                 // Start keep-alive
@@ -1084,7 +1084,7 @@ public class BipCatTP extends Transport {
                                 try {
                                     return conn_reset_f.action(evt);
                                 } catch (Exception ex) {
-                                    Utils.lg.error(String.format("CAT_TP Engine [%s]: Cancel retry failed on %s: %s", evt.connection, revt.pdu, ex));
+                                    Utils.lg.severe(String.format("CAT_TP Engine [%s]: Cancel retry failed on %s: %s", evt.connection, revt.pdu, ex));
                                 }
                             else // Retry
                                 evt.connection.sendWithRetry(revt.pdu, revt.retries, revt.timeSent);
@@ -1583,7 +1583,7 @@ public class BipCatTP extends Transport {
                             evt.connection.currentState = new_state;
                         return; // Done
                     } catch (Exception ex) {
-                        Utils.lg.error(String.format("CAT_TP Exception in processing event [%s]: %s", evt, ex));
+                        Utils.lg.severe(String.format("CAT_TP Exception in processing event [%s]: %s", evt, ex));
                     }
             Utils.lg.info(String.format("Cat_TP discarding unexpected event [%s], on connection [%s] ", evt, evt.connection != null ? evt.connection : "n/a"));
         }
@@ -1621,7 +1621,7 @@ public class BipCatTP extends Transport {
                                 }
                             });
                         } catch (Exception ex) {
-                            Utils.lg.error(String.format("Event dispatcher loop exception: %s", ex));
+                            Utils.lg.severe(String.format("Event dispatcher loop exception: %s", ex));
                         }
                     Utils.lg.info("CAT_TP Event dispatcher stopped...");
                 }
@@ -1656,7 +1656,7 @@ public class BipCatTP extends Transport {
                         RecvPduEvent pevt = new RecvPduEvent(pkt.getAddress(), pkt.getPort(), pdu, conn);
                         eventsList.add(pevt); // Dump it on the queue.
                     } catch (Exception ex) {
-                        Utils.lg.error(String.format("CAT_TP Recv error: %s", ex));
+                        Utils.lg.severe(String.format("CAT_TP Recv error: %s", ex));
                     }
                 Utils.lg.info("CAT_TP Socket server stopped.");
             });
@@ -2042,11 +2042,11 @@ public class BipCatTP extends Transport {
                             xout = x.l;
                         } else
                             xout = null;
-                        Utils.lg.error(String.format("CAT_TP [%s]: Got  outgoing data [size=%s] ", this, dsize));
+                        Utils.lg.severe(String.format("CAT_TP [%s]: Got  outgoing data [size=%s] ", this, dsize));
                         return new Utils.Pair<>(out, xout);
 
                     } catch (Exception ex) {
-                        Utils.lg.error(String.format("Hive off outgoing [%s, size=%s], failed: %s ", this, max_size, ex));
+                        Utils.lg.severe(String.format("Hive off outgoing [%s, size=%s], failed: %s ", this, max_size, ex));
                     }
                 }
                 return null;
@@ -2093,7 +2093,7 @@ public class BipCatTP extends Transport {
                             if (hasData && finalPduInSDU)
                                 notifyEngine(CatTPCodes.CAT_TP_SEND_OK, this, tid); // Notify upper level that we sent ok.
                         } catch (Exception ex) {
-                            Utils.lg.error(String.format("Error sending packet [%s] on [%s]: %s", pkt, this));
+                            Utils.lg.severe(String.format("Error sending packet [%s] on [%s]: %s", pkt, this));
                         }
                         pkt = null;
                     }

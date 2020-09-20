@@ -118,7 +118,7 @@ public class CreateISDPTransaction extends SmSrBaseTransaction {
             }
             em.flush();
         } catch (Exception ex) {
-            Utils.lg.error(String.format("Failed to process response to CreatedISP [eid:%d, profile:%d]: %s",
+            Utils.lg.severe(String.format("Failed to process response to CreatedISP [eid:%d, profile:%d]: %s",
                     eidId,
                     profileID, ex));
         }
@@ -153,7 +153,7 @@ public class CreateISDPTransaction extends SmSrBaseTransaction {
 
         } catch (WSUtils.SuppressClientWSRequest wsa) {
         } catch (Exception ex) {
-            Utils.lg.error("Failed to issue async createisdp.response call: " + ex.getMessage());
+            Utils.lg.severe("Failed to issue async createisdp.response call: " + ex.getMessage());
         }
     }
 

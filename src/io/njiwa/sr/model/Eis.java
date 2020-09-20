@@ -300,7 +300,7 @@ public class Eis {
                     p.setState(ProfileInfo.State.Deleted);
                     em.remove(p); // Deleted
                 } else
-                    Utils.lg.error(String.format("Failed to find profile with AID [%s] on euicc [%s] will deleting " +
+                    Utils.lg.severe(String.format("Failed to find profile with AID [%s] on euicc [%s] will deleting " +
                                     "ISD-P records",
                             aid, eis));
             }
@@ -903,7 +903,7 @@ public class Eis {
                 return t;
             }
         } catch (Exception ex) {
-            Utils.lg.error(String.format("Failed to process notification: %s", ex));
+            Utils.lg.severe(String.format("Failed to process notification: %s", ex));
             return null;
         }
         return null;

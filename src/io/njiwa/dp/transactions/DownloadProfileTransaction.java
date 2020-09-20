@@ -356,7 +356,7 @@ public class DownloadProfileTransaction extends BaseTransactionType implements S
                                 getReplyToAddress(em, "ES2"),
                                 originallyTo, requestingEntityId,response, relatesTO, startDate, iccid);
                 } catch (Exception ex) {
-                    Utils.lg.error("Error handling downloadProfile response: " + ex.getMessage());
+                    Utils.lg.severe("Error handling downloadProfile response: " + ex.getMessage());
                 }
                 break;
             case ENABLEPROFILE:
@@ -447,7 +447,7 @@ public class DownloadProfileTransaction extends BaseTransactionType implements S
         } catch (WSUtils.SuppressClientWSRequest wsa) {
             return false;
         } catch (Exception ex) {
-            Utils.lg.error("Failed to issue sendData  call: " + ex.getMessage
+            Utils.lg.severe("Failed to issue sendData  call: " + ex.getMessage
                     ());
         }
         return false;
@@ -487,7 +487,7 @@ public class DownloadProfileTransaction extends BaseTransactionType implements S
                 } catch (WSUtils.SuppressClientWSRequest wsa) {
                     return true;
                 } catch (Exception ex) {
-                    Utils.lg.error("Failed to issue async createisdp call: " + ex.getMessage());
+                    Utils.lg.severe("Failed to issue async createisdp call: " + ex.getMessage());
                 }
                 break;
             case ESTABLISHKEYSET_SEND_CERT_DP_ECDSA:
@@ -630,7 +630,7 @@ public class DownloadProfileTransaction extends BaseTransactionType implements S
                         return true;
                     } catch (WSUtils.SuppressClientWSRequest wsa) {
                     } catch (Exception ex) {
-                        Utils.lg.error("Failed to issue async enableisdp call: " + ex.getMessage());
+                        Utils.lg.severe("Failed to issue async enableisdp call: " + ex.getMessage());
                         return false;
                     }
                     return true;

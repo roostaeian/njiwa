@@ -87,7 +87,7 @@ public class DeleteProfileTransaction extends SmSrBaseTransaction implements Pro
             AuditTrail.addAuditTrail(em, tid, AuditTrail.OperationType.DeleteProfile, status, aid, iccid, null, null);
             CommonImpl.sendDeleteProfileResponse(em,this,response);
         } catch (Exception ex) {
-            Utils.lg.error(String.format("Failed to process response to deleteISDP [eid:%d, profile:%d]: %s",
+            Utils.lg.severe(String.format("Failed to process response to deleteISDP [eid:%d, profile:%d]: %s",
                     eidId,
                     profileID, ex));
         }

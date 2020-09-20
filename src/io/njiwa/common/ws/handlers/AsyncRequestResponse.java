@@ -108,7 +108,7 @@ public class AsyncRequestResponse implements SOAPHandler<SOAPMessageContext> {
             final AsyncWebServiceResponses r = new AsyncWebServiceResponses(rpa, wsAction, rNode, url.toLowerCase());
             em.persist(r);
         } catch (Exception ex) {
-            Utils.lg.error(String.format("Error re-writing async response/saving to DB for [%s]: %s", wsAction, ex));
+            Utils.lg.severe(String.format("Error re-writing async response/saving to DB for [%s]: %s", wsAction, ex));
             return false;
         }
 

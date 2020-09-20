@@ -88,7 +88,7 @@ public class InitialiserServlet extends HttpServlet {
 
            // outputKeyCerts();
         } catch (Exception ex) {
-            Utils.lg.error("Failed to initialise key store: " + ex.getMessage());
+            Utils.lg.severe("Failed to initialise key store: " + ex.getMessage());
         }
 
     }

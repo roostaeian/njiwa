@@ -89,7 +89,7 @@ public class GenericPeriodicProcessor<T> {
         try {
             conn = Utils.redisConnect(); // Get a conneciton to redis for dealing with dups
         } catch (Exception ex) {
-            Utils.lg.error(String.format("Processor [%s]: Redis call [putkey] failed: %s", name, ex));
+            Utils.lg.severe(String.format("Processor [%s]: Redis call [putkey] failed: %s", name, ex));
         }
     }
 
@@ -106,10 +106,10 @@ public class GenericPeriodicProcessor<T> {
             if (res != null && res.equalsIgnoreCase("ok"))
                 return true;
         } catch (redis.clients.jedis.exceptions.JedisConnectionException a) {
-            Utils.lg.error(String.format("Processor [%s]: Redis call [putkey] failed, connection down. Will try to reconnect", name));
+            Utils.lg.severe(String.format("Processor [%s]: Redis call [putkey] failed, connection down. Will try to reconnect", name));
             reconnectRedis();
         } catch (Exception ex) {
-            Utils.lg.error(String.format("Processor [%s]: Redis call [putkey] failed: %s", name, ex));
+            Utils.lg.severe(String.format("Processor [%s]: Redis call [putkey] failed: %s", name, ex));
 
         }
         return false;
@@ -124,10 +124,10 @@ public class GenericPeriodicProcessor<T> {
         try {
             conn.del(key);
         } catch (redis.clients.jedis.exceptions.JedisConnectionException a) {
-            Utils.lg.error(String.format("Processor [%s]: Redis call [delkey] failed, connection down. Will try to reconnect", name));
+            Utils.lg.severe(String.format("Processor [%s]: Redis call [delkey] failed, connection down. Will try to reconnect", name));
             reconnectRedis();
         } catch (Exception ex) {
-            Utils.lg.error(String.format("Processor [%s]: Redis call [delkey] failed: %s", name, ex));
+            Utils.lg.severe(String.format("Processor [%s]: Redis call [delkey] failed: %s", name, ex));
             reconnectRedis();
         }
     }
@@ -226,7 +226,7 @@ public class GenericPeriodicProcessor<T> {
                                     Object res = processTask(em, obj);
                                     afterTask(em, obj, res);
                                 } catch (Exception ex) {
-                                    Utils.lg.warn(String.format("Error during %s task [#%s] processing: [%s] ", name,
+                                    Utils.lg.warning(String.format("Error during %s task [#%s] processing: [%s] ", name,
                                                                                     objId,
                                                                                     ex));
                                     throw ex;
@@ -249,7 +249,7 @@ public class GenericPeriodicProcessor<T> {
                         }
                     }
                 } catch (Exception ex) {
-                    Utils.lg.error(String.format("Error running task [%s]: %s", name, ex));
+                    Utils.lg.severe(String.format("Error running task [%s]: %s", name, ex));
                     ex.printStackTrace();
                 }
             return null;
@@ -263,7 +263,7 @@ public class GenericPeriodicProcessor<T> {
                     Utils.lg.info(String.format("Finished single Queue run [%s]", name));
                     //  Thread.sleep((long) (Properties.getQueueRunInterval() * 1000));
                 } catch (Exception ex) {
-                    Utils.lg.error(String.format("Failed queue run: %s", ex));
+                    Utils.lg.severe(String.format("Failed queue run: %s", ex));
                 }
         }
 

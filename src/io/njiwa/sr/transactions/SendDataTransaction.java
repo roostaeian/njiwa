@@ -65,7 +65,7 @@ public class SendDataTransaction extends SmSrBaseTransaction {
                             Utils.HEX.b2H(response) : null);
         } catch (WSUtils.SuppressClientWSRequest wsa) {
         } catch (Exception ex) {
-            Utils.lg.error("Async sendDataResponse failed: " + ex.getMessage());
+            Utils.lg.severe("Async sendDataResponse failed: " + ex.getMessage());
         }
 
     }

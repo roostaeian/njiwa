@@ -222,7 +222,7 @@ public class NotificationMessage {
                 Utils.lg.info(String.format("Processed notification confirmation for " +
                         "notification transaction [%s]", tid));
             } catch (Exception ex) {
-                Utils.lg.error(String.format("Error processing notification confirmation for " +
+                Utils.lg.severe(String.format("Error processing notification confirmation for " +
                         "notification transaction [%s]: %s", tid, ex));
             }
         }

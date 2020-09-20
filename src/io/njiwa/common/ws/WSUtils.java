@@ -353,7 +353,7 @@ public class WSUtils {
                     em.flush();
 
                 } catch (Exception ex) {
-                    Utils.lg.error("Failed to process/save async client request: " + ex.getMessage());
+                    Utils.lg.severe("Failed to process/save async client request: " + ex.getMessage());
                     throw new SuppressClientWSRequest(); // Prevent further processing
                 } finally {
                     throw new SuppressClientWSRequest();
@@ -366,7 +366,7 @@ public class WSUtils {
                 else
                     addCertAuth(env);
             } catch (Exception ex) {
-                Utils.lg.error("Error adding auth header to outgoing request: " + ex);
+                Utils.lg.severe("Error adding auth header to outgoing request: " + ex);
                 ex.printStackTrace();
             }
             return true;

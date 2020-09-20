@@ -193,7 +193,7 @@ public class ReceiveEISHandoverTransaction extends SmSrBaseTransaction {
                             (), DEFAULT_VALIDITY_PERIOD, false, trObj);
                     em.persist(xtr);
                 } catch (Exception ex) {
-                    Utils.lg.error(String.format("Failed to start transaction for creating EIS keys: %s", ex));
+                    Utils.lg.severe(String.format("Failed to start transaction for creating EIS keys: %s", ex));
                 }
                 RpaEntity smsr = RpaEntity.getByOID(em, oldSmsR, RpaEntity.Type.SMSR);
                 ES7Impl.ES7Client.sendHandoverEUICCResponse(em, status, new WsaEndPointReference(smsr,

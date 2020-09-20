@@ -202,10 +202,10 @@ public class SmSrTransactionsPeriodicProcessor extends GenericPeriodicProcessor<
 
                 em.flush();
             } catch (Exception ex) {
-                Utils.lg.error(String.format("Error sending trans %d to [%s]: %s", t.getId(), t.getMsisdn(), ex));
+                Utils.lg.severe(String.format("Error sending trans %d to [%s]: %s", t.getId(), t.getMsisdn(), ex));
             }
         } catch (Exception ex) {
-            Utils.lg.error(String.format("Error sending trans %d to [%s]: %s", t.getId(), t.getMsisdn(), ex));
+            Utils.lg.severe(String.format("Error sending trans %d to [%s]: %s", t.getId(), t.getMsisdn(), ex));
         }
         return null;
     }

@@ -166,7 +166,7 @@ public class ES7Impl {
                         status.statusCodeData.subjectCode = "8.1.1";
                         status.statusCodeData.reasonCode = "1.1";
                         status.statusCodeData.message = msg;
-                        Utils.lg.error(String.format("Error in ES4.handover: %s", ex));
+                        Utils.lg.severe(String.format("Error in ES4.handover: %s", ex));
                         return null;
                     }
                     return tr.getId();
@@ -708,7 +708,7 @@ public class ES7Impl {
 
             } catch (WSUtils.SuppressClientWSRequest s) {
             } catch (Exception ex) {
-                Utils.lg.error("Failed to issue async SMSR Authenticate SMSR call: " + ex.getMessage());
+                Utils.lg.severe("Failed to issue async SMSR Authenticate SMSR call: " + ex.getMessage());
                 return new BaseResponseType(Calendar.getInstance().getTime(), Calendar.getInstance().getTime(), 0,
                         new BaseResponseType.ExecutionStatus(BaseResponseType.ExecutionStatus.Status.Failed,
                                 new BaseResponseType.ExecutionStatus.StatusCode("", "", "", ex.getMessage())));
@@ -746,7 +746,7 @@ public class ES7Impl {
 
             } catch (WSUtils.SuppressClientWSRequest s) {
             } catch (Exception ex) {
-                Utils.lg.error("Failed to issue async SMSR Authenticate SMSR call: " + ex.getMessage());
+                Utils.lg.severe("Failed to issue async SMSR Authenticate SMSR call: " + ex.getMessage());
                 return new BaseResponseType(Calendar.getInstance().getTime(), Calendar.getInstance().getTime(), 0,
                         new BaseResponseType.ExecutionStatus(BaseResponseType.ExecutionStatus.Status.Failed,
                                 new BaseResponseType.ExecutionStatus.StatusCode("", "", "", ex.getMessage())));
@@ -779,7 +779,7 @@ public class ES7Impl {
                         status);
             } catch (WSUtils.SuppressClientWSRequest s) {
             } catch (Exception ex) {
-                Utils.lg.error("Failed to issue async SMSR handleEUICC Response: " + ex.getMessage());
+                Utils.lg.severe("Failed to issue async SMSR handleEUICC Response: " + ex.getMessage());
             }
         }
 
@@ -801,7 +801,7 @@ public class ES7Impl {
             } catch (WSUtils.SuppressClientWSRequest s) {
                 return true;
             } catch (Exception ex) {
-                Utils.lg.error("Failed to issue async SMSR handleEUICC Response: " + ex.getMessage());
+                Utils.lg.severe("Failed to issue async SMSR handleEUICC Response: " + ex.getMessage());
             }
             return false;
         }
@@ -835,7 +835,7 @@ public class ES7Impl {
                         status, randomChallenge != null ? Utils.HEX.b2H(randomChallenge) : null);
             } catch (WSUtils.SuppressClientWSRequest s) {
             } catch (Exception ex) {
-                Utils.lg.error("Failed to issue async SMSR authenticateSMSR Response: " + ex.getMessage());
+                Utils.lg.severe("Failed to issue async SMSR authenticateSMSR Response: " + ex.getMessage());
             }
         }
 
@@ -867,7 +867,7 @@ public class ES7Impl {
                         receipt != null ? Utils.HEX.b2H(receipt) : null);
             } catch (WSUtils.SuppressClientWSRequest s) {
             } catch (Exception ex) {
-                Utils.lg.error("Failed to issue async SMSR createAdditionalKeySet Response: " + ex.getMessage());
+                Utils.lg.severe("Failed to issue async SMSR createAdditionalKeySet Response: " + ex.getMessage());
             }
         }
 

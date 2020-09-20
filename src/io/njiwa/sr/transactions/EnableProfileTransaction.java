@@ -87,7 +87,7 @@ public class EnableProfileTransaction extends SmSrBaseTransaction implements Pro
                         new BaseResponseType.ExecutionStatus.StatusCode("8.4", "", "4.2", ""));
             AuditTrail.addAuditTrail(em, tid, AuditTrail.OperationType.EnableProfile, status, aid, iccid, null, null);
         } catch (Exception ex) {
-            Utils.lg.error(String.format("Failed to process response to enableProfile [eid:%d, profile:%d]: %s",
+            Utils.lg.severe(String.format("Failed to process response to enableProfile [eid:%d, profile:%d]: %s",
                     eidId,
                     profileID, ex));
         }
@@ -127,7 +127,7 @@ public class EnableProfileTransaction extends SmSrBaseTransaction implements Pro
 
             }
         } catch (Exception ex) {
-            Utils.lg.error(String.format("Failed to process notification [%s] to enableProfile : %s",
+            Utils.lg.severe(String.format("Failed to process notification [%s] to enableProfile : %s",
                     msg,
                     ex));
             throw ex; // Toss it.

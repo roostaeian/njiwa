@@ -60,7 +60,7 @@ public final class ES2Client {
         } catch (WSUtils.SuppressClientWSRequest s) {
             return null;
         } catch (Exception ex) {
-            Utils.lg.error("Failed to issue  getEIS  call: " + ex.getMessage());
+            Utils.lg.severe("Failed to issue  getEIS  call: " + ex.getMessage());
         }
         return null;
     }
@@ -95,7 +95,7 @@ public final class ES2Client {
                     status, iccid, resp);
         } catch (WSUtils.SuppressClientWSRequest s) {
         } catch (Exception ex) {
-            Utils.lg.error("Failed to issue async downloadProfile response call: " + ex.getMessage());
+            Utils.lg.severe("Failed to issue async downloadProfile response call: " + ex.getMessage());
         }
     }
 
@@ -125,7 +125,7 @@ public final class ES2Client {
                     status);
         } catch (WSUtils.SuppressClientWSRequest s) {
         } catch (Exception ex) {
-            Utils.lg.error("Failed to issue async enableProfile response call: " + ex.getMessage());
+            Utils.lg.severe("Failed to issue async enableProfile response call: " + ex.getMessage());
         }
     }
 
@@ -155,7 +155,7 @@ public final class ES2Client {
                     status);
         } catch (WSUtils.SuppressClientWSRequest s) {
         } catch (Exception ex) {
-            Utils.lg.error("Failed to issue async disableProfile response call: " + ex.getMessage());
+            Utils.lg.severe("Failed to issue async disableProfile response call: " + ex.getMessage());
         }
     }
 
@@ -187,7 +187,7 @@ public final class ES2Client {
                     status);
         } catch (WSUtils.SuppressClientWSRequest s) {
         } catch (Exception ex) {
-            Utils.lg.error("Failed to issue async deleteProfile response call: " + ex.getMessage());
+            Utils.lg.severe("Failed to issue async deleteProfile response call: " + ex.getMessage());
         }
     }
 

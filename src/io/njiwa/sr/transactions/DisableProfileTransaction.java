@@ -88,7 +88,7 @@ public class DisableProfileTransaction extends SmSrBaseTransaction implements Pr
                         new BaseResponseType.ExecutionStatus.StatusCode("8.4", "", "4.2", ""));
             AuditTrail.addAuditTrail(em, tid, AuditTrail.OperationType.DisableProfile, status, aid, iccid, null, null);
         } catch (Exception ex) {
-            Utils.lg.error(String.format("Failed to process response to disableProfile [eid:%d, profile:%d]: %s",
+            Utils.lg.severe(String.format("Failed to process response to disableProfile [eid:%d, profile:%d]: %s",
                     eidId,
                     profileID, ex));
         }
@@ -134,7 +134,7 @@ public class DisableProfileTransaction extends SmSrBaseTransaction implements Pr
 
             }
         } catch (Exception ex) {
-            Utils.lg.error(String.format("Failed to process notification [%s] to disableProfile : %s",
+            Utils.lg.severe(String.format("Failed to process notification [%s] to disableProfile : %s",
                     msg,
                     ex));
             throw ex; // Toss it.

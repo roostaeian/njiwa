@@ -296,7 +296,7 @@ public abstract class Transport {
                     Utils.HEX.b2H(pkg)));
 
             if (!sender.hasEnoughBuffer(ctx, pktLen)) {
-                Utils.lg.error(String.format("Send Transaction [%d]: Packet size [%d %s] exceeded on-SIM buffer size of" +
+                Utils.lg.severe(String.format("Send Transaction [%d]: Packet size [%d %s] exceeded on-SIM buffer size of" +
                                 " [%d %s] sending to %s",
                         transId, sender.unitsCount(pktLen),
                         sender.getUnit(ctx),

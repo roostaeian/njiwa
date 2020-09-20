@@ -444,7 +444,7 @@ public class Scp03 {
                         }
                         // break;
                     default:
-                        Utils.lg.error(String.format("Received unexpected data/response [%s] in state [%s]", resp,
+                        Utils.lg.severe(String.format("Received unexpected data/response [%s] in state [%s]", resp,
                                 state));
                         break;
                 }

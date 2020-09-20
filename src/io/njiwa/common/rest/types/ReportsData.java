@@ -75,7 +75,7 @@ public class ReportsData {
             resp.addData(l, allowedOutputFields);
             resp.recordsFiltered = l.size(); // Record number of records
         } catch (Exception ex) {
-            Utils.lg.error("Failed to make Query in Eis Reports module: " + ex.getMessage());
+            Utils.lg.severe("Failed to make Query in Eis Reports module: " + ex.getMessage());
         }
         return resp;
     }
@@ -169,7 +169,7 @@ public class ReportsData {
                         }
                     });
                 } catch (Exception ex) {
-                    Utils.lg.error("Failed to add field [id]: " + ex.getMessage());
+                    Utils.lg.severe("Failed to add field [id]: " + ex.getMessage());
                 }
             }
         };
@@ -180,7 +180,7 @@ public class ReportsData {
                 Object x = m.invoke(obj);
                 map.put(prop, cleanValue(x));
             } catch (Exception ex) {
-                Utils.lg.error("Failed to add field [" + prop + "]: " + ex.getMessage());
+                Utils.lg.severe("Failed to add field [" + prop + "]: " + ex.getMessage());
             }
 
         data.add(map);

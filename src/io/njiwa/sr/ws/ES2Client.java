@@ -50,7 +50,7 @@ public class ES2Client {
                     Utils.gregorianCalendarFromDate(endDate));
         } catch (WSUtils.SuppressClientWSRequest s) {
         } catch (Exception ex) {
-            Utils.lg.error("Failed to issue async SMSR Change notification call: " + ex.getMessage());
+            Utils.lg.severe("Failed to issue async SMSR Change notification call: " + ex.getMessage());
         }
     }
 }

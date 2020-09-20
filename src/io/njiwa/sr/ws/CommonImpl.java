@@ -315,7 +315,7 @@ public class CommonImpl {
             });
         } catch (Exception ex) {
 
-            Utils.lg.error(String.format("Failed to delete profile: %s", ex));
+            Utils.lg.severe(String.format("Failed to delete profile: %s", ex));
         }
 
         return null;
@@ -402,7 +402,7 @@ public class CommonImpl {
             });
         } catch (Exception ex) {
 
-            Utils.lg.error(String.format("Error updating connectivity params: %s", ex));
+            Utils.lg.severe(String.format("Error updating connectivity params: %s", ex));
         }
 
         return null;
@@ -508,7 +508,7 @@ public class CommonImpl {
                 }
             });
         } catch (Exception ex) {
-            Utils.lg.error("Failed to disable profile: " + ex.getMessage());
+            Utils.lg.severe("Failed to disable profile: " + ex.getMessage());
         }
 
         return null;
@@ -626,7 +626,7 @@ public class CommonImpl {
                 }
             });
         } catch (Exception ex) {
-            Utils.lg.error("Failed to enable profile: " + ex.getMessage());
+            Utils.lg.severe("Failed to enable profile: " + ex.getMessage());
         }
         return null;
     }
@@ -707,7 +707,7 @@ public class CommonImpl {
             }
         } catch (WSUtils.SuppressClientWSRequest s) {
         } catch (Exception ex) {
-            Utils.lg.error("Failed to issue async DisableProfile response call: " + ex.getMessage());
+            Utils.lg.severe("Failed to issue async DisableProfile response call: " + ex.getMessage());
         }
     }
 
@@ -804,7 +804,7 @@ public class CommonImpl {
         } catch (WSUtils.SuppressClientWSRequest s) {
             String xs = null;
         } catch (Exception ex) {
-            Utils.lg.error("Failed to issue async DeleteISDP response call: " + ex.getMessage());
+            Utils.lg.severe("Failed to issue async DeleteISDP response call: " + ex.getMessage());
         }
     }
 
@@ -852,7 +852,7 @@ public class CommonImpl {
             }
         } catch (WSUtils.SuppressClientWSRequest s) {
         } catch (Exception ex) {
-            Utils.lg.error("Failed to issue async EnableProfile response call: " + ex.getMessage());
+            Utils.lg.severe("Failed to issue async EnableProfile response call: " + ex.getMessage());
         }
     }
 

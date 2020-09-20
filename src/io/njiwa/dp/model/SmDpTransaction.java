@@ -131,7 +131,7 @@ public class SmDpTransaction {
                     .setMaxResults(1)
                     .getSingleResult();
         } catch (Exception ex) {
-            Utils.lg.error(String.format("Failed to find SmDp Transaction ID for request message ID [%s]: %s ",
+            Utils.lg.severe(String.format("Failed to find SmDp Transaction ID for request message ID [%s]: %s ",
                     requestMessageID, ex));
         }
         return null;

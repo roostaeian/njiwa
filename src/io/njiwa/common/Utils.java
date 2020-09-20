@@ -69,6 +69,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 
 
 /**
@@ -76,11 +77,11 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Utils {
 
-
     public static final Date infiniteDate; //!< General infinite date
-    public final static org.apache.log4j.Logger lg =
-            org.apache.log4j.Logger.getLogger(InitialiserServlet.class.getName()); //!< The
-    private static final boolean[] unreserved_url_chars; //!< This is the list allowed URL characters.
+   // public final static org.apache.log4j.Logger lg =
+   //         org.apache.log4j.Logger.getLogger(InitialiserServlet.class.getName()); //!< The
+    public final static Logger lg = Logger.getLogger(InitialiserServlet.class.getName());
+   private static final boolean[] unreserved_url_chars; //!< This is the list allowed URL characters.
     // logger for the entire system
     private static KeyStore ks = null; //!< The key store...
     private static String privKeyAlias = "dsa", privKeyPassword = "test";
@@ -336,7 +337,7 @@ public class Utils {
             while ((line = r.readLine()) != null) l.add(line);
             return l.toArray(new String[0]);
         } catch (Exception ex) {
-            lg.error(String.format("Failed to run command [%s]: %s", cmd, ex));
+            lg.severe(String.format("Failed to run command [%s]: %s", cmd, ex));
             return dflt;
         }
     }
@@ -494,7 +495,7 @@ public class Utils {
 
         }
         else if ((status / 100) != 2) // i.e. we failed,
-            Utils.lg.warn(String.format("Failed to fetch URL[%s]: http code => %d", url, status));
+            Utils.lg.warning(String.format("Failed to fetch URL[%s]: http code => %d", url, status));
         try {
             conn.disconnect();
         } catch (Exception ex) {
@@ -898,7 +899,7 @@ public class Utils {
             else if (keyObj instanceof SubjectPublicKeyInfo)
                 return keyConverter.getPublicKey((SubjectPublicKeyInfo) keyObj);
         } catch (Exception ex) {
-            Utils.lg.error("Failed to get key from string/file: " + ex.getMessage());
+            Utils.lg.severe("Failed to get key from string/file: " + ex.getMessage());
         }
 
         return null;

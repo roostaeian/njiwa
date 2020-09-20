@@ -449,7 +449,7 @@ public class ServerSettings {
                     if (nvalue != null)
                         vals.put(k, nvalue);
                 } catch (Exception ex) {
-                    Utils.lg.error(String.format("Properties Load: Error validating [%s]: %s", k, ex));
+                    Utils.lg.severe(String.format("Properties Load: Error validating [%s]: %s", k, ex));
                 }
 
         return vals;

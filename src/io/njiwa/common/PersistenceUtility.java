@@ -78,12 +78,12 @@ public class PersistenceUtility {
             transaction.commit(); // commit
             success = true;
         } catch (Exception ex) {
-            Utils.lg.error(String.format("doTransaction failed: %s", ex));
+            Utils.lg.severe(String.format("doTransaction failed: %s", ex));
            // res = null;
             try {
                 transaction.rollback();
             } catch (Exception ex2) {
-                Utils.lg.error(String.format("doTransaction rollback failed: %s", ex2));
+                Utils.lg.severe(String.format("doTransaction rollback failed: %s", ex2));
             }
         } finally {
             try {

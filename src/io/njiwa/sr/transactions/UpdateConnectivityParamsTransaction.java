@@ -83,7 +83,7 @@ public class UpdateConnectivityParamsTransaction extends SmSrBaseTransaction {
 
         } catch (WSUtils.SuppressClientWSRequest wsa) {
         } catch (Exception ex) {
-            Utils.lg.error("Failed to issue async createisdp.response call: " + ex.getMessage());
+            Utils.lg.severe("Failed to issue async createisdp.response call: " + ex.getMessage());
         }
     }
 }
