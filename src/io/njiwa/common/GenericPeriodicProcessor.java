@@ -157,7 +157,7 @@ public class GenericPeriodicProcessor<T> {
         // qThread.start();
 
         Utils.lg.info(String.format("Starting Queue Processor [%s]...", name));
-        jobHandler = queueRunExecutor.scheduleAtFixedRate(pq, 0, (long) (ServerSettings.getQueuerunintvl() * 1000), TimeUnit.MILLISECONDS);
+        jobHandler = queueRunExecutor.scheduleAtFixedRate(pq, 120000, (long) (ServerSettings.getQueuerunintvl() * 1000), TimeUnit.MILLISECONDS);
     }
 
     /**
