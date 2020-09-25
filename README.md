@@ -55,7 +55,7 @@ certain resources needed to run Njiwa. Take note of the Wildfly/JBOSS home direc
 ```
 
 * Create the database for Njiwa and then create the JTA JDBC data source in Wildfly that will enable
-  Njiwa connect to the database. The JNDI name must be *java:/njiwa*. [Here is the documentation for doing this in Wildfly 10.x](https://docs.jboss.org/author/display/WFLY10/DataSource+configuration). 
+  Njiwa connect to the database. The JNDI name must be *java:/njiwa*. [Here is the documentation for doing this in Wildfly 10.x](https://docs.jboss.org/author/display/WFLY10/DataSource%20configuration). 
 
  You may deploy the WAR file in the usual JBOSS/Wildfly manner (usually a matter of copying it to
  *${WILDFLYHOME}/standalone/deployments*. 
