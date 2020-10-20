@@ -1,0 +1,1072 @@
+<?xml version='1.0' encoding='UTF-8'?><wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:tns="http://namespaces.gsma.org/esim-messaging/1" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http" name="SMSR" targetNamespace="http://namespaces.gsma.org/esim-messaging/1">
+  <wsdl:types>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ns1="http://namespaces.gsma.org/esim-messaging/1" xmlns="http://www.w3.org/2007/05/addressing/metadata" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://www.w3.org/2007/05/addressing/metadata">
+  <xs:import namespace="http://namespaces.gsma.org/esim-messaging/1"/>
+  <xs:element name="wsaEndPointReference" type="ns1:wsaEndPointReference"/>
+  <xs:element name="From" nillable="true" type="ns1:wsaEndPointReference"/>
+  <xs:element name="To" nillable="true" type="xs:string"/>
+  <xs:element name="ReplyTo" nillable="true" type="ns1:wsaEndPointReference"/>
+  <xs:element name="MessageID" nillable="true" type="xs:string"/>
+  <xs:element name="Action" nillable="true" type="xs:string"/>
+  <xs:element name="RelatesTo" nillable="true" type="xs:string"/>
+</xs:schema>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ns1="http://namespaces.gsma.org/esim-messaging/1" targetNamespace="http://www.w3.org/2000/09/xmldsig#" version="1.0">
+
+  <xs:import namespace="http://namespaces.gsma.org/esim-messaging/1"/>
+
+  <xs:element name="CanonicalizationMethod" type="ns1:algoMethod"/>
+
+  <xs:element name="DigestMethod" type="ns1:algoMethod"/>
+
+  <xs:element name="DigestValue" type="xs:base64Binary"/>
+
+  <xs:element name="KeyInfo" type="ns1:keyInfo"/>
+
+  <xs:element name="Reference" type="ns1:reference"/>
+
+  <xs:element name="Signature" type="ns1:signature"/>
+
+  <xs:element name="SignatureMethod" type="ns1:algoMethod"/>
+
+  <xs:element name="SignatureValue" type="xs:base64Binary"/>
+
+  <xs:element name="SignedInfo" type="ns1:signedInfo"/>
+
+  <xs:element name="Transforms" type="ns1:transforms"/>
+
+  <xs:element name="X509Certificate" type="xs:base64Binary"/>
+
+  <xs:element name="X509Data" type="ns1:x509Data"/>
+
+  <xs:element name="X509SubjectName" type="xs:string"/>
+
+  <xs:element name="algoMethod" type="ns1:algoMethod"/>
+
+  <xs:element name="keyInfo" type="ns1:keyInfo"/>
+
+  <xs:element name="reference" type="ns1:reference"/>
+
+  <xs:element name="signature" type="ns1:signature"/>
+
+  <xs:element name="signedInfo" type="ns1:signedInfo"/>
+
+  <xs:element name="transform" type="ns1:transform"/>
+
+  <xs:element name="transforms" type="ns1:transforms"/>
+
+  <xs:element name="x509Data" type="ns1:x509Data"/>
+
+
+
+
+
+
+
+
+
+</xs:schema>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://namespaces.gsma.org/esim-messaging/1" xmlns:ns1="http://www.w3.org/2000/09/xmldsig#" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://namespaces.gsma.org/esim-messaging/1">
+  <xs:import namespace="http://www.w3.org/2000/09/xmldsig#"/>
+  <xs:element name="AuditTrailRecordType" type="tns:auditTrailRecord"/>
+  <xs:element name="KeyComponent" type="tns:component"/>
+  <xs:element name="Rule" type="tns:pol2RuleType"/>
+  <xs:element name="SubscriptionAddressType" type="tns:subscriptionAddress"/>
+  <xs:element name="additionalProperties" type="tns:additionalProperties"/>
+  <xs:element name="auditEISResponse" type="tns:auditEISResponse"/>
+  <xs:element name="auditTrail" type="tns:auditTrail"/>
+  <xs:element name="baseResponseType" type="tns:baseResponseType"/>
+  <xs:element name="certificate" type="tns:certificate"/>
+  <xs:element name="createISDPResponse" type="tns:createISDPResponse"/>
+  <xs:element name="deleteISDPResponse" type="tns:deleteISDPResponse"/>
+  <xs:element name="disableProfileResponse" type="tns:disableProfileResponse"/>
+  <xs:element name="eis" type="tns:eis"/>
+  <xs:element name="enableProfileResponse" type="tns:enableProfileResponse"/>
+  <xs:element name="euiCCCapabilities" type="tns:euiCCCapabilities"/>
+  <xs:element name="eumSignedInfo" type="tns:eumSignedInfo"/>
+  <xs:element name="executionStatus" type="tns:executionStatus"/>
+  <xs:element name="getEISResponse" type="tns:getEISResponse"/>
+  <xs:element name="key" type="tns:key"/>
+  <xs:element name="keySet" type="tns:keySet"/>
+  <xs:element name="pol2Type" type="tns:pol2Type"/>
+  <xs:element name="profileInfo" type="tns:profileInfo"/>
+  <xs:element name="securityDomain" type="tns:securityDomain"/>
+  <xs:element name="sendDataResponse" type="tns:sendDataResponse"/>
+  <xs:element name="statusCode" type="tns:statusCode"/>
+  <xs:element name="updateConnectivityParametersResponse" type="tns:updateConnectivityParametersResponse"/>
+  <xs:complexType name="wsaEndPointReference">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Address" type="xs:string"/>
+      <xs:element minOccurs="0" name="ReferenceParameters" nillable="true" type="xs:string"/>
+      <xs:element minOccurs="0" name="MetaData" nillable="true" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="sendDataResponse">
+    <xs:complexContent>
+      <xs:extension base="tns:baseResponseType">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="EuiCCResponseData" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="baseResponseType">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ProcessingStart" type="xs:anySimpleType"/>
+      <xs:element minOccurs="0" name="ProcessingEnd" type="xs:anySimpleType"/>
+      <xs:element name="AcceptableValidityPeriod" type="xs:long"/>
+      <xs:element minOccurs="0" name="FunctionExecutionStatus" type="tns:executionStatus"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="executionStatus">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Status" type="tns:status"/>
+      <xs:element minOccurs="0" name="StatusCodeData" type="tns:statusCode"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="statusCode">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Subject" type="xs:string"/>
+      <xs:element minOccurs="0" name="Reason" type="xs:string"/>
+      <xs:element minOccurs="0" name="SubjectIdentifier" type="xs:string"/>
+      <xs:element minOccurs="0" name="Message" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="pol2Type">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="rules" nillable="true" type="tns:pol2RuleType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="pol2RuleType">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Subject" type="tns:subject"/>
+      <xs:element minOccurs="0" name="Action" type="tns:action"/>
+      <xs:element minOccurs="0" name="Qualification" type="tns:qualification"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="subscriptionAddress">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Imsi" type="xs:string"/>
+      <xs:element minOccurs="0" name="Msisdn" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="createISDPResponse">
+    <xs:complexContent>
+      <xs:extension base="tns:baseResponseType">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="Isd-p-aid" type="xs:string"/>
+          <xs:element minOccurs="0" name="EuiCCResponseData" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="deleteISDPResponse">
+    <xs:complexContent>
+      <xs:extension base="tns:baseResponseType">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="EuiccResponseData" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="getEISResponse">
+    <xs:complexContent>
+      <xs:extension base="tns:baseResponseType">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="Eis" type="tns:eis"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="eis">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="EumSignedInfo" type="tns:eumSignedInfo"/>
+      <xs:element minOccurs="0" ref="ns1:Signature"/>
+      <xs:element name="RemainingMemory" type="xs:long"/>
+      <xs:element name="AvailableMemoryForProfiles" type="xs:long"/>
+      <xs:element minOccurs="0" name="lastAuditDate" type="xs:string"/>
+      <xs:element minOccurs="0" name="Smsr-id" type="xs:string"/>
+      <xs:element minOccurs="0" name="EumCertificateId" type="xs:string"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="profiles" type="tns:profileInfo"/>
+      <xs:element minOccurs="0" name="isd-r" type="tns:securityDomain"/>
+      <xs:element minOccurs="0" name="AuditTrail" type="tns:auditTrail"/>
+      <xs:element minOccurs="0" name="AdditionalProperties" type="tns:additionalProperties"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="eumSignedInfo">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Eid" type="xs:string"/>
+      <xs:element minOccurs="0" name="Eum-Id" type="xs:string"/>
+      <xs:element minOccurs="0" name="ProductionDate" type="xs:string"/>
+      <xs:element minOccurs="0" name="PlatformType" type="xs:string"/>
+      <xs:element minOccurs="0" name="PlatformVersion" type="xs:string"/>
+      <xs:element minOccurs="0" name="isd-p-loadfile-aid" type="xs:string"/>
+      <xs:element minOccurs="0" name="isd-p-module-aid" type="xs:string"/>
+      <xs:element minOccurs="0" name="Ecasd" type="tns:securityDomain"/>
+      <xs:element minOccurs="0" name="EuiccCapabilities" type="tns:euiCCCapabilities"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="securityDomain">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Aid" type="xs:string"/>
+      <xs:element minOccurs="0" name="Tar" type="xs:string"/>
+      <xs:element minOccurs="0" name="Sin" type="xs:string"/>
+      <xs:element minOccurs="0" name="Sdin" type="xs:string"/>
+      <xs:element minOccurs="0" name="Role" type="tns:role"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="keySets" type="tns:keySet"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="keySet">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Version" type="xs:string"/>
+      <xs:element minOccurs="0" name="Type" type="tns:type"/>
+      <xs:element name="Cntr" type="xs:long"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="keys" type="tns:key"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="certificates" type="tns:certificate"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="key">
+    <xs:sequence>
+      <xs:element name="Index" type="xs:long"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="components" type="tns:component"/>
+    </xs:sequence>
+    <xs:attribute name="kcv" type="xs:string"/>
+  </xs:complexType>
+  <xs:complexType name="component">
+    <xs:sequence/>
+    <xs:attribute name="type" type="xs:string"/>
+    <xs:attribute name="value" type="xs:string"/>
+  </xs:complexType>
+  <xs:complexType name="certificate">
+    <xs:sequence>
+      <xs:element name="Index" type="xs:long"/>
+      <xs:element minOccurs="0" name="CaId" type="xs:string"/>
+      <xs:element minOccurs="0" name="Value" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="euiCCCapabilities">
+    <xs:sequence>
+      <xs:element name="CattpSupport" type="xs:boolean"/>
+      <xs:element minOccurs="0" name="CattpVersion" type="xs:string"/>
+      <xs:element name="HttpSupport" type="xs:boolean"/>
+      <xs:element minOccurs="0" name="HttpVersion" type="xs:string"/>
+      <xs:element minOccurs="0" name="SecurePacketVersion" type="xs:string"/>
+      <xs:element minOccurs="0" name="RemoteProvisioningVersion" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="signature">
+    <xs:sequence>
+      <xs:element minOccurs="0" ref="ns1:SignedInfo"/>
+      <xs:element minOccurs="0" ref="ns1:SignatureValue"/>
+      <xs:element minOccurs="0" ref="ns1:KeyInfo"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="signedInfo">
+    <xs:sequence>
+      <xs:element minOccurs="0" ref="ns1:CanonicalizationMethod"/>
+      <xs:element minOccurs="0" ref="ns1:SignatureMethod"/>
+      <xs:element minOccurs="0" ref="ns1:Reference"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="algoMethod">
+    <xs:sequence/>
+    <xs:attribute name="Algorithm" type="xs:string"/>
+  </xs:complexType>
+  <xs:complexType name="reference">
+    <xs:sequence>
+      <xs:element minOccurs="0" ref="ns1:Transforms"/>
+      <xs:element minOccurs="0" ref="ns1:DigestValue"/>
+      <xs:element minOccurs="0" ref="ns1:DigestMethod"/>
+    </xs:sequence>
+    <xs:attribute name="uri" type="xs:string"/>
+  </xs:complexType>
+  <xs:complexType name="transforms">
+    <xs:sequence>
+      <xs:any maxOccurs="unbounded" minOccurs="0" namespace="##other" processContents="skip"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="keyInfo">
+    <xs:sequence>
+      <xs:element minOccurs="0" ref="ns1:X509Data"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="x509Data">
+    <xs:sequence>
+      <xs:element minOccurs="0" ref="ns1:X509SubjectName"/>
+      <xs:element minOccurs="0" ref="ns1:X509Certificate"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="profileInfo">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Iccid" type="xs:string"/>
+      <xs:element minOccurs="0" name="Isd-p-aid" type="xs:string"/>
+      <xs:element minOccurs="0" name="Mno-id" type="xs:string"/>
+      <xs:element name="FallbackAttribute" type="xs:boolean"/>
+      <xs:element minOccurs="0" name="SubscriptionAddress" type="tns:subscriptionAddress"/>
+      <xs:element minOccurs="0" name="State" type="tns:state"/>
+      <xs:element minOccurs="0" name="Smdp-id" type="xs:string"/>
+      <xs:element minOccurs="0" name="ProfileType" type="xs:string"/>
+      <xs:element name="AllocatedMemory" type="xs:int"/>
+      <xs:element name="FreeMemoery" type="xs:int"/>
+      <xs:element minOccurs="0" name="pol2" type="tns:pol2Type"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="auditTrail">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="auditTrailRecords" type="tns:auditTrailRecord"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="auditTrailRecord">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Eid" type="xs:string"/>
+      <xs:element minOccurs="0" name="Smsr-id" type="xs:string"/>
+      <xs:element minOccurs="0" name="OperationDate" type="xs:anySimpleType"/>
+      <xs:element minOccurs="0" name="OperationType" type="xs:string"/>
+      <xs:element minOccurs="0" name="RequesterId" type="xs:string"/>
+      <xs:element minOccurs="0" name="OperationExecutionStatus" type="tns:executionStatus"/>
+      <xs:element minOccurs="0" name="Isd-p-aid" type="xs:string"/>
+      <xs:element minOccurs="0" name="Iccid" type="xs:string"/>
+      <xs:element minOccurs="0" name="Imei" type="xs:string"/>
+      <xs:element minOccurs="0" name="Meid" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="additionalProperties">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="properties" type="tns:property"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="property">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="key" type="xs:string"/>
+      <xs:element minOccurs="0" name="value" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="transform">
+    <xs:complexContent>
+      <xs:extension base="tns:algoMethod">
+        <xs:sequence/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="disableProfileResponse">
+    <xs:complexContent>
+      <xs:extension base="tns:baseResponseType">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="EuiccResponseData" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="enableProfileResponse">
+    <xs:complexContent>
+      <xs:extension base="tns:baseResponseType">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="EuiccResponseData" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="updateConnectivityParametersResponse">
+    <xs:complexContent>
+      <xs:extension base="tns:baseResponseType">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="EuiccResponseData" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="auditEISResponse">
+    <xs:complexContent>
+      <xs:extension base="tns:baseResponseType">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="Eis" type="tns:eis"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:simpleType name="status">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="EXECUTED_SUCCESS"/>
+      <xs:enumeration value="EXECUTED_WITHWARNING"/>
+      <xs:enumeration value="FAILED"/>
+      <xs:enumeration value="EXPIRED"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="subject">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="PROFILE"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="action">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ENABLE"/>
+      <xs:enumeration value="DISABLE"/>
+      <xs:enumeration value="DELETE"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="qualification">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Not-Allowed"/>
+      <xs:enumeration value="Auto-Delete"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="role">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ISD-R"/>
+      <xs:enumeration value="ECASD"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="type">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="SCP03"/>
+      <xs:enumeration value="SCP80"/>
+      <xs:enumeration value="SCP81"/>
+      <xs:enumeration value="TokenGeneration"/>
+      <xs:enumeration value="ReceiptVerification"/>
+      <xs:enumeration value="CA"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="state">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="InstallInProgress"/>
+      <xs:enumeration value="Created"/>
+      <xs:enumeration value="Enabled"/>
+      <xs:enumeration value="Disabled"/>
+      <xs:enumeration value="Deleted"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="Exception" type="tns:Exception"/>
+  <xs:complexType name="Exception">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="message" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>
+  </wsdl:types>
+  <wsdl:message name="UpdateConnectivityParametersResponse">
+    <wsdl:part name="return" type="tns:updateConnectivityParametersResponse">
+    </wsdl:part>
+    <wsdl:part element="wsam:Action" name="Action">
+    </wsdl:part>
+    <wsdl:part element="wsam:RelatesTo" name="RelatesTo">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="Exception">
+    <wsdl:part element="tns:Exception" name="Exception">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="EnableProfileResponse">
+    <wsdl:part name="return" type="tns:enableProfileResponse">
+    </wsdl:part>
+    <wsdl:part element="wsam:Action" name="Action">
+    </wsdl:part>
+    <wsdl:part element="wsam:RelatesTo" name="RelatesTo">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="UpdatePolicyRules">
+    <wsdl:part element="wsam:From" name="From">
+    </wsdl:part>
+    <wsdl:part element="wsam:To" name="To">
+    </wsdl:part>
+    <wsdl:part element="wsam:ReplyTo" name="ReplyTo">
+    </wsdl:part>
+    <wsdl:part element="wsam:MessageID" name="MessageID">
+    </wsdl:part>
+    <wsdl:part element="wsam:Action" name="Action">
+    </wsdl:part>
+    <wsdl:part name="FunctionCallIdentifier" type="xsd:string">
+    </wsdl:part>
+    <wsdl:part name="ValidityPeriod" type="xsd:long">
+    </wsdl:part>
+    <wsdl:part name="Eid" type="xsd:string">
+    </wsdl:part>
+    <wsdl:part name="Iccid" type="xsd:string">
+    </wsdl:part>
+    <wsdl:part name="pol2" type="tns:pol2Type">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ProfileDownloadCompleted">
+    <wsdl:part element="wsam:From" name="From">
+    </wsdl:part>
+    <wsdl:part element="wsam:To" name="To">
+    </wsdl:part>
+    <wsdl:part element="wsam:ReplyTo" name="ReplyTo">
+    </wsdl:part>
+    <wsdl:part element="wsam:MessageID" name="MessageID">
+    </wsdl:part>
+    <wsdl:part element="wsam:Action" name="Action">
+    </wsdl:part>
+    <wsdl:part name="FunctionCallIdentifier" type="xsd:string">
+    </wsdl:part>
+    <wsdl:part name="ValidityPeriod" type="xsd:long">
+    </wsdl:part>
+    <wsdl:part name="Eid" type="xsd:string">
+    </wsdl:part>
+    <wsdl:part name="Iccid" type="xsd:string">
+    </wsdl:part>
+    <wsdl:part name="ProfileType" type="xsd:string">
+    </wsdl:part>
+    <wsdl:part name="SubscriptionAddress" type="tns:subscriptionAddress">
+    </wsdl:part>
+    <wsdl:part name="pol2" type="tns:pol2Type">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="CreateISDPResponse">
+    <wsdl:part name="return" type="tns:createISDPResponse">
+    </wsdl:part>
+    <wsdl:part element="wsam:Action" name="Action">
+    </wsdl:part>
+    <wsdl:part element="wsam:RelatesTo" name="RelatesTo">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="SendDataResponse">
+    <wsdl:part name="return" type="tns:sendDataResponse">
+    </wsdl:part>
+    <wsdl:part element="wsam:Action" name="Action">
+    </wsdl:part>
+    <wsdl:part element="wsam:RelatesTo" name="RelatesTo">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="EnableProfile">
+    <wsdl:part element="wsam:From" name="From">
+    </wsdl:part>
+    <wsdl:part element="wsam:To" name="To">
+    </wsdl:part>
+    <wsdl:part element="wsam:ReplyTo" name="ReplyTo">
+    </wsdl:part>
+    <wsdl:part element="wsam:MessageID" name="MessageID">
+    </wsdl:part>
+    <wsdl:part element="wsam:Action" name="Action">
+    </wsdl:part>
+    <wsdl:part name="FunctionCallIdentifier" type="xsd:string">
+    </wsdl:part>
+    <wsdl:part name="ValidityPeriod" type="xsd:long">
+    </wsdl:part>
+    <wsdl:part name="Eid" type="xsd:string">
+    </wsdl:part>
+    <wsdl:part name="Iccid" type="xsd:string">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="SendData">
+    <wsdl:part element="wsam:From" name="From">
+    </wsdl:part>
+    <wsdl:part element="wsam:To" name="To">
+    </wsdl:part>
+    <wsdl:part element="wsam:ReplyTo" name="ReplyTo">
+    </wsdl:part>
+    <wsdl:part element="wsam:MessageID" name="MessageID">
+    </wsdl:part>
+    <wsdl:part element="wsam:Action" name="Action">
+    </wsdl:part>
+    <wsdl:part name="FunctionCallIdentifier" type="xsd:string">
+    </wsdl:part>
+    <wsdl:part name="ValidityPeriod" type="xsd:long">
+    </wsdl:part>
+    <wsdl:part name="Eid" type="xsd:string">
+    </wsdl:part>
+    <wsdl:part name="sd-aid" type="xsd:string">
+    </wsdl:part>
+    <wsdl:part name="Data" type="xsd:string">
+    </wsdl:part>
+    <wsdl:part name="moreToDo" type="xsd:boolean">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="UpdatePolicyRulesResponse">
+    <wsdl:part name="return" type="tns:baseResponseType">
+    </wsdl:part>
+    <wsdl:part element="wsam:Action" name="Action">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="DisableProfileResponse">
+    <wsdl:part name="return" type="tns:disableProfileResponse">
+    </wsdl:part>
+    <wsdl:part element="wsam:Action" name="Action">
+    </wsdl:part>
+    <wsdl:part element="wsam:RelatesTo" name="RelatesTo">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="CreateISDP">
+    <wsdl:part element="wsam:From" name="From">
+    </wsdl:part>
+    <wsdl:part element="wsam:To" name="To">
+    </wsdl:part>
+    <wsdl:part element="wsam:ReplyTo" name="ReplyTo">
+    </wsdl:part>
+    <wsdl:part element="wsam:MessageID" name="MessageID">
+    </wsdl:part>
+    <wsdl:part element="wsam:Action" name="Action">
+    </wsdl:part>
+    <wsdl:part name="FunctionCallIdentifier" type="xsd:string">
+    </wsdl:part>
+    <wsdl:part name="ValidityPeriod" type="xsd:long">
+    </wsdl:part>
+    <wsdl:part name="Eid" type="xsd:string">
+    </wsdl:part>
+    <wsdl:part name="Iccid" type="xsd:string">
+    </wsdl:part>
+    <wsdl:part name="Mno-id" type="xsd:string">
+    </wsdl:part>
+    <wsdl:part name="RequiredMemory" type="xsd:int">
+    </wsdl:part>
+    <wsdl:part name="moreToDo" type="xsd:boolean">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="DeleteISDP">
+    <wsdl:part element="wsam:From" name="From">
+    </wsdl:part>
+    <wsdl:part element="wsam:To" name="To">
+    </wsdl:part>
+    <wsdl:part element="wsam:ReplyTo" name="ReplyTo">
+    </wsdl:part>
+    <wsdl:part element="wsam:MessageID" name="MessageID">
+    </wsdl:part>
+    <wsdl:part element="wsam:Action" name="Action">
+    </wsdl:part>
+    <wsdl:part name="FunctionCallIdentifier" type="xsd:string">
+    </wsdl:part>
+    <wsdl:part name="ValidityPeriod" type="xsd:long">
+    </wsdl:part>
+    <wsdl:part name="Eid" type="xsd:string">
+    </wsdl:part>
+    <wsdl:part name="Iccid" type="xsd:string">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ProfileDownloadCompletedResponse">
+    <wsdl:part name="return" type="tns:baseResponseType">
+    </wsdl:part>
+    <wsdl:part element="wsam:Action" name="Action">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="GetEIS">
+    <wsdl:part element="wsam:From" name="From">
+    </wsdl:part>
+    <wsdl:part element="wsam:To" name="To">
+    </wsdl:part>
+    <wsdl:part element="wsam:ReplyTo" name="ReplyTo">
+    </wsdl:part>
+    <wsdl:part element="wsam:MessageID" name="MessageID">
+    </wsdl:part>
+    <wsdl:part element="wsam:Action" name="Action">
+    </wsdl:part>
+    <wsdl:part name="FunctionCallIdentifier" type="xsd:string">
+    </wsdl:part>
+    <wsdl:part name="ValidityPeriod" type="xsd:long">
+    </wsdl:part>
+    <wsdl:part name="Eid" type="xsd:string">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="DeleteISDPResponse">
+    <wsdl:part name="return" type="tns:deleteISDPResponse">
+    </wsdl:part>
+    <wsdl:part element="wsam:Action" name="Action">
+    </wsdl:part>
+    <wsdl:part element="wsam:RelatesTo" name="RelatesTo">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="DisableProfile">
+    <wsdl:part element="wsam:From" name="From">
+    </wsdl:part>
+    <wsdl:part element="wsam:To" name="To">
+    </wsdl:part>
+    <wsdl:part element="wsam:ReplyTo" name="ReplyTo">
+    </wsdl:part>
+    <wsdl:part element="wsam:MessageID" name="MessageID">
+    </wsdl:part>
+    <wsdl:part element="wsam:Action" name="Action">
+    </wsdl:part>
+    <wsdl:part name="FunctionCallIdentifier" type="xsd:string">
+    </wsdl:part>
+    <wsdl:part name="ValidityPeriod" type="xsd:long">
+    </wsdl:part>
+    <wsdl:part name="Eid" type="xsd:string">
+    </wsdl:part>
+    <wsdl:part name="Iccid" type="xsd:string">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="GetEISResponse">
+    <wsdl:part name="FunctionExecutionStatus" type="tns:getEISResponse">
+    </wsdl:part>
+    <wsdl:part element="wsam:Action" name="Action">
+    </wsdl:part>
+    <wsdl:part element="wsam:RelatesTo" name="RelatesTo">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="UpdateConnectivityParameters">
+    <wsdl:part element="wsam:From" name="From">
+    </wsdl:part>
+    <wsdl:part element="wsam:To" name="To">
+    </wsdl:part>
+    <wsdl:part element="wsam:ReplyTo" name="ReplyTo">
+    </wsdl:part>
+    <wsdl:part element="wsam:MessageID" name="MessageID">
+    </wsdl:part>
+    <wsdl:part element="wsam:Action" name="Action">
+    </wsdl:part>
+    <wsdl:part name="FunctionCallIdentifier" type="xsd:string">
+    </wsdl:part>
+    <wsdl:part name="ValidityPeriod" type="xsd:long">
+    </wsdl:part>
+    <wsdl:part name="Eid" type="xsd:string">
+    </wsdl:part>
+    <wsdl:part name="Iccid" type="xsd:string">
+    </wsdl:part>
+    <wsdl:part name="ConnectivityParameters" type="xsd:string">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="AuditEISResponse">
+    <wsdl:part name="FunctionExecutionStatus" type="tns:auditEISResponse">
+    </wsdl:part>
+    <wsdl:part element="wsam:Action" name="Action">
+    </wsdl:part>
+    <wsdl:part element="wsam:RelatesTo" name="RelatesTo">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="AuditEIS">
+    <wsdl:part element="wsam:From" name="From">
+    </wsdl:part>
+    <wsdl:part element="wsam:To" name="To">
+    </wsdl:part>
+    <wsdl:part element="wsam:ReplyTo" name="ReplyTo">
+    </wsdl:part>
+    <wsdl:part element="wsam:MessageID" name="MessageID">
+    </wsdl:part>
+    <wsdl:part element="wsam:Action" name="Action">
+    </wsdl:part>
+    <wsdl:part name="FunctionCallIdentifier" type="xsd:string">
+    </wsdl:part>
+    <wsdl:part name="ValidityPeriod" type="xsd:long">
+    </wsdl:part>
+    <wsdl:part name="Eid" type="xsd:string">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="ES3">
+    <wsdl:operation name="SendData" parameterOrder="From To ReplyTo MessageID Action FunctionCallIdentifier ValidityPeriod Eid sd-aid Data moreToDo RelatesTo">
+      <wsdl:input message="tns:SendData" name="SendData" wsam:Action="http://gsma.com/ES3/ProfileManagent/ES3-SendData" wsaw:Action="http://gsma.com/ES3/ProfileManagent/ES3-SendData">
+    </wsdl:input>
+      <wsdl:output message="tns:SendDataResponse" name="SendDataResponse" wsam:Action="http://namespaces.gsma.org/esim-messaging/1/ES3/SendDataResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:Exception" name="Exception" wsam:Action="http://namespaces.gsma.org/esim-messaging/1/ES3/SendData/Fault/Exception">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="UpdatePolicyRules" parameterOrder="From To ReplyTo MessageID Action FunctionCallIdentifier ValidityPeriod Eid Iccid pol2">
+      <wsdl:input message="tns:UpdatePolicyRules" name="UpdatePolicyRules" wsam:Action="http://gsma.com/ES3/ProfileManagent/ES3-UpdatePolicyRules" wsaw:Action="http://gsma.com/ES3/ProfileManagent/ES3-UpdatePolicyRules">
+    </wsdl:input>
+      <wsdl:output message="tns:UpdatePolicyRulesResponse" name="UpdatePolicyRulesResponse" wsam:Action="http://namespaces.gsma.org/esim-messaging/1/ES3/UpdatePolicyRulesResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ProfileDownloadCompleted" parameterOrder="From To ReplyTo MessageID Action FunctionCallIdentifier ValidityPeriod Eid Iccid ProfileType SubscriptionAddress pol2">
+      <wsdl:input message="tns:ProfileDownloadCompleted" name="ProfileDownloadCompleted" wsam:Action="http://gsma.com/ES3/ProfileManagent/ES3-ProfileDownloadCompleted" wsaw:Action="http://gsma.com/ES3/ProfileManagent/ES3-ProfileDownloadCompleted">
+    </wsdl:input>
+      <wsdl:output message="tns:ProfileDownloadCompletedResponse" name="ProfileDownloadCompletedResponse" wsam:Action="http://namespaces.gsma.org/esim-messaging/1/ES3/ProfileDownloadCompletedResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateISDP" parameterOrder="From To ReplyTo MessageID Action FunctionCallIdentifier ValidityPeriod Eid Iccid Mno-id RequiredMemory moreToDo RelatesTo">
+      <wsdl:input message="tns:CreateISDP" name="CreateISDP" wsam:Action="http://gsma.com/ES3/ProfileManagent/ES3-CreateISDP" wsaw:Action="http://gsma.com/ES3/ProfileManagent/ES3-CreateISDP">
+    </wsdl:input>
+      <wsdl:output message="tns:CreateISDPResponse" name="CreateISDPResponse" wsam:Action="http://namespaces.gsma.org/esim-messaging/1/ES3/CreateISDPResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:Exception" name="Exception" wsam:Action="http://namespaces.gsma.org/esim-messaging/1/ES3/CreateISDP/Fault/Exception">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteISDP" parameterOrder="From To ReplyTo MessageID Action FunctionCallIdentifier ValidityPeriod Eid Iccid RelatesTo">
+      <wsdl:input message="tns:DeleteISDP" name="DeleteISDP" wsam:Action="http://gsma.com/ES3/ProfileManagent/ES3-DeleteISDP" wsaw:Action="http://gsma.com/ES3/ProfileManagent/ES3-DeleteISDP">
+    </wsdl:input>
+      <wsdl:output message="tns:DeleteISDPResponse" name="DeleteISDPResponse" wsam:Action="http://namespaces.gsma.org/esim-messaging/1/ES3/DeleteISDPResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:Exception" name="Exception" wsam:Action="http://namespaces.gsma.org/esim-messaging/1/ES3/DeleteISDP/Fault/Exception">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="GetEIS" parameterOrder="From To ReplyTo MessageID Action FunctionCallIdentifier ValidityPeriod Eid RelatesTo">
+      <wsdl:input message="tns:GetEIS" name="GetEIS" wsam:Action="http://gsma.com/ES3/ProfileManagent/ES3-GetEISRequest" wsaw:Action="http://gsma.com/ES3/ProfileManagent/ES3-GetEISRequest">
+    </wsdl:input>
+      <wsdl:output message="tns:GetEISResponse" name="GetEISResponse" wsam:Action="http://gsma.com/ES3/ProfileManagent/ES3-GetEISResponse" wsaw:Action="http://gsma.com/ES3/ProfileManagent/ES3-GetEISResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DisableProfile" parameterOrder="From To ReplyTo MessageID Action FunctionCallIdentifier ValidityPeriod Eid Iccid RelatesTo">
+      <wsdl:input message="tns:DisableProfile" name="DisableProfile" wsam:Action="http://gsma.com/ES3/ProfileManagent/ES3-DisableProfile" wsaw:Action="http://gsma.com/ES3/ProfileManagent/ES3-DisableProfile">
+    </wsdl:input>
+      <wsdl:output message="tns:DisableProfileResponse" name="DisableProfileResponse" wsam:Action="http://namespaces.gsma.org/esim-messaging/1/ES3/DisableProfileResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:Exception" name="Exception" wsam:Action="http://namespaces.gsma.org/esim-messaging/1/ES3/DisableProfile/Fault/Exception">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="EnableProfile" parameterOrder="From To ReplyTo MessageID Action FunctionCallIdentifier ValidityPeriod Eid Iccid RelatesTo">
+      <wsdl:input message="tns:EnableProfile" name="EnableProfile" wsam:Action="http://gsma.com/ES3/ProfileManagent/ES3-EnableProfile" wsaw:Action="http://gsma.com/ES3/ProfileManagent/ES3-EnableProfile">
+    </wsdl:input>
+      <wsdl:output message="tns:EnableProfileResponse" name="EnableProfileResponse" wsam:Action="http://namespaces.gsma.org/esim-messaging/1/ES3/EnableProfileResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:Exception" name="Exception" wsam:Action="http://namespaces.gsma.org/esim-messaging/1/ES3/EnableProfile/Fault/Exception">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateConnectivityParameters" parameterOrder="From To ReplyTo MessageID Action FunctionCallIdentifier ValidityPeriod Eid Iccid ConnectivityParameters RelatesTo">
+      <wsdl:input message="tns:UpdateConnectivityParameters" name="UpdateConnectivityParameters" wsam:Action="http://gsma.com/ES3/ProfileManagent/ES3-UpdateConnectivityParameters" wsaw:Action="http://gsma.com/ES3/ProfileManagent/ES3-UpdateConnectivityParameters">
+    </wsdl:input>
+      <wsdl:output message="tns:UpdateConnectivityParametersResponse" name="UpdateConnectivityParametersResponse" wsam:Action="http://namespaces.gsma.org/esim-messaging/1/ES3/UpdateConnectivityParametersResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:Exception" name="Exception" wsam:Action="http://namespaces.gsma.org/esim-messaging/1/ES3/UpdateConnectivityParameters/Fault/Exception">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="AuditEIS" parameterOrder="From To ReplyTo MessageID Action FunctionCallIdentifier ValidityPeriod Eid RelatesTo">
+      <wsdl:input message="tns:AuditEIS" name="AuditEIS" wsam:Action="http://gsma.com/ES3/ProfileManagent/ES3-AuditEIS" wsaw:Action="http://gsma.com/ES3/ProfileManagent/ES3-AuditEIS">
+    </wsdl:input>
+      <wsdl:output message="tns:AuditEISResponse" name="AuditEISResponse" wsam:Action="http://gsma.com/ES3/ProfileManagentCallback/ES3-AuditEIS" wsaw:Action="http://gsma.com/ES3/ProfileManagentCallback/ES3-AuditEIS">
+    </wsdl:output>
+      <wsdl:fault message="tns:Exception" name="Exception" wsam:Action="http://namespaces.gsma.org/esim-messaging/1/ES3/AuditEIS/Fault/Exception">
+    </wsdl:fault>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="SMSRSoapBinding" type="tns:ES3">
+    <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="SendData">
+      <soap:operation soapAction="http://gsma.com/ES3/ProfileManagent/ES3-SendData" style="rpc"/>
+      <wsdl:input name="SendData">
+        <soap:header message="tns:SendData" part="From" use="literal">
+        </soap:header>
+        <soap:header message="tns:SendData" part="To" use="literal">
+        </soap:header>
+        <soap:header message="tns:SendData" part="ReplyTo" use="literal">
+        </soap:header>
+        <soap:header message="tns:SendData" part="MessageID" use="literal">
+        </soap:header>
+        <soap:header message="tns:SendData" part="Action" use="literal">
+        </soap:header>
+        <soap:body namespace="http://namespaces.gsma.org/esim-messaging/1" parts="FunctionCallIdentifier ValidityPeriod Eid sd-aid Data moreToDo" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="SendDataResponse">
+        <soap:header message="tns:SendDataResponse" part="Action" use="literal">
+        </soap:header>
+        <soap:header message="tns:SendDataResponse" part="RelatesTo" use="literal">
+        </soap:header>
+        <soap:body namespace="http://namespaces.gsma.org/esim-messaging/1" parts="return" use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="Exception">
+        <soap:fault name="Exception" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="UpdatePolicyRules">
+      <soap:operation soapAction="http://gsma.com/ES3/ProfileManagent/ES3-UpdatePolicyRules" style="rpc"/>
+      <wsdl:input name="UpdatePolicyRules">
+        <soap:header message="tns:UpdatePolicyRules" part="From" use="literal">
+        </soap:header>
+        <soap:header message="tns:UpdatePolicyRules" part="To" use="literal">
+        </soap:header>
+        <soap:header message="tns:UpdatePolicyRules" part="ReplyTo" use="literal">
+        </soap:header>
+        <soap:header message="tns:UpdatePolicyRules" part="MessageID" use="literal">
+        </soap:header>
+        <soap:header message="tns:UpdatePolicyRules" part="Action" use="literal">
+        </soap:header>
+        <soap:body namespace="http://namespaces.gsma.org/esim-messaging/1" parts="FunctionCallIdentifier ValidityPeriod Eid Iccid pol2" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="UpdatePolicyRulesResponse">
+        <soap:header message="tns:UpdatePolicyRulesResponse" part="Action" use="literal">
+        </soap:header>
+        <soap:body namespace="http://namespaces.gsma.org/esim-messaging/1" parts="return" use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ProfileDownloadCompleted">
+      <soap:operation soapAction="http://gsma.com/ES3/ProfileManagent/ES3-ProfileDownloadCompleted" style="rpc"/>
+      <wsdl:input name="ProfileDownloadCompleted">
+        <soap:header message="tns:ProfileDownloadCompleted" part="From" use="literal">
+        </soap:header>
+        <soap:header message="tns:ProfileDownloadCompleted" part="To" use="literal">
+        </soap:header>
+        <soap:header message="tns:ProfileDownloadCompleted" part="ReplyTo" use="literal">
+        </soap:header>
+        <soap:header message="tns:ProfileDownloadCompleted" part="MessageID" use="literal">
+        </soap:header>
+        <soap:header message="tns:ProfileDownloadCompleted" part="Action" use="literal">
+        </soap:header>
+        <soap:body namespace="http://namespaces.gsma.org/esim-messaging/1" parts="FunctionCallIdentifier ValidityPeriod Eid Iccid ProfileType SubscriptionAddress pol2" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="ProfileDownloadCompletedResponse">
+        <soap:header message="tns:ProfileDownloadCompletedResponse" part="Action" use="literal">
+        </soap:header>
+        <soap:body namespace="http://namespaces.gsma.org/esim-messaging/1" parts="return" use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateISDP">
+      <soap:operation soapAction="http://gsma.com/ES3/ProfileManagent/ES3-CreateISDP" style="rpc"/>
+      <wsdl:input name="CreateISDP">
+        <soap:header message="tns:CreateISDP" part="From" use="literal">
+        </soap:header>
+        <soap:header message="tns:CreateISDP" part="To" use="literal">
+        </soap:header>
+        <soap:header message="tns:CreateISDP" part="ReplyTo" use="literal">
+        </soap:header>
+        <soap:header message="tns:CreateISDP" part="MessageID" use="literal">
+        </soap:header>
+        <soap:header message="tns:CreateISDP" part="Action" use="literal">
+        </soap:header>
+        <soap:body namespace="http://namespaces.gsma.org/esim-messaging/1" parts="FunctionCallIdentifier ValidityPeriod Eid Iccid Mno-id RequiredMemory moreToDo" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="CreateISDPResponse">
+        <soap:header message="tns:CreateISDPResponse" part="Action" use="literal">
+        </soap:header>
+        <soap:header message="tns:CreateISDPResponse" part="RelatesTo" use="literal">
+        </soap:header>
+        <soap:body namespace="http://namespaces.gsma.org/esim-messaging/1" parts="return" use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="Exception">
+        <soap:fault name="Exception" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteISDP">
+      <soap:operation soapAction="http://gsma.com/ES3/ProfileManagent/ES3-DeleteISDP" style="rpc"/>
+      <wsdl:input name="DeleteISDP">
+        <soap:header message="tns:DeleteISDP" part="From" use="literal">
+        </soap:header>
+        <soap:header message="tns:DeleteISDP" part="To" use="literal">
+        </soap:header>
+        <soap:header message="tns:DeleteISDP" part="ReplyTo" use="literal">
+        </soap:header>
+        <soap:header message="tns:DeleteISDP" part="MessageID" use="literal">
+        </soap:header>
+        <soap:header message="tns:DeleteISDP" part="Action" use="literal">
+        </soap:header>
+        <soap:body namespace="http://namespaces.gsma.org/esim-messaging/1" parts="FunctionCallIdentifier ValidityPeriod Eid Iccid" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="DeleteISDPResponse">
+        <soap:header message="tns:DeleteISDPResponse" part="Action" use="literal">
+        </soap:header>
+        <soap:header message="tns:DeleteISDPResponse" part="RelatesTo" use="literal">
+        </soap:header>
+        <soap:body namespace="http://namespaces.gsma.org/esim-messaging/1" parts="return" use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="Exception">
+        <soap:fault name="Exception" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="GetEIS">
+      <soap:operation soapAction="http://gsma.com/ES3/ProfileManagent/ES3-GetEISRequest" style="rpc"/>
+      <wsdl:input name="GetEIS">
+        <soap:header message="tns:GetEIS" part="From" use="literal">
+        </soap:header>
+        <soap:header message="tns:GetEIS" part="To" use="literal">
+        </soap:header>
+        <soap:header message="tns:GetEIS" part="ReplyTo" use="literal">
+        </soap:header>
+        <soap:header message="tns:GetEIS" part="MessageID" use="literal">
+        </soap:header>
+        <soap:header message="tns:GetEIS" part="Action" use="literal">
+        </soap:header>
+        <soap:body namespace="http://namespaces.gsma.org/esim-messaging/1" parts="FunctionCallIdentifier ValidityPeriod Eid" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="GetEISResponse">
+        <soap:header message="tns:GetEISResponse" part="Action" use="literal">
+        </soap:header>
+        <soap:header message="tns:GetEISResponse" part="RelatesTo" use="literal">
+        </soap:header>
+        <soap:body namespace="http://namespaces.gsma.org/esim-messaging/1" parts="FunctionExecutionStatus" use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DisableProfile">
+      <soap:operation soapAction="http://gsma.com/ES3/ProfileManagent/ES3-DisableProfile" style="rpc"/>
+      <wsdl:input name="DisableProfile">
+        <soap:header message="tns:DisableProfile" part="From" use="literal">
+        </soap:header>
+        <soap:header message="tns:DisableProfile" part="To" use="literal">
+        </soap:header>
+        <soap:header message="tns:DisableProfile" part="ReplyTo" use="literal">
+        </soap:header>
+        <soap:header message="tns:DisableProfile" part="MessageID" use="literal">
+        </soap:header>
+        <soap:header message="tns:DisableProfile" part="Action" use="literal">
+        </soap:header>
+        <soap:body namespace="http://namespaces.gsma.org/esim-messaging/1" parts="FunctionCallIdentifier ValidityPeriod Eid Iccid" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="DisableProfileResponse">
+        <soap:header message="tns:DisableProfileResponse" part="Action" use="literal">
+        </soap:header>
+        <soap:header message="tns:DisableProfileResponse" part="RelatesTo" use="literal">
+        </soap:header>
+        <soap:body namespace="http://namespaces.gsma.org/esim-messaging/1" parts="return" use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="Exception">
+        <soap:fault name="Exception" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="EnableProfile">
+      <soap:operation soapAction="http://gsma.com/ES3/ProfileManagent/ES3-EnableProfile" style="rpc"/>
+      <wsdl:input name="EnableProfile">
+        <soap:header message="tns:EnableProfile" part="From" use="literal">
+        </soap:header>
+        <soap:header message="tns:EnableProfile" part="To" use="literal">
+        </soap:header>
+        <soap:header message="tns:EnableProfile" part="ReplyTo" use="literal">
+        </soap:header>
+        <soap:header message="tns:EnableProfile" part="MessageID" use="literal">
+        </soap:header>
+        <soap:header message="tns:EnableProfile" part="Action" use="literal">
+        </soap:header>
+        <soap:body namespace="http://namespaces.gsma.org/esim-messaging/1" parts="FunctionCallIdentifier ValidityPeriod Eid Iccid" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="EnableProfileResponse">
+        <soap:header message="tns:EnableProfileResponse" part="Action" use="literal">
+        </soap:header>
+        <soap:header message="tns:EnableProfileResponse" part="RelatesTo" use="literal">
+        </soap:header>
+        <soap:body namespace="http://namespaces.gsma.org/esim-messaging/1" parts="return" use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="Exception">
+        <soap:fault name="Exception" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateConnectivityParameters">
+      <soap:operation soapAction="http://gsma.com/ES3/ProfileManagent/ES3-UpdateConnectivityParameters" style="rpc"/>
+      <wsdl:input name="UpdateConnectivityParameters">
+        <soap:header message="tns:UpdateConnectivityParameters" part="From" use="literal">
+        </soap:header>
+        <soap:header message="tns:UpdateConnectivityParameters" part="To" use="literal">
+        </soap:header>
+        <soap:header message="tns:UpdateConnectivityParameters" part="ReplyTo" use="literal">
+        </soap:header>
+        <soap:header message="tns:UpdateConnectivityParameters" part="MessageID" use="literal">
+        </soap:header>
+        <soap:header message="tns:UpdateConnectivityParameters" part="Action" use="literal">
+        </soap:header>
+        <soap:body namespace="http://namespaces.gsma.org/esim-messaging/1" parts="FunctionCallIdentifier ValidityPeriod Eid Iccid ConnectivityParameters" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="UpdateConnectivityParametersResponse">
+        <soap:header message="tns:UpdateConnectivityParametersResponse" part="Action" use="literal">
+        </soap:header>
+        <soap:header message="tns:UpdateConnectivityParametersResponse" part="RelatesTo" use="literal">
+        </soap:header>
+        <soap:body namespace="http://namespaces.gsma.org/esim-messaging/1" parts="return" use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="Exception">
+        <soap:fault name="Exception" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="AuditEIS">
+      <soap:operation soapAction="http://gsma.com/ES3/ProfileManagent/ES3-AuditEIS" style="rpc"/>
+      <wsdl:input name="AuditEIS">
+        <soap:header message="tns:AuditEIS" part="From" use="literal">
+        </soap:header>
+        <soap:header message="tns:AuditEIS" part="To" use="literal">
+        </soap:header>
+        <soap:header message="tns:AuditEIS" part="ReplyTo" use="literal">
+        </soap:header>
+        <soap:header message="tns:AuditEIS" part="MessageID" use="literal">
+        </soap:header>
+        <soap:header message="tns:AuditEIS" part="Action" use="literal">
+        </soap:header>
+        <soap:body namespace="http://namespaces.gsma.org/esim-messaging/1" parts="FunctionCallIdentifier ValidityPeriod Eid" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="AuditEISResponse">
+        <soap:header message="tns:AuditEISResponse" part="Action" use="literal">
+        </soap:header>
+        <soap:header message="tns:AuditEISResponse" part="RelatesTo" use="literal">
+        </soap:header>
+        <soap:body namespace="http://namespaces.gsma.org/esim-messaging/1" parts="FunctionExecutionStatus" use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="Exception">
+        <soap:fault name="Exception" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="SMSR">
+    <wsdl:port binding="tns:SMSRSoapBinding" name="ES3Port">
+      <soap:address location="http://localhost:8080/njiwa_war/SMSR/ES3"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

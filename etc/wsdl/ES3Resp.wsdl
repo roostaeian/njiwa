@@ -1,0 +1,235 @@
+<?xml version='1.0' encoding='UTF-8'?><wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:tns="http://namespaces.gsma.org/esim-messaging/1" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http" name="SMDP" targetNamespace="http://namespaces.gsma.org/esim-messaging/1">
+  <wsdl:types>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ns1="http://namespaces.gsma.org/esim-messaging/1" xmlns="http://www.w3.org/2007/05/addressing/metadata" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://www.w3.org/2007/05/addressing/metadata">
+  <xs:import namespace="http://namespaces.gsma.org/esim-messaging/1"/>
+  <xs:element name="wsaEndPointReference" type="ns1:wsaEndPointReference"/>
+  <xs:element name="From" nillable="true" type="ns1:wsaEndPointReference"/>
+  <xs:element name="To" nillable="true" type="xs:string"/>
+  <xs:element name="relatesTo" nillable="true" type="xs:string"/>
+  <xs:element name="Action" nillable="true" type="xs:string"/>
+</xs:schema>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://namespaces.gsma.org/esim-messaging/1" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://namespaces.gsma.org/esim-messaging/1">
+  <xs:element name="executionStatus" type="tns:executionStatus"/>
+  <xs:element name="statusCode" type="tns:statusCode"/>
+  <xs:complexType name="wsaEndPointReference">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Address" type="xs:string"/>
+      <xs:element minOccurs="0" name="ReferenceParameters" nillable="true" type="xs:string"/>
+      <xs:element minOccurs="0" name="MetaData" nillable="true" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="executionStatus">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Status" type="tns:status"/>
+      <xs:element minOccurs="0" name="StatusCodeData" type="tns:statusCode"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="statusCode">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Subject" type="xs:string"/>
+      <xs:element minOccurs="0" name="Reason" type="xs:string"/>
+      <xs:element minOccurs="0" name="SubjectIdentifier" type="xs:string"/>
+      <xs:element minOccurs="0" name="Message" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:simpleType name="status">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="EXECUTED_SUCCESS"/>
+      <xs:enumeration value="EXECUTED_WITHWARNING"/>
+      <xs:enumeration value="FAILED"/>
+      <xs:enumeration value="EXPIRED"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="Exception" type="tns:Exception"/>
+  <xs:complexType name="Exception">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="message" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>
+  </wsdl:types>
+  <wsdl:message name="Exception">
+    <wsdl:part element="tns:Exception" name="Exception">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="CreateISDPResponse">
+    <wsdl:part element="wsam:From" name="From">
+    </wsdl:part>
+    <wsdl:part element="wsam:To" name="To">
+    </wsdl:part>
+    <wsdl:part element="wsam:relatesTo" name="relatesTo">
+    </wsdl:part>
+    <wsdl:part element="wsam:Action" name="Action">
+    </wsdl:part>
+    <wsdl:part name="ProcessingStart" type="xsd:anySimpleType">
+    </wsdl:part>
+    <wsdl:part name="ProcessingEnd" type="xsd:anySimpleType">
+    </wsdl:part>
+    <wsdl:part name="AcceptableValidityPeriod" type="xsd:long">
+    </wsdl:part>
+    <wsdl:part name="FunctionExecutionStatus" type="tns:executionStatus">
+    </wsdl:part>
+    <wsdl:part name="Isd-p-aid" type="xsd:string">
+    </wsdl:part>
+    <wsdl:part name="EuiccResponseData" type="xsd:string">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="CreateISDPResponseResponse">
+    <wsdl:part name="return" type="xsd:string">
+    </wsdl:part>
+    <wsdl:part element="wsam:Action" name="Action">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="EnableISDPResponseResponse">
+    <wsdl:part name="return" type="xsd:string">
+    </wsdl:part>
+    <wsdl:part element="wsam:Action" name="Action">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="SendDataResponse">
+    <wsdl:part element="wsam:From" name="From">
+    </wsdl:part>
+    <wsdl:part element="wsam:To" name="To">
+    </wsdl:part>
+    <wsdl:part element="wsam:relatesTo" name="relatesTo">
+    </wsdl:part>
+    <wsdl:part element="wsam:Action" name="Action">
+    </wsdl:part>
+    <wsdl:part name="ProcessingStart" type="xsd:anySimpleType">
+    </wsdl:part>
+    <wsdl:part name="ProcessingEnd" type="xsd:anySimpleType">
+    </wsdl:part>
+    <wsdl:part name="AcceptableValidityPeriod" type="xsd:long">
+    </wsdl:part>
+    <wsdl:part name="FunctionExecutionStatus" type="tns:executionStatus">
+    </wsdl:part>
+    <wsdl:part name="EuiccResponseData" type="xsd:string">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="EnableISDPResponse">
+    <wsdl:part element="wsam:From" name="From">
+    </wsdl:part>
+    <wsdl:part element="wsam:To" name="To">
+    </wsdl:part>
+    <wsdl:part element="wsam:relatesTo" name="relatesTo">
+    </wsdl:part>
+    <wsdl:part element="wsam:Action" name="Action">
+    </wsdl:part>
+    <wsdl:part name="ProcessingStart" type="xsd:anySimpleType">
+    </wsdl:part>
+    <wsdl:part name="ProcessingEnd" type="xsd:anySimpleType">
+    </wsdl:part>
+    <wsdl:part name="AcceptableValidityPeriod" type="xsd:long">
+    </wsdl:part>
+    <wsdl:part name="FunctionExecutionStatus" type="tns:executionStatus">
+    </wsdl:part>
+    <wsdl:part name="EuiccResponseData" type="xsd:string">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="SendDataResponseResponse">
+    <wsdl:part name="return" type="xsd:string">
+    </wsdl:part>
+    <wsdl:part element="wsam:Action" name="Action">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="ES3">
+    <wsdl:operation name="SendDataResponse" parameterOrder="From To relatesTo Action ProcessingStart ProcessingEnd AcceptableValidityPeriod FunctionExecutionStatus EuiccResponseData">
+      <wsdl:input message="tns:SendDataResponse" name="SendDataResponse" wsam:Action="http://gsma.com/ES3/ProfileManagentCallBack/ES3-SendData" wsaw:Action="http://gsma.com/ES3/ProfileManagentCallBack/ES3-SendData">
+    </wsdl:input>
+      <wsdl:output message="tns:SendDataResponseResponse" name="SendDataResponseResponse" wsam:Action="http://namespaces.gsma.org/esim-messaging/1/ES3/SendDataResponseResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:Exception" name="Exception" wsam:Action="http://namespaces.gsma.org/esim-messaging/1/ES3/SendDataResponse/Fault/Exception">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="EnableISDPResponse" parameterOrder="From To relatesTo Action ProcessingStart ProcessingEnd AcceptableValidityPeriod FunctionExecutionStatus EuiccResponseData">
+      <wsdl:input message="tns:EnableISDPResponse" name="EnableISDPResponse" wsam:Action="http://gsma.com/ES3/ProfileManagentCallBack/ES3-EnableISDP" wsaw:Action="http://gsma.com/ES3/ProfileManagentCallBack/ES3-EnableISDP">
+    </wsdl:input>
+      <wsdl:output message="tns:EnableISDPResponseResponse" name="EnableISDPResponseResponse" wsam:Action="http://namespaces.gsma.org/esim-messaging/1/ES3/EnableISDPResponseResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:Exception" name="Exception" wsam:Action="http://namespaces.gsma.org/esim-messaging/1/ES3/EnableISDPResponse/Fault/Exception">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="CreateISDPResponse" parameterOrder="From To relatesTo Action ProcessingStart ProcessingEnd AcceptableValidityPeriod FunctionExecutionStatus Isd-p-aid EuiccResponseData">
+      <wsdl:input message="tns:CreateISDPResponse" name="CreateISDPResponse" wsam:Action="http://gsma.com/ES3/ProfileManagentCallBack/ES3-CreateISDP" wsaw:Action="http://gsma.com/ES3/ProfileManagentCallBack/ES3-CreateISDP">
+    </wsdl:input>
+      <wsdl:output message="tns:CreateISDPResponseResponse" name="CreateISDPResponseResponse" wsam:Action="http://namespaces.gsma.org/esim-messaging/1/ES3/CreateISDPResponseResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:Exception" name="Exception" wsam:Action="http://namespaces.gsma.org/esim-messaging/1/ES3/CreateISDPResponse/Fault/Exception">
+    </wsdl:fault>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="SMDPSoapBinding" type="tns:ES3">
+    <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="SendDataResponse">
+      <soap:operation soapAction="http://gsma.com/ES3/ProfileManagentCallBack/ES3-SendData" style="rpc"/>
+      <wsdl:input name="SendDataResponse">
+        <soap:header message="tns:SendDataResponse" part="From" use="literal">
+        </soap:header>
+        <soap:header message="tns:SendDataResponse" part="To" use="literal">
+        </soap:header>
+        <soap:header message="tns:SendDataResponse" part="relatesTo" use="literal">
+        </soap:header>
+        <soap:header message="tns:SendDataResponse" part="Action" use="literal">
+        </soap:header>
+        <soap:body namespace="http://namespaces.gsma.org/esim-messaging/1" parts="ProcessingStart ProcessingEnd AcceptableValidityPeriod FunctionExecutionStatus EuiccResponseData" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="SendDataResponseResponse">
+        <soap:header message="tns:SendDataResponseResponse" part="Action" use="literal">
+        </soap:header>
+        <soap:body namespace="http://namespaces.gsma.org/esim-messaging/1" parts="return" use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="Exception">
+        <soap:fault name="Exception" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="EnableISDPResponse">
+      <soap:operation soapAction="http://gsma.com/ES3/ProfileManagentCallBack/ES3-EnableISDP" style="rpc"/>
+      <wsdl:input name="EnableISDPResponse">
+        <soap:header message="tns:EnableISDPResponse" part="From" use="literal">
+        </soap:header>
+        <soap:header message="tns:EnableISDPResponse" part="To" use="literal">
+        </soap:header>
+        <soap:header message="tns:EnableISDPResponse" part="relatesTo" use="literal">
+        </soap:header>
+        <soap:header message="tns:EnableISDPResponse" part="Action" use="literal">
+        </soap:header>
+        <soap:body namespace="http://namespaces.gsma.org/esim-messaging/1" parts="ProcessingStart ProcessingEnd AcceptableValidityPeriod FunctionExecutionStatus EuiccResponseData" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="EnableISDPResponseResponse">
+        <soap:header message="tns:EnableISDPResponseResponse" part="Action" use="literal">
+        </soap:header>
+        <soap:body namespace="http://namespaces.gsma.org/esim-messaging/1" parts="return" use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="Exception">
+        <soap:fault name="Exception" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="CreateISDPResponse">
+      <soap:operation soapAction="http://gsma.com/ES3/ProfileManagentCallBack/ES3-CreateISDP" style="rpc"/>
+      <wsdl:input name="CreateISDPResponse">
+        <soap:header message="tns:CreateISDPResponse" part="From" use="literal">
+        </soap:header>
+        <soap:header message="tns:CreateISDPResponse" part="To" use="literal">
+        </soap:header>
+        <soap:header message="tns:CreateISDPResponse" part="relatesTo" use="literal">
+        </soap:header>
+        <soap:header message="tns:CreateISDPResponse" part="Action" use="literal">
+        </soap:header>
+        <soap:body namespace="http://namespaces.gsma.org/esim-messaging/1" parts="ProcessingStart ProcessingEnd AcceptableValidityPeriod FunctionExecutionStatus Isd-p-aid EuiccResponseData" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="CreateISDPResponseResponse">
+        <soap:header message="tns:CreateISDPResponseResponse" part="Action" use="literal">
+        </soap:header>
+        <soap:body namespace="http://namespaces.gsma.org/esim-messaging/1" parts="return" use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="Exception">
+        <soap:fault name="Exception" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="SMDP">
+    <wsdl:port binding="tns:SMDPSoapBinding" name="ES3Port">
+      <soap:address location="http://localhost:8080/njiwa_war/SMDP/ES3"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

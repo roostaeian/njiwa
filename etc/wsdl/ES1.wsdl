@@ -1,0 +1,478 @@
+<?xml version='1.0' encoding='UTF-8'?><wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:tns="http://namespaces.gsma.org/esim-messaging/1" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http" name="SMSR" targetNamespace="http://namespaces.gsma.org/esim-messaging/1">
+  <wsdl:types>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ns1="http://namespaces.gsma.org/esim-messaging/1" xmlns="http://www.w3.org/2007/05/addressing/metadata" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://www.w3.org/2007/05/addressing/metadata">
+  <xs:import namespace="http://namespaces.gsma.org/esim-messaging/1"/>
+  <xs:element name="wsaEndPointReference" type="ns1:wsaEndPointReference"/>
+  <xs:element name="From" nillable="true" type="ns1:wsaEndPointReference"/>
+  <xs:element name="To" nillable="true" type="xs:string"/>
+  <xs:element name="ReplyTo" nillable="true" type="ns1:wsaEndPointReference"/>
+  <xs:element name="MessageID" nillable="true" type="xs:string"/>
+  <xs:element name="Action" nillable="true" type="xs:string"/>
+  <xs:element name="RelatesTo" nillable="true" type="xs:string"/>
+</xs:schema>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ns1="http://namespaces.gsma.org/esim-messaging/1" targetNamespace="http://www.w3.org/2000/09/xmldsig#" version="1.0">
+
+  <xs:import namespace="http://namespaces.gsma.org/esim-messaging/1"/>
+
+  <xs:element name="CanonicalizationMethod" type="ns1:algoMethod"/>
+
+  <xs:element name="DigestMethod" type="ns1:algoMethod"/>
+
+  <xs:element name="DigestValue" type="xs:base64Binary"/>
+
+  <xs:element name="KeyInfo" type="ns1:keyInfo"/>
+
+  <xs:element name="Reference" type="ns1:reference"/>
+
+  <xs:element name="Signature" type="ns1:signature"/>
+
+  <xs:element name="SignatureMethod" type="ns1:algoMethod"/>
+
+  <xs:element name="SignatureValue" type="xs:base64Binary"/>
+
+  <xs:element name="SignedInfo" type="ns1:signedInfo"/>
+
+  <xs:element name="Transforms" type="ns1:transforms"/>
+
+  <xs:element name="X509Certificate" type="xs:base64Binary"/>
+
+  <xs:element name="X509Data" type="ns1:x509Data"/>
+
+  <xs:element name="X509SubjectName" type="xs:string"/>
+
+  <xs:element name="algoMethod" type="ns1:algoMethod"/>
+
+  <xs:element name="keyInfo" type="ns1:keyInfo"/>
+
+  <xs:element name="reference" type="ns1:reference"/>
+
+  <xs:element name="signature" type="ns1:signature"/>
+
+  <xs:element name="signedInfo" type="ns1:signedInfo"/>
+
+  <xs:element name="transform" type="ns1:transform"/>
+
+  <xs:element name="transforms" type="ns1:transforms"/>
+
+  <xs:element name="x509Data" type="ns1:x509Data"/>
+
+
+
+
+
+
+
+
+
+</xs:schema>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://namespaces.gsma.org/esim-messaging/1" xmlns:ns1="http://www.w3.org/2000/09/xmldsig#" targetNamespace="http://namespaces.gsma.org/esim-messaging/1" version="1.0">
+
+  <xs:import namespace="http://www.w3.org/2000/09/xmldsig#"/>
+
+  <xs:element name="AuditTrailRecordType" type="tns:auditTrailRecord"/>
+
+  <xs:element name="KeyComponent" type="tns:component"/>
+
+  <xs:element name="Rule" type="tns:pol2RuleType"/>
+
+  <xs:element name="SubscriptionAddressType" type="tns:subscriptionAddress"/>
+
+  <xs:element name="additionalProperties" type="tns:additionalProperties"/>
+
+  <xs:element name="auditTrail" type="tns:auditTrail"/>
+
+  <xs:element name="baseResponseType" type="tns:baseResponseType"/>
+
+  <xs:element name="certificate" type="tns:certificate"/>
+
+  <xs:element name="eis" type="tns:eis"/>
+
+  <xs:element name="euiCCCapabilities" type="tns:euiCCCapabilities"/>
+
+  <xs:element name="eumSignedInfo" type="tns:eumSignedInfo"/>
+
+  <xs:element name="executionStatus" type="tns:executionStatus"/>
+
+  <xs:element name="key" type="tns:key"/>
+
+  <xs:element name="keySet" type="tns:keySet"/>
+
+  <xs:element name="pol2Type" type="tns:pol2Type"/>
+
+  <xs:element name="profileInfo" type="tns:profileInfo"/>
+
+  <xs:element name="securityDomain" type="tns:securityDomain"/>
+
+  <xs:element name="statusCode" type="tns:statusCode"/>
+
+  <xs:complexType name="wsaEndPointReference">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Address" type="xs:string"/>
+      <xs:element minOccurs="0" name="ReferenceParameters" nillable="true" type="xs:string"/>
+      <xs:element minOccurs="0" name="MetaData" nillable="true" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="eis">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="EumSignedInfo" type="tns:eumSignedInfo"/>
+      <xs:element minOccurs="0" ref="ns1:Signature"/>
+      <xs:element name="RemainingMemory" type="xs:long"/>
+      <xs:element name="AvailableMemoryForProfiles" type="xs:long"/>
+      <xs:element minOccurs="0" name="lastAuditDate" type="xs:string"/>
+      <xs:element minOccurs="0" name="Smsr-id" type="xs:string"/>
+      <xs:element minOccurs="0" name="EumCertificateId" type="xs:string"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="profiles" type="tns:profileInfo"/>
+      <xs:element minOccurs="0" name="isd-r" type="tns:securityDomain"/>
+      <xs:element minOccurs="0" name="AuditTrail" type="tns:auditTrail"/>
+      <xs:element minOccurs="0" name="AdditionalProperties" type="tns:additionalProperties"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="eumSignedInfo">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Eid" type="xs:string"/>
+      <xs:element minOccurs="0" name="Eum-Id" type="xs:string"/>
+      <xs:element minOccurs="0" name="ProductionDate" type="xs:string"/>
+      <xs:element minOccurs="0" name="PlatformType" type="xs:string"/>
+      <xs:element minOccurs="0" name="PlatformVersion" type="xs:string"/>
+      <xs:element minOccurs="0" name="isd-p-loadfile-aid" type="xs:string"/>
+      <xs:element minOccurs="0" name="isd-p-module-aid" type="xs:string"/>
+      <xs:element minOccurs="0" name="Ecasd" type="tns:securityDomain"/>
+      <xs:element minOccurs="0" name="EuiccCapabilities" type="tns:euiCCCapabilities"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="securityDomain">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Aid" type="xs:string"/>
+      <xs:element minOccurs="0" name="Tar" type="xs:string"/>
+      <xs:element minOccurs="0" name="Sin" type="xs:string"/>
+      <xs:element minOccurs="0" name="Sdin" type="xs:string"/>
+      <xs:element minOccurs="0" name="Role" type="tns:role"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="keySets" type="tns:keySet"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="keySet">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Version" type="xs:string"/>
+      <xs:element minOccurs="0" name="Type" type="tns:type"/>
+      <xs:element name="Cntr" type="xs:long"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="keys" type="tns:key"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="certificates" type="tns:certificate"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="key">
+    <xs:sequence>
+      <xs:element name="Index" type="xs:long"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="components" type="tns:component"/>
+    </xs:sequence>
+    <xs:attribute name="kcv" type="xs:string"/>
+  </xs:complexType>
+
+  <xs:complexType name="component">
+    <xs:sequence/>
+    <xs:attribute name="type" type="xs:string"/>
+    <xs:attribute name="value" type="xs:string"/>
+  </xs:complexType>
+
+  <xs:complexType name="certificate">
+    <xs:sequence>
+      <xs:element name="Index" type="xs:long"/>
+      <xs:element minOccurs="0" name="CaId" type="xs:string"/>
+      <xs:element minOccurs="0" name="Value" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="euiCCCapabilities">
+    <xs:sequence>
+      <xs:element name="CattpSupport" type="xs:boolean"/>
+      <xs:element minOccurs="0" name="CattpVersion" type="xs:string"/>
+      <xs:element name="HttpSupport" type="xs:boolean"/>
+      <xs:element minOccurs="0" name="HttpVersion" type="xs:string"/>
+      <xs:element minOccurs="0" name="SecurePacketVersion" type="xs:string"/>
+      <xs:element minOccurs="0" name="RemoteProvisioningVersion" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="signature">
+    <xs:sequence>
+      <xs:element minOccurs="0" ref="ns1:SignedInfo"/>
+      <xs:element minOccurs="0" ref="ns1:SignatureValue"/>
+      <xs:element minOccurs="0" ref="ns1:KeyInfo"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="signedInfo">
+    <xs:sequence>
+      <xs:element minOccurs="0" ref="ns1:CanonicalizationMethod"/>
+      <xs:element minOccurs="0" ref="ns1:SignatureMethod"/>
+      <xs:element minOccurs="0" ref="ns1:Reference"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="algoMethod">
+    <xs:sequence/>
+    <xs:attribute name="Algorithm" type="xs:string"/>
+  </xs:complexType>
+
+  <xs:complexType name="reference">
+    <xs:sequence>
+      <xs:element minOccurs="0" ref="ns1:Transforms"/>
+      <xs:element minOccurs="0" ref="ns1:DigestValue"/>
+      <xs:element minOccurs="0" ref="ns1:DigestMethod"/>
+    </xs:sequence>
+    <xs:attribute name="uri" type="xs:string"/>
+  </xs:complexType>
+
+  <xs:complexType name="transforms">
+    <xs:sequence>
+      <xs:any maxOccurs="unbounded" minOccurs="0" namespace="##other" processContents="skip"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="keyInfo">
+    <xs:sequence>
+      <xs:element minOccurs="0" ref="ns1:X509Data"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="x509Data">
+    <xs:sequence>
+      <xs:element minOccurs="0" ref="ns1:X509SubjectName"/>
+      <xs:element minOccurs="0" ref="ns1:X509Certificate"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="profileInfo">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Iccid" type="xs:string"/>
+      <xs:element minOccurs="0" name="Isd-p-aid" type="xs:string"/>
+      <xs:element minOccurs="0" name="Mno-id" type="xs:string"/>
+      <xs:element name="FallbackAttribute" type="xs:boolean"/>
+      <xs:element minOccurs="0" name="SubscriptionAddress" type="tns:subscriptionAddress"/>
+      <xs:element minOccurs="0" name="State" type="tns:state"/>
+      <xs:element minOccurs="0" name="Smdp-id" type="xs:string"/>
+      <xs:element minOccurs="0" name="ProfileType" type="xs:string"/>
+      <xs:element name="AllocatedMemory" type="xs:int"/>
+      <xs:element name="FreeMemoery" type="xs:int"/>
+      <xs:element minOccurs="0" name="pol2" type="tns:pol2Type"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="subscriptionAddress">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Imsi" type="xs:string"/>
+      <xs:element minOccurs="0" name="Msisdn" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="pol2Type">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="rules" nillable="true" type="tns:pol2RuleType"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="pol2RuleType">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Subject" type="tns:subject"/>
+      <xs:element minOccurs="0" name="Action" type="tns:action"/>
+      <xs:element minOccurs="0" name="Qualification" type="tns:qualification"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="auditTrail">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="auditTrailRecords" type="tns:auditTrailRecord"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="auditTrailRecord">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Eid" type="xs:string"/>
+      <xs:element minOccurs="0" name="Smsr-id" type="xs:string"/>
+      <xs:element minOccurs="0" name="OperationDate" type="xs:anySimpleType"/>
+      <xs:element minOccurs="0" name="OperationType" type="xs:string"/>
+      <xs:element minOccurs="0" name="RequesterId" type="xs:string"/>
+      <xs:element minOccurs="0" name="OperationExecutionStatus" type="tns:executionStatus"/>
+      <xs:element minOccurs="0" name="Isd-p-aid" type="xs:string"/>
+      <xs:element minOccurs="0" name="Iccid" type="xs:string"/>
+      <xs:element minOccurs="0" name="Imei" type="xs:string"/>
+      <xs:element minOccurs="0" name="Meid" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="executionStatus">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Status" type="tns:status"/>
+      <xs:element minOccurs="0" name="StatusCodeData" type="tns:statusCode"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="statusCode">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Subject" type="xs:string"/>
+      <xs:element minOccurs="0" name="Reason" type="xs:string"/>
+      <xs:element minOccurs="0" name="SubjectIdentifier" type="xs:string"/>
+      <xs:element minOccurs="0" name="Message" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="additionalProperties">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="properties" type="tns:property"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="property">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="key" type="xs:string"/>
+      <xs:element minOccurs="0" name="value" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="transform">
+    <xs:complexContent>
+      <xs:extension base="tns:algoMethod">
+        <xs:sequence/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="baseResponseType">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ProcessingStart" type="xs:anySimpleType"/>
+      <xs:element minOccurs="0" name="ProcessingEnd" type="xs:anySimpleType"/>
+      <xs:element name="AcceptableValidityPeriod" type="xs:long"/>
+      <xs:element minOccurs="0" name="FunctionExecutionStatus" type="tns:executionStatus"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="role">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ISD-R"/>
+      <xs:enumeration value="ECASD"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="type">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="SCP03"/>
+      <xs:enumeration value="SCP80"/>
+      <xs:enumeration value="SCP81"/>
+      <xs:enumeration value="TokenGeneration"/>
+      <xs:enumeration value="ReceiptVerification"/>
+      <xs:enumeration value="CA"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="state">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="InstallInProgress"/>
+      <xs:enumeration value="Created"/>
+      <xs:enumeration value="Enabled"/>
+      <xs:enumeration value="Disabled"/>
+      <xs:enumeration value="Deleted"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="subject">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="PROFILE"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="action">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ENABLE"/>
+      <xs:enumeration value="DISABLE"/>
+      <xs:enumeration value="DELETE"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="qualification">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Not-Allowed"/>
+      <xs:enumeration value="Auto-Delete"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="status">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="EXECUTED_SUCCESS"/>
+      <xs:enumeration value="EXECUTED_WITHWARNING"/>
+      <xs:enumeration value="FAILED"/>
+      <xs:enumeration value="EXPIRED"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>
+  </wsdl:types>
+  <wsdl:message name="RegisterEIS">
+    <wsdl:part element="wsam:From" name="From">
+    </wsdl:part>
+    <wsdl:part element="wsam:To" name="To">
+    </wsdl:part>
+    <wsdl:part element="wsam:ReplyTo" name="ReplyTo">
+    </wsdl:part>
+    <wsdl:part element="wsam:MessageID" name="MessageID">
+    </wsdl:part>
+    <wsdl:part element="wsam:Action" name="Action">
+    </wsdl:part>
+    <wsdl:part name="FunctionCallIdentifier" type="xsd:string">
+    </wsdl:part>
+    <wsdl:part name="ValidityPeriod" type="xsd:long">
+    </wsdl:part>
+    <wsdl:part name="Eis" type="tns:eis">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="RegisterEISResponse">
+    <wsdl:part name="FunctionExecutionStatus" type="tns:baseResponseType">
+    </wsdl:part>
+    <wsdl:part element="wsam:Action" name="Action">
+    </wsdl:part>
+    <wsdl:part element="wsam:RelatesTo" name="RelatesTo">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="ES1">
+    <wsdl:operation name="RegisterEIS" parameterOrder="From To ReplyTo MessageID Action FunctionCallIdentifier ValidityPeriod Eis RelatesTo">
+      <wsdl:input message="tns:RegisterEIS" name="RegisterEIS" wsam:Action="http://gsma.com/ES1/eUICCManagement/ES1-RegisterEISRequest" wsaw:Action="http://gsma.com/ES1/eUICCManagement/ES1-RegisterEISRequest">
+    </wsdl:input>
+      <wsdl:output message="tns:RegisterEISResponse" name="RegisterEISResponse" wsam:Action="http://gsma.com/ES1/eUICCManagement/ES1-RegisterEISResponse" wsaw:Action="http://gsma.com/ES1/eUICCManagement/ES1-RegisterEISResponse">
+    </wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="SMSRSoapBinding" type="tns:ES1">
+    <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="RegisterEIS">
+      <soap:operation soapAction="http://gsma.com/ES1/eUICCManagement/ES1-RegisterEISRequest" style="rpc"/>
+      <wsdl:input name="RegisterEIS">
+        <soap:header message="tns:RegisterEIS" part="From" use="literal">
+        </soap:header>
+        <soap:header message="tns:RegisterEIS" part="To" use="literal">
+        </soap:header>
+        <soap:header message="tns:RegisterEIS" part="ReplyTo" use="literal">
+        </soap:header>
+        <soap:header message="tns:RegisterEIS" part="MessageID" use="literal">
+        </soap:header>
+        <soap:header message="tns:RegisterEIS" part="Action" use="literal">
+        </soap:header>
+        <soap:body namespace="http://namespaces.gsma.org/esim-messaging/1" parts="FunctionCallIdentifier ValidityPeriod Eis" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="RegisterEISResponse">
+        <soap:header message="tns:RegisterEISResponse" part="Action" use="literal">
+        </soap:header>
+        <soap:header message="tns:RegisterEISResponse" part="RelatesTo" use="literal">
+        </soap:header>
+        <soap:body namespace="http://namespaces.gsma.org/esim-messaging/1" parts="FunctionExecutionStatus" use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="SMSR">
+    <wsdl:port binding="tns:SMSRSoapBinding" name="ES1Port">
+      <soap:address location="http://localhost:8080/njiwa_war/SMSR/ES1"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

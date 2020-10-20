@@ -750,13 +750,17 @@ public class Utils {
     }
 
 
-    public static void loadKeyStore(String keyfile, String password) throws Exception {
-        loadKeyStore(keyfile, password, true);
+    public static void loadKeyStore( String keyfile,String type, String password) throws Exception {
+        loadKeyStore(keyfile, type, password, true);
     }
 
-    public static KeyStore loadKeyStore(String keyfile, String password, boolean setDefault) throws Exception {
-        KeyStore xks = KeyStore.getInstance(KeyStore.getDefaultType());
+    public static KeyStore loadKeyStore( String keyfile, String password, boolean setDefault) throws Exception {
+        return loadKeyStore(keyfile, null, password, setDefault);
+    }
 
+    public static KeyStore loadKeyStore(String keyfile, String type, String password, boolean setDefault) throws Exception {
+       String ktype = type == null || type.length() == 0 ? KeyStore.getDefaultType() : type;
+        KeyStore xks = KeyStore.getInstance(ktype);
         try {
             FileInputStream fis = new FileInputStream(keyfile);
 

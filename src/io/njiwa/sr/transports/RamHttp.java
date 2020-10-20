@@ -289,7 +289,7 @@ public class RamHttp extends Transport {
             }
         };
 
-        return new Utils.Triple<byte[], Map<String, String>, String>(body, hdrs, APPLICATION_VND_GPC);
+        return new Utils.Triple<>(body, hdrs, APPLICATION_VND_GPC);
     }
 
     /**

@@ -67,6 +67,7 @@ public class InitialiserServlet extends HttpServlet {
         // Get keystore param
 
         String keystoreFile = config.getInitParameter("keyfile");
+        String keystoreType = config.getInitParameter("keystoretype");
         String keystorePass = config.getInitParameter("keyfilepassword");
         String privkeyalias = config.getInitParameter("privatekeyalias");
         String privkeypasswd = config.getInitParameter("privatekeypassword");
@@ -83,7 +84,7 @@ public class InitialiserServlet extends HttpServlet {
         System.setProperty("javax.net.ssl.trustStorePassword", keystorePass);
 
         try {
-            Utils.loadKeyStore(keyfile, keystorePass);
+            Utils.loadKeyStore(keyfile, keystoreType, keystorePass);
             Utils.lg.info("Initialised keystore and trust store locations");
 
            // outputKeyCerts();
