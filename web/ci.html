@@ -76,7 +76,7 @@
     $(document).ready(function () {
 
         // Get info from the server
-        $.ajax('ui/rpa/get_ci_cert', {
+        $.ajax('rest/rpa/get_ci_cert', {
             method: 'GET', dataType: 'JSON', success: function (data) {
                 $('#ci-cert-note').empty();
                 if (data) try {
@@ -102,7 +102,7 @@
                     cert: getfupload('ci-cert'), iIN: $('#ci-iin').val(), oID: $('#ci-oid').val()
                 };
 
-                $.ajax('ui/rpa/update_ci_cert', {
+                $.ajax('rest/rpa/update_ci_cert', {
                     method: 'POST',
                     dataType: 'JSON',
                     data: JSON.stringify(data),

@@ -188,7 +188,7 @@
 
                     if (!confirm('Really remove/delete this external server?')) return false;
 
-                    $.ajax('ui/rpa/'+xid, {
+                    $.ajax('rest/rpa/'+xid, {
                         method: 'DELETE', dataType: 'JSON', success: function (res) {
                             if (res) {
                                 $('#entities').DataTable().draw('full-reset');
@@ -204,7 +204,7 @@
         $('#entities').dataTable({
             // ajaxSource: 'ui/rpa/all',
             ajax: {
-                url: 'ui/rpa/all', dataSrc: ''
+                url: 'rest/rpa/all', dataSrc: ''
             }, columns: [{data: 'oid'}, {data: 'certificateIIN'}, {data: 'type'}, {data: 'x509Subject'}, {
                 data: 'id', orderable: false, createdCell: function (td, cellData, rowData, row, col) {
                     $(td).attr('nowrap', 'nowrap');
@@ -248,7 +248,7 @@
 
                 };
                 // var show_download = $('#show-download').is(':checked');
-                $.ajax('ui/rpa/update', {
+                $.ajax('rest/rpa/update', {
                     method: 'POST',
                     dataType: 'JSON',
                     data: JSON.stringify(data),

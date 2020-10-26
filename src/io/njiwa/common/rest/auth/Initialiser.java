@@ -8,6 +8,7 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.credential.Password;
+import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.basic.BasicModel;
 import org.picketlink.idm.model.basic.User;
 
@@ -65,16 +66,16 @@ public class Initialiser {
 
     private  void delUser(String admin)
     {
-
         IdentityManager identityManager = partitionManager.createIdentityManager();
         User u = BasicModel.getUser(identityManager,admin);
         identityManager.remove(u);
-
     }
 
     private void createUser(String admin, final String defaultAdminGroup) {
         User u = new User(admin);
-        IdentityManager identityManager = partitionManager.createIdentityManager();
+        Partition partition = partitionManager.getPartition(Realm.class,Realm.DEFAULT_REALM);
+        IdentityManager identityManager = partitionManager.createIdentityManager(partition); // Add to default partition
+
         identityManager.add(u);
         identityManager.updateCredential(u, new Password("test"));
 

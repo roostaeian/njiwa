@@ -13,6 +13,7 @@
         <class>io.njiwa.common.model.KeySet</class>
         <class>io.njiwa.common.model.KeyComponent</class>
         <class>io.njiwa.common.model.RpaEntity</class>
+        <class>io.njiwa.common.model.RealmEntity</class>
         <class>io.njiwa.common.model.ServerConfigurations</class>
         <class>io.njiwa.common.model.Group</class>
 

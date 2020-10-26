@@ -17,8 +17,6 @@ import io.njiwa.common.rest.types.RestResponse;
 import io.njiwa.common.rest.types.Roles;
 import org.picketlink.Identity;
 import org.picketlink.credential.DefaultLoginCredentials;
-import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.model.Account;
 
 import javax.ejb.Stateless;
@@ -38,18 +36,12 @@ import java.util.Set;
  */
 @Stateless
 @Path("/auth")
-public class Authenticator {
+public class AuthenticatorService {
 
     @PersistenceContext
     private EntityManager em;
     @Inject
     private Identity identity;
-
-    @Inject
-    private IdentityManager identityManager;
-
-    @Inject
-    private RelationshipManager relationshipManager;
 
     @Inject
     private DefaultLoginCredentials credentials;
@@ -78,8 +70,10 @@ public class Authenticator {
             this.identity.login();
 
             if (this.identity.isLoggedIn()) {
+                Account account = identity.getAccount();
                 response.status = RestResponse.Status.Success;
-                response.response = this.identity.getAccount();
+                response.response = account;
+                response.realm = account.getPartition().getName();
                 response.roles = Group.userRoles(em, u);
             } else {
                 response.status = RestResponse.Status.Failed;
@@ -116,6 +110,7 @@ public class Authenticator {
 
     public class AuthenticationResponse extends RestResponse {
         public Account response;
+        public String realm;
         public Set<String> roles;
         public final String[] allRoles = Roles.ALL_ROLES;
     }

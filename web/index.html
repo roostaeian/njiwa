@@ -199,7 +199,7 @@
         // Handle logout
         $('#logout').on('click', function () {
 
-            $.ajax('ui/auth/logout', {
+            $.ajax('rest/auth/logout', {
                 method: 'GET', dataType: 'JSON', traditional: true, success: function (data) {
                     var t = data;
                     window.location.replace('login.html');
@@ -212,7 +212,7 @@
         });
 
         // Check if logged on
-        $.ajax('ui/auth/check', {
+        $.ajax('rest/auth/check', {
             method: 'GET', dataType: 'JSON', traditional: true, success: function (data) {
                 var t = data.response;
                 // alert(t);

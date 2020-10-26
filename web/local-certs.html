@@ -93,11 +93,11 @@
                             <div class="form-group" id="signing-data-links">
                                 <div class="col-md-3 col-sm-3 col-xs-6"><em>Signing Data:</em></div>
                                 <div class="col-md-3 col-sm-3 col-xs-6">
-                                    <a href="ui/rpa/get_local_signing_data/SMSR" target="download_frame">Download SM-SR Signing Data</a>
+                                    <a href="rest/rpa/get_local_signing_data/SMSR" target="download_frame">Download SM-SR Signing Data</a>
                                 </div>
 
                                 <div class="col-md-3 col-sm-3 col-xs-6">
-                                    <a href="ui/rpa/get_local_signing_data/SMDP" target="download_frame">Download SM-DP Signing Data</a>
+                                    <a href="rest/rpa/get_local_signing_data/SMDP" target="download_frame">Download SM-DP Signing Data</a>
                                 </div>
                             </div>
                         </fieldset>
@@ -128,7 +128,7 @@
     function paint_display()
     {
 
-        return $.ajax('ui/rpa/get_local_certs', {
+        return $.ajax('rest/rpa/get_local_certs', {
             method: 'GET', dataType: 'JSON', success: function (data) {
                 $('#cert-note').empty();
                 $('#dsa-note').empty();
@@ -182,7 +182,7 @@
                     dsaCertKey: getfupload('dsa')
                 };
                // var show_download = $('#show-download').is(':checked');
-                $.ajax('ui/rpa/update_local_certs', {
+                $.ajax('rest/rpa/update_local_certs', {
                     method: 'POST',
                     dataType: 'JSON',
                     data: JSON.stringify(data),

@@ -18,6 +18,6 @@ import javax.ws.rs.core.Application;
 /**
  * Created by bagyenda on 29/05/2017.
  */
-@ApplicationPath("/ui")
+@ApplicationPath("/rest")
 public class EntryPoint extends Application {
 }

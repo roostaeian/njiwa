@@ -40,7 +40,8 @@ import java.util.concurrent.ConcurrentHashMap;
         @Index(columnList = "x509subject,entity_type", name = "rpa_entity_idx2", unique = true),
                 @Index(columnList = "date_added"
         , name = "rpa_entity_idx3"),
-                @Index(columnList = "wsuserid,entity_type", name = "rpa_entity_idx4", unique = true),})
+                @Index(columnList = "wsuserid,entity_type", name = "rpa_entity_idx4", unique = true),
+        @Index(columnList = "dns_name", name="rpa_entity_idx5", unique = true)})
 @SequenceGenerator(name = "rpa_entity", sequenceName = "rpa_entities_seq", allocationSize = 1)
 @JsonIgnoreProperties(value = {"hibernateLazyInitializer", "wskeyStoreAlias", "sMkeyStoreAlias"})
 @DynamicUpdate
@@ -102,6 +103,10 @@ public class RpaEntity {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String x509Subject; //!< This is the X.509 certificate's subject field. It is extracted from the
     // certificate itself
+
+    //!< This is the dns name. Must be unique
+    @Column(nullable = false, columnDefinition = "TEXT", unique = true, name = "dns_name")
+    private String dns_name;
 
     @Column(nullable = true, columnDefinition = "TEXT")
     private String wskeyStoreAlias; //!< The alias in the java keystore, this is the key used for Web Service
@@ -220,6 +225,12 @@ public class RpaEntity {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public static RpaEntity getByDNS(EntityManager em, String dns_name) throws Exception {
+        return em.createQuery("from RpaEntity  where  dns_name = :n", RpaEntity.class)
+                .setParameter("n", dns_name)
+                .getSingleResult();
     }
 
     public static RpaEntity getByUserId(EntityManager em, String userid, Type type) throws Exception {
@@ -588,6 +599,14 @@ public class RpaEntity {
     public Boolean getHasWsKey()
     {
         return getWskeyStoreAlias() != null;
+    }
+
+    public String getDns_name() {
+        return dns_name;
+    }
+
+    public void setDns_name(String dns_name) {
+        this.dns_name = dns_name;
     }
 
     public enum Type {

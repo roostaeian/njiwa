@@ -85,7 +85,7 @@
                 var u = $('#username').val();
                 var p = $('#passwd').val();
 
-                $.ajax('ui/auth/login', {
+                $.ajax('rest/auth/login', {
                     method: 'POST',
                     dataType: 'JSON',
                     data: JSON.stringify({userId: u, password: p}),

@@ -91,7 +91,6 @@ public class Users {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/all")
     @RestRoles({Roles.SMSRAdmin, Roles.SMDPAdmin})
-
     public Response all() {
         IdentityQueryBuilder qb = identityManager.getQueryBuilder();
         IdentityQuery<User> q = qb.createIdentityQuery(org.picketlink.idm.model.basic.User.class);

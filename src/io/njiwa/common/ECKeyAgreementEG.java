@@ -43,6 +43,7 @@ public class ECKeyAgreementEG {
 
     public static  final byte[] DST_VERIFY_KEY_TYPE = new byte[] {(byte)0x82};  // Table 11-17 of GPC
     public static  final byte[] KEY_AGREEMENT_KEY_TYPE = new byte[] {0, (byte)0x80}; // Table 3-5 of GPC Ammend. E
+    public static final String SUBJECT_KEY_IDENTIFIER_OID = "2.5.29.14";
 
     //1. To generate the ephemeral keys, we We follow this (except for the KDF bit): https://neilmadden.wordpress
     // .com/2016/05/20/ephemeral-elliptic-curve-diffie-hellman-key-agreement-in-java/
@@ -338,9 +339,8 @@ public class ECKeyAgreementEG {
         // Table 77 of SGP 02 v3.1
         Utils.BER.appendTLV(os, (short) 0x93, cert.getSerialNumber().toByteArray());
         Utils.BER.appendTLV(os, (short) 0x42, iin.getBytes("UTF-8"));
-        String subject = cert.getSubjectDN().getName();
 
-        byte[] subjectIdentifier = subject.getBytes("UTF-8");
+        byte[] subjectIdentifier = cert.getExtensionValue(SUBJECT_KEY_IDENTIFIER_OID);
         Utils.DGI.append(os, 0x5F20, subjectIdentifier);
         Utils.BER.appendTLV(os, (byte) 0x95, keyUsageQual);
         Date startDate = cert.getNotBefore();
