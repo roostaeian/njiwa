@@ -115,10 +115,6 @@ public class RpaEntity {
 
     @Column(nullable = true, columnDefinition = "TEXT")
     private String sMkeyStoreAlias; //!< The Secure Messaging alias in the java keystore, this is the key used for
-    // secure
-    // messaging. Updated by the server itself
-    @Column
-    private String certificateIIN; //!< According to ISO 7812 -- https://en.wikipedia
     // .org/wiki/Payment_card_number#Issuer_identification_number_.28IIN.29
     // authenticating to the euICC (e.g. by SM-DP or SM-SR). This is also extracted by the server
     @Column(columnDefinition = "TEXT")
@@ -178,9 +174,7 @@ public class RpaEntity {
     }
 
 
-    public RpaEntity(Type type, String wskeyStoreAlias, String sMkeyStoreAlias, String oid, boolean islocal,
-                     byte[] discretionaryData, byte signatureKeyParameterReference, byte[] signature,
-                     String x509Subject, String certificateIIN) {
+    public RpaEntity(Type type, String wskeyStoreAlias, String sMkeyStoreAlias, String oid, boolean islocal, byte[] discretionaryData, byte signatureKeyParameterReference, byte[] signature, String x509Subject) {
         setType(type);
         setWskeyStoreAlias(wskeyStoreAlias);
         setDiscretionaryData(discretionaryData);
@@ -190,7 +184,6 @@ public class RpaEntity {
         setSignature(signature);
         setSignatureKeyParameterReference(signatureKeyParameterReference);
         setOid(oid);
-        setCertificateIIN(certificateIIN);
     }
 
     public static X509Certificate getCI(EntityManager em) throws Exception {
@@ -569,14 +562,6 @@ public class RpaEntity {
 
     public void setSignature(byte[] signature) {
         this.signature = signature;
-    }
-
-    public String getCertificateIIN() {
-        return certificateIIN;
-    }
-
-    public void setCertificateIIN(String certificateIIN) {
-        this.certificateIIN = certificateIIN;
     }
 
     public Set<String> getAllowedIPs() {

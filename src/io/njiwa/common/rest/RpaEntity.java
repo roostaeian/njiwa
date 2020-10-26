@@ -18,14 +18,12 @@ import io.njiwa.common.Utils;
 import io.njiwa.common.model.Certificate;
 import io.njiwa.common.rest.annotations.RestRoles;
 import io.njiwa.common.rest.types.Roles;
-import io.njiwa.common.rest.types.RpaEntityForm;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.openssl.PEMKeyPair;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
-import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -35,7 +33,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.StringReader;
-import java.security.Key;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
@@ -123,7 +120,7 @@ public class RpaEntity {
 
             RpaEntityInfo cx = new RpaEntityInfo();
             cx.oID = ci.getOid();
-            cx.iIN = ci.getCertificateIIN();
+           // cx.iIN = ci.getCertificateIIN();
             cx.certSubject = ci.getX509Subject();
             return Response.ok(io.njiwa.common.rest.Utils.buildJSON(cx)).build();
         });
@@ -140,14 +137,13 @@ public class RpaEntity {
             io.njiwa.common.model.RpaEntity.Type t = io.njiwa.common.model.RpaEntity.Type.valueOf(type);
             // final KeyStore ks = Utils.getKeyStore();
             io.njiwa.common.model.RpaEntity entity = io.njiwa.common.model.RpaEntity.getLocal(em, t);
-            String iin = entity.getCertificateIIN();
+
             X509Certificate certificate = entity.secureMessagingCert();
             try {
                 byte[] sdata = ECKeyAgreementEG.makeCertSigningData(certificate,
                         t == io.njiwa.common.model.RpaEntity.Type.SMSR ?
                                 ECKeyAgreementEG.SM_SR_DEFAULT_DISCRETIONARY_DATA :
-                                ECKeyAgreementEG.SM_DP_DEFAULT_DISCRETIONARY_DATA, (byte) 0, iin,
-                        ECKeyAgreementEG.DST_VERIFY_KEY_TYPE);
+                                ECKeyAgreementEG.SM_DP_DEFAULT_DISCRETIONARY_DATA, (byte) 0, ECKeyAgreementEG.DST_VERIFY_KEY_TYPE);
                 String fname = type + "-signing-req-data.der";
                 return Response.ok(sdata, MediaType.APPLICATION_OCTET_STREAM).header("Content-Disposition",
                         "attachment; filename=\"" + fname + "\"").build();
@@ -170,7 +166,6 @@ public class RpaEntity {
             try {
                 RpaEntityInfo cx = new RpaEntityInfo();
                 cx.oID = entity.getOid();
-                cx.iIN = entity.getCertificateIIN();
                 cx.certSubject = entity.getX509Subject();
 
                 KeyStore ks = Utils.getKeyStore();
@@ -228,12 +223,11 @@ public class RpaEntity {
                 if (kp == null || kp.k == null || kp.l == null) return "Error: Missing Certificate and Private key";
                 entity = new io.njiwa.common.model.RpaEntity(io.njiwa.common.model.RpaEntity.Type.SMSR,
                         wskeyStoreAlias, Certificate.LOCAL_SM_SR_KEYSTORE_ALIAS, info.oID, true, null, (byte) 0, null
-                        , kp.k.getSubjectDN().getName(), info.iIN);
+                        , kp.k.getSubjectDN().getName());
                 em.persist(entity);
-            } else {
-                entity.setCertificateIIN(info.iIN);
+            } else
                 entity.setOid(info.oID);
-            }
+
 
             // Make SM-DP
             entity = io.njiwa.common.model.RpaEntity.getLocal(em, io.njiwa.common.model.RpaEntity.Type.SMDP);
@@ -241,12 +235,11 @@ public class RpaEntity {
                 if (kp == null || kp.k == null || kp.l == null) return "Error: Missing Certificate and Private key";
                 entity = new io.njiwa.common.model.RpaEntity(io.njiwa.common.model.RpaEntity.Type.SMDP,
                         wskeyStoreAlias, Certificate.LOCAL_SM_DP_KEYSTORE_ALIAS, info.oID, true, null, (byte) 0, null
-                        , kp.k.getSubjectDN().getName(), info.iIN);
+                        , kp.k.getSubjectDN().getName());
                 em.persist(entity);
-            } else {
-                entity.setCertificateIIN(info.iIN);
+            } else
                 entity.setOid(info.oID);
-            }
+
 
             return "OK";
         });
@@ -278,12 +271,10 @@ public class RpaEntity {
 
                 ci = new io.njiwa.common.model.RpaEntity(io.njiwa.common.model.RpaEntity.Type.CI,
                         Certificate.CI_CERTIFICATE_ALIAS, rpaEntityInfo.oID, Certificate.CI_CERTIFICATE_ALIAS, false,
-                        null, (byte) 0, null, rpaEntityInfo.x509Certificate.getSubjectDN().getName(),
-                        rpaEntityInfo.iIN);
+                        null, (byte) 0, null, rpaEntityInfo.x509Certificate.getSubjectDN().getName());
                 em.persist(ci);
             }
 
-            ci.setCertificateIIN(rpaEntityInfo.iIN);
             ci.setOid(rpaEntityInfo.oID);
 
             return "OK";
@@ -309,11 +300,10 @@ public class RpaEntity {
                         io.njiwa.common.model.RpaEntity.Type.valueOf(rpaEntityInfo.type);
                 if (rpaEntityInfo.id != null) {
                     rpa = em.find(io.njiwa.common.model.RpaEntity.class, rpaEntityInfo.id);
-                    if (rpaEntityInfo.iIN != null) rpa.setCertificateIIN(rpaEntityInfo.iIN);
                     if (rpaEntityInfo.oID != null) rpa.setOid(rpaEntityInfo.oID);
                 } else {
                     rpa = new io.njiwa.common.model.RpaEntity(t, null, null, rpaEntityInfo.oID, false, null, (byte) 0
-                            , null, null, rpaEntityInfo.iIN);
+                            , null, null);
                     em.persist(rpa);
                 }
 

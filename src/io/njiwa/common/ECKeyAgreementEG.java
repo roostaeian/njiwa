@@ -43,7 +43,9 @@ public class ECKeyAgreementEG {
 
     public static  final byte[] DST_VERIFY_KEY_TYPE = new byte[] {(byte)0x82};  // Table 11-17 of GPC
     public static  final byte[] KEY_AGREEMENT_KEY_TYPE = new byte[] {0, (byte)0x80}; // Table 3-5 of GPC Ammend. E
+    // See https://stackoverflow.com/questions/17877412/how-to-prove-that-one-certificate-is-issuer-of-another-certificates
     public static final String SUBJECT_KEY_IDENTIFIER_OID = "2.5.29.14";
+    public static final String AUTHORITY_KEY_IDENTIFIER_OID = "2.5.29.35";
 
     //1. To generate the ephemeral keys, we We follow this (except for the KDF bit): https://neilmadden.wordpress
     // .com/2016/05/20/ephemeral-elliptic-curve-diffie-hellman-key-agreement-in-java/
@@ -135,13 +137,12 @@ public class ECKeyAgreementEG {
         }.toByteArray()); // XXX Might be a long command.
     }
 
-    public static SDCommand.APDU isdKeySetEstablishmentSendCert(X509Certificate cert, byte[] discretionaryData, byte
-            keyParamRef, final byte[] sig, String iin)
+    public static SDCommand.APDU isdKeySetEstablishmentSendCert(X509Certificate cert, byte[] discretionaryData, byte keyParamRef, final byte[] sig)
             throws Exception {
         // Make the data: Table 76 of SGP v3.1
 
 
-        final byte[] sigdata = makeCertSigningData(cert, discretionaryData, keyParamRef, iin, KEY_AGREEMENT_KEY_TYPE);
+        final byte[] sigdata = makeCertSigningData(cert, discretionaryData, keyParamRef, KEY_AGREEMENT_KEY_TYPE);
 
         final byte[] certData = new ByteArrayOutputStream() {
             {
@@ -330,15 +331,13 @@ public class ECKeyAgreementEG {
         return new SDCommand.APDU(0x80, 0xE2, 0x89, 0x01, tdata);
     }
 
-    public static byte[] makeCertSigningData(final X509Certificate cert,
-                                             byte[] discretionaryData,
-                                             byte keyParamRef,
-                                             String iin,
-                                              byte[] keyUsageQual) throws Exception {
+    public static byte[] makeCertSigningData(final X509Certificate cert, byte[] discretionaryData, byte keyParamRef, byte[] keyUsageQual) throws Exception {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         // Table 77 of SGP 02 v3.1
         Utils.BER.appendTLV(os, (short) 0x93, cert.getSerialNumber().toByteArray());
-        Utils.BER.appendTLV(os, (short) 0x42, iin.getBytes("UTF-8"));
+        // Sec 2.3.2.2 of SGP 02 v4.1 says that the following should be the "Authority Key Identifier"
+        byte[] caid = cert.getExtensionValue(AUTHORITY_KEY_IDENTIFIER_OID);
+        Utils.BER.appendTLV(os, (short) 0x42, caid);
 
         byte[] subjectIdentifier = cert.getExtensionValue(SUBJECT_KEY_IDENTIFIER_OID);
         Utils.DGI.append(os, 0x5F20, subjectIdentifier);
@@ -361,11 +360,10 @@ public class ECKeyAgreementEG {
         return os.toByteArray();
     }
 
-    public static byte[] genCertificateSignature(PrivateKey key, final X509Certificate cert, byte[]
-            discretionaryData, byte keyParamRef, String iin, byte[] keyUsageQual)
+    public static byte[] genCertificateSignature(PrivateKey key, final X509Certificate cert, byte[] discretionaryData, byte keyParamRef, byte[] keyUsageQual)
             throws Exception {
         // Generate a certificate signature
-        byte[] os = makeCertSigningData(cert, discretionaryData, keyParamRef, iin, keyUsageQual);
+        byte[] os = makeCertSigningData(cert, discretionaryData, keyParamRef, keyUsageQual);
         return genCertificateSignature(key, os);
     }
 

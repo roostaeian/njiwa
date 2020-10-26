@@ -26,12 +26,7 @@ import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.asn1.x9.X9ObjectIdentifiers;
-import org.bouncycastle.openssl.PEMKeyPair;
-import org.bouncycastle.openssl.PEMParser;
-import org.bouncycastle.openssl.PEMWriter;
 import org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator;
-import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
-import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemObjectGenerator;
 import org.bouncycastle.util.io.pem.PemReader;
@@ -248,7 +243,7 @@ public class Test {
 
         String iin = "433322233334444";
         byte[] sdata = ECKeyAgreementEG.makeCertSigningData(certificate,
-                ECKeyAgreementEG.SM_SR_DEFAULT_DISCRETIONARY_DATA, (byte) 0, iin, ECKeyAgreementEG.DST_VERIFY_KEY_TYPE);
+                ECKeyAgreementEG.SM_SR_DEFAULT_DISCRETIONARY_DATA, (byte) 0, ECKeyAgreementEG.DST_VERIFY_KEY_TYPE);
 
         byte[] sig = Utils.ECC.genpkcs7sig(sdata, certificate, ciPkey);
 
@@ -274,7 +269,7 @@ public class Test {
 
         iin = "533322233335555";
         sdata = ECKeyAgreementEG.makeCertSigningData(certificate, ECKeyAgreementEG.SM_DP_DEFAULT_DISCRETIONARY_DATA,
-                (byte) 0, iin, ECKeyAgreementEG.DST_VERIFY_KEY_TYPE);
+                (byte) 0, ECKeyAgreementEG.DST_VERIFY_KEY_TYPE);
 
         sig = Utils.ECC.genpkcs7sig(sdata, certificate, ciPkey);
 
@@ -291,7 +286,6 @@ public class Test {
     }
 
     private void bootstrapKeysDB() throws Exception {
-        final String iin = "433322233334444";
         X509Certificate certificate;
 
         KeyStore ks = Utils.loadKeyStore("/tmp/server.jks", "test1234", false);
@@ -299,11 +293,11 @@ public class Test {
         // Get EUM
         certificate = (X509Certificate) ks.getCertificate("eum");
         RpaEntity eum = new RpaEntity(RpaEntity.Type.EUM, "eum", null, "1.3.6.1.4.1.1234568.1", false, null,
-                (byte) 00, null, certificate.getSubjectDN().getName(),iin);
+                (byte) 00, null, certificate.getSubjectDN().getName());
         saveRpaEntity(eum);
         certificate = (X509Certificate) ks.getCertificate("mno");
         RpaEntity mno = new RpaEntity(RpaEntity.Type.MNO, "mno", null, "1.3.6.1.4.1.1234561.1", false, null,
-                (byte) 00, null, certificate.getSubjectDN().getName(),iin);
+                (byte) 00, null, certificate.getSubjectDN().getName());
         saveRpaEntity(mno);
 
         // Handle SM-DP and SM-SR. But first, load CI jks from /tmp. Right?
@@ -313,18 +307,18 @@ public class Test {
         certificate = (X509Certificate) ks.getCertificate("sm-sr");
 
         byte[] sig = ECKeyAgreementEG.genCertificateSignature(ciPkey, certificate,
-                ECKeyAgreementEG.SM_SR_DEFAULT_DISCRETIONARY_DATA, (byte) 0, iin, ECKeyAgreementEG.DST_VERIFY_KEY_TYPE);
+                ECKeyAgreementEG.SM_SR_DEFAULT_DISCRETIONARY_DATA, (byte) 0, ECKeyAgreementEG.DST_VERIFY_KEY_TYPE);
         RpaEntity sr = new RpaEntity(RpaEntity.Type.SMSR, "sm-sr-ws", "sm-sr", "1.3.6.1.4.1.1234569.22", true,
-                ECKeyAgreementEG.SM_SR_DEFAULT_DISCRETIONARY_DATA, (byte) 0, sig, certificate.getSubjectDN().getName(),iin);
-        sr.setCertificateIIN(iin);
+                ECKeyAgreementEG.SM_SR_DEFAULT_DISCRETIONARY_DATA, (byte) 0, sig, certificate.getSubjectDN().getName());
+
         saveRpaEntity(sr);
 
         certificate = (X509Certificate) ks.getCertificate("sm-dp");
         sig = ECKeyAgreementEG.genCertificateSignature(ciPkey, certificate,
-                ECKeyAgreementEG.SM_DP_DEFAULT_DISCRETIONARY_DATA, (byte) 0, iin, ECKeyAgreementEG.DST_VERIFY_KEY_TYPE);
+                ECKeyAgreementEG.SM_DP_DEFAULT_DISCRETIONARY_DATA, (byte) 0, ECKeyAgreementEG.DST_VERIFY_KEY_TYPE);
         RpaEntity dp = new RpaEntity(RpaEntity.Type.SMDP, "sm-dp-ws", "sm-dp", "1.3.6.1.4.1.1234569.2", true,
-                ECKeyAgreementEG.SM_DP_DEFAULT_DISCRETIONARY_DATA, (byte) 0, sig, certificate.getSubjectDN().getName(),iin);
-        dp.setCertificateIIN(iin);
+                ECKeyAgreementEG.SM_DP_DEFAULT_DISCRETIONARY_DATA, (byte) 0, sig, certificate.getSubjectDN().getName());
+        
         saveRpaEntity(dp);
     }
 

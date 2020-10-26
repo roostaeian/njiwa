@@ -18,7 +18,6 @@ import io.njiwa.common.Utils;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
-import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.security.KeyStore;
 import java.security.PrivateKey;
@@ -42,7 +41,7 @@ public class InitialiserServlet extends HttpServlet {
         byte[] sig = ECKeyAgreementEG.makeCertSigningData(ciCert,
                 ECKeyAgreementEG.CI_DEFAULT_DISCRETIONARY_DATA,
 
-                (byte)0,"433322233334444",ECKeyAgreementEG.DST_VERIFY_KEY_TYPE);
+                (byte)0, ECKeyAgreementEG.DST_VERIFY_KEY_TYPE);
 
 
         FileOutputStream f = new FileOutputStream("/tmp/ci.cer");
@@ -54,8 +53,7 @@ public class InitialiserServlet extends HttpServlet {
         X509Certificate certificate = (X509Certificate) Utils.getKeyStore().getCertificate("eum-ec");
         // Now write to file
         sig = ECKeyAgreementEG.makeCertSigningData(certificate, ECKeyAgreementEG.EUM_DEFAULT_DISCRETIONARY_DATA,
-                (byte)0,
-                "000000",ECKeyAgreementEG.DST_VERIFY_KEY_TYPE);
+                (byte)0, ECKeyAgreementEG.DST_VERIFY_KEY_TYPE);
 
         // Write to file
         f = new FileOutputStream("/tmp/eum.cer");
