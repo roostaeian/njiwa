@@ -318,7 +318,7 @@ public class Test {
                 ECKeyAgreementEG.SM_DP_DEFAULT_DISCRETIONARY_DATA, (byte) 0, ECKeyAgreementEG.DST_VERIFY_KEY_TYPE);
         RpaEntity dp = new RpaEntity(RpaEntity.Type.SMDP, "sm-dp-ws", "sm-dp", "1.3.6.1.4.1.1234569.2", true,
                 ECKeyAgreementEG.SM_DP_DEFAULT_DISCRETIONARY_DATA, (byte) 0, sig, certificate.getSubjectDN().getName());
-        
+
         saveRpaEntity(dp);
     }
 

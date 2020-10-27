@@ -34,4 +34,15 @@ public class RealmEntity extends PartitionTypeEntity {
     public void setEntityId(Long entityId) {
         this.entityId = entityId;
     }
+
+    public static String getPartitionIdForRpaEntity(EntityManager em, long rid)
+    {
+        try {
+            return em.createQuery("from RealmEntity where entityId = :id", RealmEntity.class)
+                    .setParameter("id", rid)
+                    .getSingleResult().getId();
+        } catch (Exception ex) {
+            return null;
+        }
+    }
 }

@@ -74,7 +74,7 @@ public class InitialiserServlet extends HttpServlet {
         Utils.setPrivateKeyAliasAndPassword(privkeyalias, privkeypasswd);
 
         // Set the trust store and key store
-        // XXX for now we just use the same file... We shouldn't do this really, but...
+        // XXX for now we just use the same file.
         // http://stackoverflow.com/questions/6340918/trust-store-vs-key-store-creating-with-keytool/6341566#6341566
         System.setProperty("javax.net.ssl.keyStore", keyfile);
         System.setProperty("javax.net.ssl.keyStorePassword", keystorePass);
