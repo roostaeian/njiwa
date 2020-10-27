@@ -37,7 +37,7 @@ import java.util.Set;
  * Created by bagyenda on 05/06/2017.
  */
 @Path("/operations/reports")
-@RestRoles({Roles.REPORTS, Roles.SMSRAdmin, Roles.SMDPAdmin})
+@RestRoles({Roles.EntityAdminUser, Roles.EntityUser})
 public class Reports {
     static final Set<String> allowedEisOutputFields = new HashSet<>(Arrays.asList("meid",
             "eid",

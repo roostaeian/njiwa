@@ -1,6 +1,14 @@
-// Njiwa UI control stuff
-// (c) Digital Solutions
-
+/*
+ * Njiwa Open Source Embedded M2M UICC Remote Subscription Manager
+ *
+ *
+ * Copyright (C) 2019 - , Digital Solutions Ltd. - http://www.dsmagic.com
+ *
+ * Njiwa Dev <dev@njiwa.io>
+ *
+ * This program is free software, distributed under the terms of
+ * the GNU General Public License.
+ */
 
 String.prototype.toTitleCase = function () {
     return this.replace(/\w\S*/g, function (txt) {
@@ -94,12 +102,11 @@ $(document).ready(function () {
         var link_id = $(this).attr('id');
         localStorage.lastlink = JSON.stringify(link_id); // Keep it
 
-        $('#' + div).load(url + '.html');
+        $('#' + div).load(url + '.display.html');
         return false;
-    });
-
+    })
     // Handle file uploads
-    body.on('change', 'input[type=file].fileupload', function () {
+    .on('change', 'input[type=file].fileupload', function () {
         var input = $(this);
         var resType = $(input).data('result') || 'url';
         var item_id = input.prop('id') || input.prop('name');
@@ -136,14 +143,4 @@ $(document).ready(function () {
         return true;
     }, 'Please enter a valid OID, e.g. 1.2.3.4....');
 
-    $.validator.addMethod('iin', function (v,el) {
-        if (v)
-            return true;
-        // See https://stackoverflow.com/questions/27796688/regular-expression-for-all-bank-card-numbers
-        var re = new RegExp('^[1-9][0-9]{15,19}$');
-        if (!re.test(v))
-            return  false;
-        else
-            return true;
-    }, 'Please enter a valid IIN, e.g. 112345123452323');
 });

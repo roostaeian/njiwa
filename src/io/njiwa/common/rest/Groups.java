@@ -40,7 +40,7 @@ public class Groups {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/get/{id}")
-    @RestRoles(Roles.USER)
+    @RestRoles(Roles.SystemUser)
     public Group get(@PathParam("id") Long id) {
         return em.find(Group.class, id);
     }
@@ -48,7 +48,7 @@ public class Groups {
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/delete/{id}")
-    @RestRoles({Roles.SMDPAdmin, Roles.SMSRAdmin})
+    @RestRoles({Roles.EntityUser, Roles.EntityAdminUser})
     public Boolean delete(@PathParam("id") long id) {
 
         Boolean res = po.doTransaction(new PersistenceUtility.Runner<Boolean>() {
@@ -80,7 +80,7 @@ public class Groups {
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/update")
-    @RestRoles({Roles.SMDPAdmin, Roles.SMSRAdmin})
+    @RestRoles({Roles.EntityUser, Roles.EntityAdminUser})
     public Boolean update(Group group) {
         Boolean res = po.doTransaction(new PersistenceUtility.Runner<Boolean>() {
             @Override

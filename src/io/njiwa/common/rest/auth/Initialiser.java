@@ -6,7 +6,6 @@ import io.njiwa.common.model.Group;
 import io.njiwa.common.rest.types.Roles;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.PartitionManager;
-import org.picketlink.idm.RelationshipManager;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.basic.BasicModel;
@@ -17,7 +16,6 @@ import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.ws.rs.POST;
 import java.util.HashSet;
 
 @Singleton
@@ -43,7 +41,7 @@ public class Initialiser {
         } // Ignore error
 
         try {
-            assignGroupRoles(DEFAULT_ADMIN_GROUP, new String[]{Roles.SMDPAdmin, Roles.SMSRAdmin});
+            assignGroupRoles(DEFAULT_ADMIN_GROUP, new String[]{Roles.EntityUser, Roles.EntityAdminUser});
         } catch (Exception ex) {
         } // Ignore error
 

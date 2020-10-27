@@ -3,6 +3,7 @@ package io.njiwa.common.rest.auth;
 import io.njiwa.common.Utils;
 import io.njiwa.common.model.RealmEntity;
 import io.njiwa.common.model.RpaEntity;
+import io.njiwa.common.rest.types.Roles;
 import org.picketlink.annotations.PicketLink;
 import org.picketlink.authentication.BaseAuthenticator;
 import org.picketlink.credential.DefaultLoginCredentials;
@@ -11,6 +12,7 @@ import org.picketlink.idm.PartitionManager;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
+import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.basic.User;
 import org.picketlink.idm.query.IdentityQuery;
@@ -23,7 +25,11 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Logger;
+
 // See https://stackoverflow.com/questions/24764526/picketlink-not-picking-my-user-defined-authenticator
 @PicketLink
 @Named
@@ -44,7 +50,7 @@ public class Authenticator extends BaseAuthenticator {
     protected Logger log = Logger.getLogger(this.getClass().getSimpleName());
 
     @Inject
-    private HttpServletRequest httpRequest;
+    private UserData userData;
 
     @Override
     public void authenticate() {
@@ -71,10 +77,20 @@ public class Authenticator extends BaseAuthenticator {
                 setStatus(AuthenticationStatus.SUCCESS);
                 log.info("User authenticated successfully");
                 setAccount(account); // Record it.
-                if (httpRequest != null) {
-                   HttpSession session =  httpRequest.getSession();
-                   session.setAttribute(OWNER_ENTITY_TYPE, xp.l != null ? xp.l.getType().toString() : "");
-                   session.setAttribute(OWNER_ENTITY_ID,xp.l  != null ? xp.l.getId() : -1L);
+                // Update session data. Right?
+                if (userData != null) {
+                    userData.setEntityId(xp.l  != null ? xp.l.getId() : -1L);
+                    userData.setEntityType(xp.l != null ? xp.l.getType().toString() : "");
+                   // Set roles.
+                    Set<String> l = new HashSet<>();
+                    boolean isAdmin = isUserAdmin(account);
+                    if (userData.getEntityType().length() == 0) // sys user
+                        l.add(isAdmin ? Roles.SystemAdminUser : Roles.SystemUser);
+                    else
+                        l.add(isAdmin ? Roles.EntityAdminUser : Roles.EntityUser);
+                    userData.setRoles(l);
+                    userData.setAdmin(isAdmin);
+                    userData.setUser(user);
                 }
             } else {
                 setStatus(AuthenticationStatus.FAILURE);
@@ -111,5 +127,14 @@ public class Authenticator extends BaseAuthenticator {
        identityQuery.where(identityQueryBuilder.equal(User.LOGIN_NAME,user));
 
        return identityQuery.getResultCount() > 0 ?  identityQuery.getResultList().get(0) : null;
+    }
+    public static final String ADMIN_ATTRIBUTE = "isAdmin";
+    public static boolean isUserAdmin(User u) {
+        try{
+            Attribute<Serializable> p = u.getAttribute(ADMIN_ATTRIBUTE);
+            return (Boolean)p.getValue();
+        } catch (Exception ex) {
+            return false;
+        }
     }
 }

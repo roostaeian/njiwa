@@ -52,7 +52,7 @@ public class Users {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/get/{id}")
-    @RestRoles({Roles.SMSRAdmin, Roles.SMDPAdmin})
+    @RestRoles({Roles.EntityAdminUser, Roles.EntityUser})
     public Response get(@PathParam("id") Long id) {
         User u = getUserById(id);
         UserResponse r = new UserResponse(em, u);
@@ -64,7 +64,7 @@ public class Users {
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/delete/{id}")
-    @RestRoles({Roles.SMSRAdmin, Roles.SMDPAdmin})
+    @RestRoles({Roles.EntityAdminUser, Roles.EntityUser})
     public Response delete(@PathParam("id") Long id) {
 
         // Search for it
@@ -90,7 +90,7 @@ public class Users {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/all")
-    @RestRoles({Roles.SMSRAdmin, Roles.SMDPAdmin})
+    @RestRoles({Roles.EntityAdminUser, Roles.EntityUser})
     public Response all() {
         IdentityQueryBuilder qb = identityManager.getQueryBuilder();
         IdentityQuery<User> q = qb.createIdentityQuery(org.picketlink.idm.model.basic.User.class);
@@ -115,7 +115,7 @@ public class Users {
     @PUT
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/update")
-    @RestRoles({Roles.SMSRAdmin, Roles.SMDPAdmin, Roles.SYSADMIN})
+    @RestRoles({Roles.EntityAdminUser, Roles.EntityUser, Roles.SystemAdminUser})
     public Response update(final Long userId,
                            @HeaderParam("FIRSTNAME") final String firstName,
                            @HeaderParam("LASTNAME") final String lastName,

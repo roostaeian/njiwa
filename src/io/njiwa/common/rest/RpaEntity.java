@@ -17,6 +17,7 @@ import io.njiwa.common.PersistenceUtility;
 import io.njiwa.common.Utils;
 import io.njiwa.common.model.Certificate;
 import io.njiwa.common.rest.annotations.RestRoles;
+import io.njiwa.common.rest.auth.UserData;
 import io.njiwa.common.rest.types.Roles;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.cert.X509CertificateHolder;
@@ -50,10 +51,13 @@ public class RpaEntity {
     @PersistenceContext(type = PersistenceContextType.TRANSACTION)
     private EntityManager em;
 
+    @Inject
+    private UserData userData;
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/get/{id}")
-    @RestRoles({Roles.SMSRAdmin, Roles.SMDPAdmin})
+    @RestRoles({Roles.EntityAdminUser, Roles.EntityUser})
     public io.njiwa.common.model.RpaEntity get(@PathParam("id") Long id) {
 
 
@@ -68,7 +72,7 @@ public class RpaEntity {
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/delete/{id}")
-    @RestRoles({Roles.SMSRAdmin, Roles.SMDPAdmin})
+    @RestRoles({Roles.EntityAdminUser, Roles.EntityUser})
     public Boolean delete(@PathParam("id") Long id) {
 
         Boolean res = po.doTransaction((PersistenceUtility po, EntityManager em) -> {
@@ -91,7 +95,7 @@ public class RpaEntity {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/all")
-    @RestRoles({Roles.SMSRAdmin, Roles.SMDPAdmin})
+    @RestRoles({Roles.EntityAdminUser, Roles.EntityUser})
     public List<io.njiwa.common.model.RpaEntity> all() {
 
 
@@ -112,7 +116,7 @@ public class RpaEntity {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/get_ci_cert")
-    @RestRoles({Roles.SMSRAdmin, Roles.SMDPAdmin})
+    @RestRoles({Roles.EntityAdminUser, Roles.EntityUser})
     public Response getCiCert() {
         return po.doTransaction((PersistenceUtility po, EntityManager em) -> {
             io.njiwa.common.model.RpaEntity ci = io.njiwa.common.model.RpaEntity.getCIEntity(em);
@@ -157,7 +161,7 @@ public class RpaEntity {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/get_local_certs")
-    @RestRoles({Roles.SMSRAdmin, Roles.SMDPAdmin})
+    @RestRoles({Roles.EntityAdminUser, Roles.EntityUser})
     public Response getLocalCert() {
         return po.doTransaction((PersistenceUtility po, EntityManager em) -> {
             io.njiwa.common.model.RpaEntity entity = io.njiwa.common.model.RpaEntity.getLocal(em,
@@ -185,7 +189,7 @@ public class RpaEntity {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/update_local_certs")
-    @RestRoles({Roles.SMSRAdmin, Roles.SMDPAdmin})
+    @RestRoles({Roles.EntityAdminUser, Roles.EntityUser})
     public Response updateLocalCerts(final RpaEntityInfo info) {
 
         // Get DSA and SM cerkeys
@@ -251,7 +255,7 @@ public class RpaEntity {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/update_ci_cert")
-    @RestRoles({Roles.SMSRAdmin, Roles.SMDPAdmin})
+    @RestRoles({Roles.EntityAdminUser, Roles.EntityUser})
     public Response updateCiCert(final RpaEntityInfo rpaEntityInfo) {
 
         X509Certificate ciCert = rpaEntityInfo.getCertificateFromPEMCert();
@@ -288,7 +292,7 @@ public class RpaEntity {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/update")
-    @RestRoles({Roles.SMSRAdmin, Roles.SMDPAdmin})
+    @RestRoles({Roles.EntityAdminUser, Roles.EntityUser})
     public Response update(final RpaEntityInfo rpaEntityInfo) {
 
         return po.doTransaction((PersistenceUtility po, EntityManager em) -> {

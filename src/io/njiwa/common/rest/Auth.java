@@ -14,6 +14,7 @@ package io.njiwa.common.rest;
 
 import io.njiwa.common.model.Group;
 import io.njiwa.common.rest.auth.Authenticator;
+import io.njiwa.common.rest.auth.UserData;
 import io.njiwa.common.rest.types.RestResponse;
 import io.njiwa.common.rest.types.Roles;
 import org.picketlink.Identity;
@@ -47,8 +48,11 @@ public class Auth {
     @Inject
     private DefaultLoginCredentials credentials;
 
-    @Context
-    private HttpServletRequest httpRequest;
+   // @Context
+   // private HttpServletRequest httpRequest;
+
+    @Inject
+    private UserData userData;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -77,11 +81,11 @@ public class Auth {
                 Account account = identity.getAccount();
                 response.status = RestResponse.Status.Success;
                 response.response = account;
-                if (httpRequest != null) {
+
+                if (userData != null) {
                     // Pick up other key data
-                   HttpSession session = httpRequest.getSession();
-                   response.ownerEntity = (Long)session.getAttribute(Authenticator.OWNER_ENTITY_ID);
-                   response.ownerEntityType = (String)session.getAttribute(Authenticator.OWNER_ENTITY_TYPE);
+                   response.ownerEntity = userData.getEntityId();
+                   response.ownerEntityType = userData.getEntityType();
                 }
 
                 response.roles = Group.userRoles(em, u);

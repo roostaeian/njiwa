@@ -20,6 +20,9 @@
 
     <!-- Custom Theme Style -->
     <link href="css/custom.min.css" rel="stylesheet">
+
+    <!-- our customisations -->
+    <link href="css/njiwa.css" rel="stylesheet">
 </head>
 
 <body class="login">
@@ -80,7 +83,8 @@
                     required: true
                 }
             }, messages: {
-                username: {required: 'Please enter your user name'}, passwd: {required: 'Please enter your password'}
+                username: {required: 'Please enter your user name'},
+                passwd: {required: 'Please enter your password'}
             }, submitHandler: function () {
                 var u = $('#username').val();
                 var p = $('#passwd').val();
@@ -98,8 +102,10 @@
                             localStorage.user =  JSON.stringify(data.response);
                             localStorage.allRoles = JSON.stringify(data.allRoles);
                             localStorage.roles = JSON.stringify(data.roles);
+                            localStorage.entityType = JSON.stringify(data.ownerEntityType);
                             window.location.replace('index.html');
-                        } else validator.showErrors({passwd: 'Invalid user name or password'});
+                        } else
+                          validator.showErrors({passwd: 'Invalid user name or password'});
 
                     },
                     error: function (d, s, error) {
