@@ -64,4 +64,18 @@ public class ServerConfigurations {
             m.put(s.getName(),s.getValue());
         return  m;
     }
+
+    public static void updateSetting(EntityManager em, String key, String value) {
+        try {
+            ServerConfigurations v = em.createQuery("from ServerConfigurations WHERE name = :k", ServerConfigurations.class)
+                    .setParameter("k", key)
+                    .getSingleResult();
+            em.remove(v);
+        } catch (Exception ex) {
+        }
+        ServerConfigurations v = new ServerConfigurations();
+        v.setName(key);
+        v.setValue(value);
+        em.persist(v);
+    }
 }

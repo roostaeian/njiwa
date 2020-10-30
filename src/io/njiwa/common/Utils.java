@@ -86,84 +86,6 @@ public class Utils {
     private static KeyStore ks = null; //!< The key store...
     private static String privKeyAlias = "dsa", privKeyPassword = "test";
 
-    static {
-        Calendar c = Calendar.getInstance();
-        c.set(9999, 12, 30);
-        infiniteDate = c.getTime(); // Get a year far into the future.
-
-    }
-
-    static {
-        unreserved_url_chars = new boolean[256];
-
-        unreserved_url_chars[(int) 'A'] = true;
-        unreserved_url_chars[(int) 'B'] = true;
-        unreserved_url_chars[(int) 'C'] = true;
-        unreserved_url_chars[(int) 'D'] = true;
-        unreserved_url_chars[(int) 'E'] = true;
-        unreserved_url_chars[(int) 'F'] = true;
-        unreserved_url_chars[(int) 'G'] = true;
-        unreserved_url_chars[(int) 'H'] = true;
-        unreserved_url_chars[(int) 'I'] = true;
-        unreserved_url_chars[(int) 'J'] = true;
-        unreserved_url_chars[(int) 'K'] = true;
-        unreserved_url_chars[(int) 'L'] = true;
-        unreserved_url_chars[(int) 'M'] = true;
-        unreserved_url_chars[(int) 'N'] = true;
-        unreserved_url_chars[(int) 'O'] = true;
-        unreserved_url_chars[(int) 'P'] = true;
-        unreserved_url_chars[(int) 'Q'] = true;
-        unreserved_url_chars[(int) 'R'] = true;
-        unreserved_url_chars[(int) 'S'] = true;
-        unreserved_url_chars[(int) 'T'] = true;
-        unreserved_url_chars[(int) 'U'] = true;
-        unreserved_url_chars[(int) 'V'] = true;
-        unreserved_url_chars[(int) 'W'] = true;
-        unreserved_url_chars[(int) 'X'] = true;
-        unreserved_url_chars[(int) 'Y'] = true;
-        unreserved_url_chars[(int) 'Z'] = true;
-        unreserved_url_chars[(int) 'a'] = true;
-        unreserved_url_chars[(int) 'b'] = true;
-        unreserved_url_chars[(int) 'c'] = true;
-        unreserved_url_chars[(int) 'd'] = true;
-        unreserved_url_chars[(int) 'e'] = true;
-        unreserved_url_chars[(int) 'f'] = true;
-        unreserved_url_chars[(int) 'g'] = true;
-        unreserved_url_chars[(int) 'h'] = true;
-        unreserved_url_chars[(int) 'i'] = true;
-        unreserved_url_chars[(int) 'j'] = true;
-        unreserved_url_chars[(int) 'k'] = true;
-        unreserved_url_chars[(int) 'l'] = true;
-        unreserved_url_chars[(int) 'm'] = true;
-        unreserved_url_chars[(int) 'n'] = true;
-        unreserved_url_chars[(int) 'o'] = true;
-        unreserved_url_chars[(int) 'p'] = true;
-        unreserved_url_chars[(int) 'q'] = true;
-        unreserved_url_chars[(int) 'r'] = true;
-        unreserved_url_chars[(int) 's'] = true;
-        unreserved_url_chars[(int) 't'] = true;
-        unreserved_url_chars[(int) 'u'] = true;
-        unreserved_url_chars[(int) 'v'] = true;
-        unreserved_url_chars[(int) 'w'] = true;
-        unreserved_url_chars[(int) 'x'] = true;
-        unreserved_url_chars[(int) 'y'] = true;
-        unreserved_url_chars[(int) 'z'] = true;
-        unreserved_url_chars[(int) '0'] = true;
-        unreserved_url_chars[(int) '1'] = true;
-        unreserved_url_chars[(int) '2'] = true;
-        unreserved_url_chars[(int) '3'] = true;
-        unreserved_url_chars[(int) '4'] = true;
-        unreserved_url_chars[(int) '5'] = true;
-        unreserved_url_chars[(int) '6'] = true;
-        unreserved_url_chars[(int) '7'] = true;
-        unreserved_url_chars[(int) '8'] = true;
-        unreserved_url_chars[(int) '9'] = true;
-        unreserved_url_chars[(int) '-'] = true;
-        unreserved_url_chars[(int) '_'] = true;
-        unreserved_url_chars[(int) '.'] = true;
-        unreserved_url_chars[(int) '~'] = true;
-
-    }
 
     public static String getPrivKeyAlias() {
         return privKeyAlias;
@@ -372,6 +294,25 @@ public class Utils {
         }
 
         return new Pair<>(phone, i + 1);
+    }
+
+    /**
+     * @brief Put separators between hex-coded bytes.
+     * @param hexBytes - the hex encoded bytes
+     * @param sep - the separator to insert
+     * @return
+     */
+    public static String formatHexBytes(String hexBytes, char sep)
+    {
+        StringBuilder out = new StringBuilder();
+        String sepStr = "";
+        for (int i = 0; i < hexBytes.length(); i = i +2) {
+            String b = hexBytes.substring(i,i+2);
+            out.append(sepStr);
+            out.append(b);
+            sepStr = String.valueOf(sep);
+        }
+        return out.toString();
     }
 
     public static byte[] replace(byte[] haystack, byte[] needle, byte[] replacement) {
@@ -2286,5 +2227,83 @@ public class Utils {
         }
     }
 
+    static {
+        Calendar c = Calendar.getInstance();
+        c.set(9999, 12, 30);
+        infiniteDate = c.getTime(); // Get a year far into the future.
+
+    }
+
+    static {
+        unreserved_url_chars = new boolean[256];
+
+        unreserved_url_chars[(int) 'A'] = true;
+        unreserved_url_chars[(int) 'B'] = true;
+        unreserved_url_chars[(int) 'C'] = true;
+        unreserved_url_chars[(int) 'D'] = true;
+        unreserved_url_chars[(int) 'E'] = true;
+        unreserved_url_chars[(int) 'F'] = true;
+        unreserved_url_chars[(int) 'G'] = true;
+        unreserved_url_chars[(int) 'H'] = true;
+        unreserved_url_chars[(int) 'I'] = true;
+        unreserved_url_chars[(int) 'J'] = true;
+        unreserved_url_chars[(int) 'K'] = true;
+        unreserved_url_chars[(int) 'L'] = true;
+        unreserved_url_chars[(int) 'M'] = true;
+        unreserved_url_chars[(int) 'N'] = true;
+        unreserved_url_chars[(int) 'O'] = true;
+        unreserved_url_chars[(int) 'P'] = true;
+        unreserved_url_chars[(int) 'Q'] = true;
+        unreserved_url_chars[(int) 'R'] = true;
+        unreserved_url_chars[(int) 'S'] = true;
+        unreserved_url_chars[(int) 'T'] = true;
+        unreserved_url_chars[(int) 'U'] = true;
+        unreserved_url_chars[(int) 'V'] = true;
+        unreserved_url_chars[(int) 'W'] = true;
+        unreserved_url_chars[(int) 'X'] = true;
+        unreserved_url_chars[(int) 'Y'] = true;
+        unreserved_url_chars[(int) 'Z'] = true;
+        unreserved_url_chars[(int) 'a'] = true;
+        unreserved_url_chars[(int) 'b'] = true;
+        unreserved_url_chars[(int) 'c'] = true;
+        unreserved_url_chars[(int) 'd'] = true;
+        unreserved_url_chars[(int) 'e'] = true;
+        unreserved_url_chars[(int) 'f'] = true;
+        unreserved_url_chars[(int) 'g'] = true;
+        unreserved_url_chars[(int) 'h'] = true;
+        unreserved_url_chars[(int) 'i'] = true;
+        unreserved_url_chars[(int) 'j'] = true;
+        unreserved_url_chars[(int) 'k'] = true;
+        unreserved_url_chars[(int) 'l'] = true;
+        unreserved_url_chars[(int) 'm'] = true;
+        unreserved_url_chars[(int) 'n'] = true;
+        unreserved_url_chars[(int) 'o'] = true;
+        unreserved_url_chars[(int) 'p'] = true;
+        unreserved_url_chars[(int) 'q'] = true;
+        unreserved_url_chars[(int) 'r'] = true;
+        unreserved_url_chars[(int) 's'] = true;
+        unreserved_url_chars[(int) 't'] = true;
+        unreserved_url_chars[(int) 'u'] = true;
+        unreserved_url_chars[(int) 'v'] = true;
+        unreserved_url_chars[(int) 'w'] = true;
+        unreserved_url_chars[(int) 'x'] = true;
+        unreserved_url_chars[(int) 'y'] = true;
+        unreserved_url_chars[(int) 'z'] = true;
+        unreserved_url_chars[(int) '0'] = true;
+        unreserved_url_chars[(int) '1'] = true;
+        unreserved_url_chars[(int) '2'] = true;
+        unreserved_url_chars[(int) '3'] = true;
+        unreserved_url_chars[(int) '4'] = true;
+        unreserved_url_chars[(int) '5'] = true;
+        unreserved_url_chars[(int) '6'] = true;
+        unreserved_url_chars[(int) '7'] = true;
+        unreserved_url_chars[(int) '8'] = true;
+        unreserved_url_chars[(int) '9'] = true;
+        unreserved_url_chars[(int) '-'] = true;
+        unreserved_url_chars[(int) '_'] = true;
+        unreserved_url_chars[(int) '.'] = true;
+        unreserved_url_chars[(int) '~'] = true;
+
+    }
 
 }

@@ -10,10 +10,11 @@
  * the GNU General Public License.
  */
 input.error, textarea.error, select.error {
-    border: 1px solid #ce5454 !important;
+    border: 1px solid #E85445 !important;
+    background: #FAEDEC !important;
 }
 
 label.error {
-    color: #ce5454 !important;
+    color: #E85445 !important;
 }
 

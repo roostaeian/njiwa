@@ -16,8 +16,10 @@ import io.njiwa.common.model.ServerConfigurations;
 
 import javax.persistence.EntityManager;
 import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.net.InetAddress;
+import java.security.KeyStore;
+import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -88,11 +90,16 @@ public class ServerSettings {
 
     private static final String STATS_INTERVALS = "stats_intervals";
 
-    private static final String PFILE = "njiwa.settings"; // The config file
-    // private static final String SERVER_PRIVATE_KEY_ALIAS = "private_key-alias";
+    //  certificate and key aliases
+    private static final String CI_CERTIFICATE_ALIAS = "ci_cert_alias";
+    private static final String SERVER_ECDSA_SECRET_KEY_ALIAS = "private_key-alias";
+    private static final String SERVER_ECDSA_CERTIFICATE_ALIAS = "certificate_key-alias";
+
+    private static final String SERVER_OID = "oid";
+    private static final String CRL_X509_CONTENT = "ci_crl_content";
 
     // This stores all the config params, with their validators and current values
-    private static Map<String, BaseValidator> configValidators = new ConcurrentHashMap<String, BaseValidator>() {
+    private static final Map<String, BaseValidator> configValidators = new ConcurrentHashMap<String, BaseValidator>() {
         {
             put(MYHOSTNAME, new BaseValidator("localhost"));
             put(MYPORT, new IntegerValuesValidator(8080));
@@ -210,6 +217,10 @@ public class ServerSettings {
             put(RAM_OPEN_CHANNEL_RETRIES, new PositiveIntegerValuesValidator(0));
             put(MAX_EVENTS_HOURS, new PositiveIntegerValuesValidator(1));
             put(STATS_INTERVALS, new PositiveIntegerListValidator(new int[]{5, 30, 60, 3600}));
+            put(CI_CERTIFICATE_ALIAS, new BaseValidator("ci-certificate"));
+            put(SERVER_ECDSA_CERTIFICATE_ALIAS, new BaseValidator("server-ecda-certificate"));
+            put(SERVER_ECDSA_SECRET_KEY_ALIAS, new BaseValidator("server-pkey"));
+            put(SERVER_OID, new BaseValidator("1.2.3.4"));
         }
     };
 
@@ -412,12 +423,77 @@ public class ServerSettings {
         return (Integer) propertyValues.get(RAM_ADMIN_MAX_HTTP_REQUESTS_PER_SESSION);
     }
 
-    /* Load the system properties from the db */
+    public static Utils.Pair<String, X509Certificate> getCiCert() {
+        return getCert(CI_CERTIFICATE_ALIAS);
+    }
+    public static Utils.Pair<String, X509Certificate> getServerCert() {
+        return getCert(SERVER_ECDSA_CERTIFICATE_ALIAS);
+    }
 
+    private static Utils.Pair<String,X509Certificate> getCert(String propertykey) {
+        String alias = (String)propertyValues.get(propertykey);
+
+        // Try to load it from keystore
+        try {
+            KeyStore ks = Utils.getKeyStore();
+            X509Certificate ciCert =  (X509Certificate)ks.getCertificate(alias);
+            return new Utils.Pair<>(alias,ciCert);
+        } catch (Exception ex) {
+
+        }
+        return new Utils.Pair<>(alias,null);
+    }
+
+    public static PrivateKey getServerECDAPrivateKey() {
+        String alias = (String)propertyValues.get(SERVER_ECDSA_SECRET_KEY_ALIAS);
+        try {
+            KeyStore ks = Utils.getKeyStore();
+            return (PrivateKey) ks.getKey(alias, null);
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
+    public static String getOid() {
+        return (String)propertyValues.get(SERVER_OID);
+    }
+
+    public static void updateOid(EntityManager em, String oid)
+    {
+        updateProp(em,SERVER_OID, oid);
+    }
+
+
+    /* Load the system properties from the db */
     public static void loadProps(EntityManager em)
     {
         Map<String,String> m = ServerConfigurations.load(em);
         propertyValues = validateProps(m);
+    }
+
+    public static void updateProp(EntityManager em, String key, Object value)
+    {
+        try {
+            Object nvalue = updateProp(key,value);
+            if (nvalue != null)
+                ServerConfigurations.updateSetting(em,key,nvalue.toString());
+        } catch (Exception ex) {
+
+        }
+    }
+    public static Object updateProp(String key, Object value)
+    {
+        try {
+            BaseValidator validator = configValidators.get(key);
+            Object nvalue = validator.value(value);
+            if (nvalue != null) {
+                propertyValues.put(key, nvalue);
+            }
+            return nvalue;
+        } catch (Exception ex) {
+
+        }
+        return null;
     }
 
     private static Map<String, Object> validateProps(Map<String,String> p) {
