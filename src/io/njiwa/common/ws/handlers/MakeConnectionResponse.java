@@ -33,6 +33,7 @@ import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Set;
 
@@ -116,7 +117,7 @@ public class MakeConnectionResponse implements SOAPHandler<SOAPMessageContext> {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             dbf.setNamespaceAware(true);
             DocumentBuilder db = dbf.newDocumentBuilder();
-            Document d2 = db.parse(new ByteArrayInputStream(resp.getBytes("UTF-8")));
+            Document d2 = db.parse(new ByteArrayInputStream(resp.getBytes(StandardCharsets.UTF_8)));
 
             Node rNode = d2.getDocumentElement().cloneNode(true);
 

@@ -1,6 +1,7 @@
 package io.njiwa.common.rest;
 
 import io.njiwa.common.ECKeyAgreementEG;
+import io.njiwa.common.PersistenceUtility;
 import io.njiwa.common.ServerSettings;
 import io.njiwa.common.Utils;
 import io.njiwa.common.rest.annotations.RestRoles;
@@ -11,19 +12,19 @@ import io.njiwa.common.rest.types.Roles;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceContextType;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 
 @Path("/settings")
 public class Settings {
-    @PersistenceContext(type = PersistenceContextType.TRANSACTION)
-    private EntityManager em;
+
+    @Inject
+    PersistenceUtility po;
 
     @Inject
     private UserData userData;
@@ -39,10 +40,9 @@ public class Settings {
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    // @Consumes(MediaType.APPLICATION_JSON)
     @Path("/validatecert")
     @RestRoles({Roles.ALLOWALL})
-    public Response validate(String certData) {
+    public Response validateCert(String certData) {
 
         try {
 
@@ -56,14 +56,31 @@ public class Settings {
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
+    @Path("/validatecrl")
+    @RestRoles({Roles.ALLOWALL})
+    public Response validateCrl(String crl) {
+        try {
+            BasicSettings.CRLInfo c = BasicSettings.CRLInfo.create(Utils.Http.decodeDataUri(crl));
+            return Response.ok(c).build();
+        } catch (Exception ex) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(new RestResponse(RestResponse.Status.Failed,
+                    ex.getLocalizedMessage())).build();
+        }
+    }
+
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/update")
     @RestRoles({Roles.SystemAdminUser})
-    public Response save(BasicSettings settings) {
+    public Object save(final BasicSettings settings) {
         // Load stuff in order:
         // - ci Cert,  crl, our server cet, our server key, signed data..
         if (settings.oid != null) try {
-            ServerSettings.updateOid(em, settings.oid);
+            po.doTransaction((PersistenceUtility po, EntityManager em) -> {
+                ServerSettings.updateOid(em, settings.oid);
+                return true;
+            });
         } catch (Exception ex) {
             return Response.status(Response.Status.BAD_REQUEST).entity(new RestResponse(RestResponse.Status.Failed,
                     ex.getLocalizedMessage(), "oid")).build();
@@ -76,10 +93,24 @@ public class Settings {
                 return Response.status(Response.Status.BAD_REQUEST).entity(new RestResponse(RestResponse.Status.Failed, ex.getLocalizedMessage(), "ciCertificate")).build();
             }
             try {
-                ServerSettings.updateCiCert(em, ciCert);
+                po.doTransaction((PersistenceUtility po, EntityManager em) -> {
+                    ServerSettings.updateCiCert(em, ciCert);
+                    return true;
+                });
             } catch (Exception ex) {
                 return Response.status(Response.Status.BAD_REQUEST).entity(new RestResponse(RestResponse.Status.Failed, ex.getLocalizedMessage(), "ciCertificate")).build();
             }
+        }
+
+        if (settings.crl != null) try {
+            po.doTransaction((PersistenceUtility po, EntityManager em) -> {
+                ServerSettings.updateCRL(em, Utils.Http.decodeDataUri(settings.crl));
+                return true;
+            });
+        } catch (Exception ex) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(new RestResponse(RestResponse.Status.Failed,
+                    ex.getLocalizedMessage(), "crl")).build();
+
         }
         if (settings.serverCertificate != null) {
             X509Certificate cert;
@@ -91,7 +122,10 @@ public class Settings {
                 return Response.status(Response.Status.BAD_REQUEST).entity(new RestResponse(RestResponse.Status.Failed, ex.getLocalizedMessage(), "serverCertificate")).build();
             }
             try {
-                ServerSettings.updateServerCert(em, cert);
+                po.doTransaction((PersistenceUtility po, EntityManager em) -> {
+                    ServerSettings.updateServerCert(em, cert);
+                    return true;
+                });
             } catch (Exception ex) {
                 return Response.status(Response.Status.BAD_REQUEST).entity(new RestResponse(RestResponse.Status.Failed, ex.getLocalizedMessage(), "serverCertificate")).build();
             }
@@ -108,7 +142,10 @@ public class Settings {
                 return Response.status(Response.Status.BAD_REQUEST).entity(new RestResponse(RestResponse.Status.Failed, ex.getLocalizedMessage(), "serverPrivateKey")).build();
             }
             try {
-                ServerSettings.updateServerECDAPrivateKey(em, key);
+                po.doTransaction((PersistenceUtility po, EntityManager em) -> {
+                    ServerSettings.updateServerECDAPrivateKey(em, key);
+                    return true;
+                });
             } catch (Exception ex) {
                 return Response.status(Response.Status.BAD_REQUEST).entity(new RestResponse(RestResponse.Status.Failed, ex.getLocalizedMessage(), "serverPrivateKey")).build();
             }
@@ -118,7 +155,10 @@ public class Settings {
         if (settings.smdpSignedData != null) try {
             byte[] data = Utils.Http.decodeDataUri(settings.smdpSignedData);
             validateSignedData(data, ECKeyAgreementEG.SM_DP_CERTIFICATE_TYPE);
-            ServerSettings.updateSMDPSignedData(em, Utils.HEX.b2H(data));
+            po.doTransaction((PersistenceUtility po, EntityManager em) -> {
+                ServerSettings.updateSMDPSignedData(em, Utils.HEX.b2H(data));
+                return true;
+            });
         } catch (Exception ex) {
             return Response.status(Response.Status.BAD_REQUEST).entity(new RestResponse(RestResponse.Status.Failed,
                     ex.getLocalizedMessage(), "smdpSignedData")).build();
@@ -127,20 +167,23 @@ public class Settings {
         if (settings.smsrSignedData != null) try {
             byte[] data = Utils.Http.decodeDataUri(settings.smsrSignedData);
             validateSignedData(data, ECKeyAgreementEG.SM_SR_CERTIFICATE_TYPE);
-            ServerSettings.updateSMSRSignedData(em, Utils.HEX.b2H(data));
+            po.doTransaction((PersistenceUtility po, EntityManager em) -> {
+                ServerSettings.updateSMSRSignedData(em, Utils.HEX.b2H(data));
+                return true;
+            });
         } catch (Exception ex) {
             return Response.status(Response.Status.BAD_REQUEST).entity(new RestResponse(RestResponse.Status.Failed,
                     ex.getLocalizedMessage(), "smsrSignedData")).build();
         }
 
+        Utils.writeKeyStore(); // Update store to file
         try {
             // Reload it.
-            settings = BasicSettings.get();
+            return BasicSettings.get(); // And return it as is.
         } catch (Exception ex) {
             return Response.status(Response.Status.BAD_REQUEST).entity(new RestResponse(RestResponse.Status.Failed,
                     ex.getLocalizedMessage())).build();
         }
-        return Response.ok(settings).build();
     }
 
     private static void validateSignedData(byte[] signedData, int certType) throws Exception {

@@ -37,6 +37,7 @@ import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 import java.io.ByteArrayInputStream;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
@@ -118,7 +119,7 @@ public class ES1SignatureVerifyHandler implements SOAPHandler<SOAPMessageContext
                             // return new DOMSubTreeData(signedInfo,true);
                             Utils.removeRecursively(signedInfo, Node.COMMENT_NODE, null); // Remove comments as per spec
                             String xml = Utils.XML.getNodeString(signedInfo);
-                            ByteArrayInputStream inputStream = new ByteArrayInputStream(xml.getBytes("UTF-8"));
+                            ByteArrayInputStream inputStream = new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8));
                             return new OctetStreamData(inputStream);
                         } catch (Exception ex) {
                             return null;

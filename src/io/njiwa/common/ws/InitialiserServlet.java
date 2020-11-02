@@ -20,17 +20,36 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
+import java.util.Properties;
 
 /**
  * Created by bagyenda on 22/11/2016.
  */
 public class InitialiserServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
+    private static final String PFILE = "njiwa.settings"; // The config file
 
-/*
+    private static Properties loadProps() {
+        java.util.Properties p = new Properties();
+        // ClassLoader loader = Properties.class.getClassLoader();
+
+        try {
+            InputStream in =  Thread.currentThread().getContextClassLoader().getResourceAsStream(PFILE);
+            p.load(in);
+            Utils.lg.info(String.format("%s configs loaded", ServerSettings.Constants.serverName));
+            return p;
+        } catch (Exception ex) {
+            Utils.lg.warning(String.format("Failed to load application properties: %s", ex));
+        }
+        return null;
+    }
+
+
+    /*
     private void outputKeyCerts() throws  Exception {
 
 
@@ -66,18 +85,19 @@ public class InitialiserServlet extends HttpServlet {
     }
 */
     public void init(ServletConfig config) throws ServletException {
-        // Get keystore param
+        // Get keystore from settings file
+        Properties properties = loadProps();
 
-        String keystoreFile = config.getInitParameter("keyfile");
-        String keystoreType = config.getInitParameter("keystoretype");
-        String keystorePass = config.getInitParameter("keyfilepassword");
-        String privkeyalias = config.getInitParameter("privatekeyalias");
-        String privkeypasswd = config.getInitParameter("privatekeypassword");
-        String jcaProvider = config.getInitParameter("jcaprovider");
+        String keystoreFile = (String)properties.getOrDefault("key-file", "/usr/local/etc/key.store"); // config.getInitParameter("keyfile");
+        String keystoreType = (String)properties.get("keystore-type"); // config.getInitParameter("keystoretype");
+        String keystorePass = (String)properties.getOrDefault("keyfile-password","testing1234"); // config.getInitParameter("keyfilepassword");
+        String privkeyalias = (String)properties.getOrDefault("privatekey-alias", "privatekey-alias"); // config.getInitParameter("privatekeyalias");
+        String privkeypasswd = (String)properties.getOrDefault("privatekey-password","testing1234"); // config.getInitParameter("privatekeypassword");
+        String jcaProvider = (String)properties.get("jca-provider"); // config.getInitParameter("jcaprovider");
         if (jcaProvider != null)
             ServerSettings.Constants.jcaProvider = jcaProvider;
 
-        String keyfile = config.getServletContext().getRealPath("/WEB-INF/" + keystoreFile);
+        String keyfile = keystoreFile == null || keystoreFile.charAt(0) != '/' ? config.getServletContext().getRealPath("/WEB-INF/" + keystoreFile) : keystoreFile;
 
         Utils.setPrivateKeyAliasAndPassword(privkeyalias, privkeypasswd);
 

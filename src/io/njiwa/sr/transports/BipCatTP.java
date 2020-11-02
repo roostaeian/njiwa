@@ -38,6 +38,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -197,7 +198,7 @@ public class BipCatTP extends Transport {
      * the sim card when the incoming connection is received.
      */
     private static byte[] makePushCmd2(String msisdn, long tid) throws Exception {
-        Utils.Pair<byte[], Integer> xres = Utils.makePhoneNumber(msisdn.getBytes("UTF-8"));
+        Utils.Pair<byte[], Integer> xres = Utils.makePhoneNumber(msisdn.getBytes(StandardCharsets.UTF_8));
         ByteArrayOutputStream os = new ByteArrayOutputStream();
 
         // Utils.appendEncodedInteger(os, tid, 8); // Put in 8-byte Transaction id

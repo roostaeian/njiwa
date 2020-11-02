@@ -88,7 +88,11 @@ public class Utils {
     // logger for the entire system
     private static KeyStore ks = null; //!< The key store...
     private static String privKeyAlias = "dsa", privKeyPassword = "test";
+    private static String keyStoreFileName = null;
 
+    private static final Object mutex = new Object (); //!< for writing ks file.
+    private static String keystoreType;
+    private static char[] keyStorePass;
 
     public static String getPrivKeyAlias() {
         return privKeyAlias;
@@ -352,7 +356,7 @@ public class Utils {
         String parms = "";
         String sep = "";
         if (cgi_params != null) for (Pair<String, String> p : cgi_params) {
-            parms += String.format("%s%s=%s", sep, URLEncoder.encode(p.k, "UTF-8"), URLEncoder.encode(p.l, "UTF-8"));
+            parms += String.format("%s%s=%s", sep, URLEncoder.encode(p.k, StandardCharsets.UTF_8.toString()), URLEncoder.encode(p.l, StandardCharsets.UTF_8.toString()));
             sep = "&";
         }
 
@@ -389,7 +393,7 @@ public class Utils {
                 conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 
             OutputStream os = conn.getOutputStream();
-            os.write(parms.getBytes("UTF-8"));
+            os.write(parms.getBytes(StandardCharsets.UTF_8));
         }
 
         int status = conn.getResponseCode();
@@ -430,7 +434,7 @@ public class Utils {
                 int len;
                 res = "";
                 while ((len = os.read(b)) > 0) {
-                    String xs = new String(b, 0, len, "UTF-8");
+                    String xs = new String(b, 0, len, StandardCharsets.UTF_8);
                     res += xs;
                 }
             }
@@ -704,20 +708,53 @@ public class Utils {
     public static KeyStore loadKeyStore(String keyfile, String type, String password, boolean setDefault) throws Exception {
         String ktype = type == null || type.length() == 0 ? KeyStore.getDefaultType() : type;
         KeyStore xks = KeyStore.getInstance(ktype);
+        char[] passwd = password.toCharArray();
+        File file = new File(keyfile);
+        if (!file.exists() && type == null) { // right?? What if type is custom and not file-based?
+            // Make it.
+            FileOutputStream fos = new FileOutputStream(keyfile);
+            xks.load(null,null);
+            xks.store(fos, passwd);
+            fos.close();
+        } else if (file.isDirectory() && type == null)
+            throw new Exception("Keystore cannot be a directory"); // XX right?
         try {
             FileInputStream fis = new FileInputStream(keyfile);
-
-            xks.load(fis, password.toCharArray());
-        } catch (Exception ex) {
+            xks.load(fis, passwd);
+        }
+        catch (Exception ex) {
             //     System.out.println();
             throw ex;
         }
-        if (setDefault) ks = xks;
+        if (setDefault) {
+            ks = xks;
+            keyStoreFileName = keyfile;
+            keystoreType = ktype;
+            keyStorePass = passwd;
+        }
         return xks;
     }
 
+    /**
+     * @brief this should be called each time the keystore changes.
+     * @throws Exception
+     */
+    public static void writeKeyStore()  {
+        synchronized (mutex) {
+            if (ks != null)
+            try {
+                OutputStream wstream = new FileOutputStream(keyStoreFileName);
+                ks.store(wstream,keyStorePass);
+                wstream.close();
+            } catch (Exception ex) {
+                lg.warning(String.format("Failed to write keystore file [%s]: %s", keyStoreFileName,ex));
+            }
+        }
+    }
     public static KeyStore getKeyStore() throws Exception {
-        if (ks == null) throw new Exception("KeyStore not set");
+        if (ks == null)
+            throw new Exception("KeyStore not set");
+
         return ks;
     }
 
@@ -829,14 +866,14 @@ public class Utils {
         return null;
     }
     public static X509Certificate certificateFromBytes(String cert) throws Exception {
-        return certificateFromBytes(cert.getBytes("UTF-8"));
+        return certificateFromBytes(cert.getBytes(StandardCharsets.UTF_8));
     }
 
     public static Key keyFromFile(byte[] data) {
         try {
             // Adapted from https://stackoverflow.com/questions/28430603/reading-ssleay-format-private-key-using
             // -bouncy-castle
-            String s = new String(data, "UTF-8");
+            String s = new String(data, StandardCharsets.UTF_8);
             PEMParser pp = new PEMParser(new StringReader(s));
             Object keyObj = pp.readObject();
 
@@ -903,9 +940,9 @@ public class Utils {
         return null;
     }
 
-    public static X509CRL parseCRL(String crldata) throws Exception {
+    public static X509CRL parseCRL(byte[] crldata) throws Exception {
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
-        InputStream in = new ByteArrayInputStream(crldata.getBytes(StandardCharsets.UTF_8));
+        InputStream in = new ByteArrayInputStream(crldata);
         return (X509CRL) cf.generateCRL(in);
     }
 
@@ -1802,6 +1839,28 @@ public class Utils {
     }
 
     /**
+     * @brief so we can see what's in our keystore.
+     */
+    public static class KeyStoreEntryNotFound extends Exception {
+        private List<String> aliasList;
+        public KeyStoreEntryNotFound(String message) {
+            super(message);
+            try {
+                KeyStore ks = Utils.getKeyStore();
+                aliasList = getKeyStoreAliases(ks);
+            } catch (Exception ex) {
+                String xs = ex.getMessage();
+            }
+
+        }
+        private  List<String>  getKeyStoreAliases(KeyStore ks) throws Exception
+        {
+            List<String> list = Collections.list(ks.aliases());
+            return list;
+        }
+
+    }
+    /**
      * @brief A CGI parameter decoder
      */
     public static class CGIDecoder {
@@ -1916,7 +1975,7 @@ public class Utils {
                     }
                     buffer.write(b);
                 }
-                String res = new String(buffer.toByteArray(), "UTF-8");
+                String res = new String(buffer.toByteArray(), StandardCharsets.UTF_8);
                 if (res.length() > 0 && res.charAt(res.length() - 1) == '\r')
                     res = res.substring(0, res.length() - 1); // Remove the '\r'
                 return res;
@@ -2105,7 +2164,7 @@ public class Utils {
             public final void outputMessage(OutputStream out) throws Exception {
                 ByteArrayOutputStream xos = new ByteArrayOutputStream();
                 printFirstLine(xos);
-                xos.write("\r\n".getBytes("UTF-8"));
+                xos.write("\r\n".getBytes(StandardCharsets.UTF_8));
                 // Now print the headers
                 // Write headers
                 for (Map.Entry<String, String> m : headers.entrySet()) {
@@ -2113,22 +2172,22 @@ public class Utils {
                     String v = m.getValue().replace("\n", "").replace("\r", "");
                     if (!k.equalsIgnoreCase("content-length")) // Send it last. Right? Stupid SIMs which don't read
                         // the HTTP spec!!!
-                        xos.write(String.format("%s: %s\r\n", k, v).getBytes("UTF-8"));
+                        xos.write(String.format("%s: %s\r\n", k, v).getBytes(StandardCharsets.UTF_8));
                 }
                 boolean xhasBody = hasBody() && body != null;
                 boolean useChunked = USE_CHUNKED_IN_OUTPUT && version > 1.0;
                 if (!useChunked) {
                     String ctype = headers.get("Content-Length");
                     if (ctype != null && hasBody()) // Don't output content length unless it is expected
-                        xos.write(String.format("%s: %s\r\n", "Content-Length", ctype).getBytes("UTF-8"));
+                        xos.write(String.format("%s: %s\r\n", "Content-Length", ctype).getBytes(StandardCharsets.UTF_8));
                 } else if (xhasBody) { // Using chunked
-                    xos.write(String.format("Transfer-Encoding: chunked\r\n").getBytes("UTF-8"));
+                    xos.write(String.format("Transfer-Encoding: chunked\r\n").getBytes(StandardCharsets.UTF_8));
                 }
 
-                xos.write("\r\n".getBytes("UTF-8"));
+                xos.write("\r\n".getBytes(StandardCharsets.UTF_8));
                 if (xhasBody) {
-                    byte[] pre = (useChunked) ? String.format("%X\r\n", body.length).getBytes("UTF-8") : new byte[0];
-                    byte[] post = (useChunked) ? "\r\n".getBytes("UTF-8") : new byte[0];
+                    byte[] pre = (useChunked) ? String.format("%X\r\n", body.length).getBytes(StandardCharsets.UTF_8) : new byte[0];
+                    byte[] post = (useChunked) ? "\r\n".getBytes(StandardCharsets.UTF_8) : new byte[0];
 
                     xos.write(pre);
                     xos.write(body);
@@ -2263,7 +2322,7 @@ public class Utils {
             @Override
             protected void printFirstLine(OutputStream out) throws Exception {
                 String xs = String.format("%s %s HTTP/%.1f", method, uri, version);
-                out.write(xs.getBytes("UTF-8"));
+                out.write(xs.getBytes(StandardCharsets.UTF_8));
             }
 
         }
@@ -2313,7 +2372,7 @@ public class Utils {
             protected void printFirstLine(OutputStream out) throws Exception {
                 String xs = String.format("HTTP/%.1f %s %s", version, status.getStatusCode(), statusMsg != null ?
                         statusMsg : status.getReasonPhrase());
-                out.write(xs.getBytes("UTF-8"));
+                out.write(xs.getBytes(StandardCharsets.UTF_8));
             }
 
             /**
@@ -2351,12 +2410,12 @@ public class Utils {
          */
         public static byte[] decodeDataUri(String dataUri)  throws Exception {
             if (dataUri.indexOf("data:") != 0)
-                return dataUri.getBytes("UTF-8");
+                return dataUri.getBytes(StandardCharsets.UTF_8);
             int startIndex = dataUri.indexOf(",") + 1;
             String preAmble = dataUri.substring(0, startIndex);
             boolean isb64 = preAmble.contains("base64");
             String data = dataUri.substring(startIndex);
-            return isb64 ? Base64.getDecoder().decode(data) : data.getBytes("UTF-8");
+            return isb64 ? Base64.getDecoder().decode(data) : data.getBytes(StandardCharsets.UTF_8);
         }
     }
 

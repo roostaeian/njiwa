@@ -38,6 +38,7 @@ import javax.ejb.Startup;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -457,8 +458,8 @@ public class Test {
                     // format
 
                     //   Key k1 = Utils.keyFromFile(s1.getBytes("UTF-8"));
-                    Key k2 = Utils.keyFromFile(s2.getBytes("UTF-8"));
-                    Key k3 = Utils.keyFromFile(s3.getBytes("UTF-8"));
+                    Key k2 = Utils.keyFromFile(s2.getBytes(StandardCharsets.UTF_8));
+                    Key k3 = Utils.keyFromFile(s3.getBytes(StandardCharsets.UTF_8));
                     // String zabHex = Utils.HEX.b2H(ZAB);
                     // ECParameterSpec es = kpriv.getParams();
 

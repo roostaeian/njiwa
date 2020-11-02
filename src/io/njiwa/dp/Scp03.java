@@ -26,6 +26,7 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.SecureRandom;
 import java.util.Arrays;
@@ -149,7 +150,7 @@ public class Scp03 {
 
         public static Session fromString(String input) throws Exception {
             byte[] in = Utils.urlDecode(input);
-            String xinput = new String(in, "UTF-8");
+            String xinput = new String(in, StandardCharsets.UTF_8);
             return new ObjectMapper().readValue(xinput, Session.class);
         }
 
@@ -177,7 +178,7 @@ public class Scp03 {
         public String toString() {
             try {
                 String x = new ObjectMapper().writeValueAsString(this);
-                return Utils.urlEncode(x.getBytes("UTF-8"));
+                return Utils.urlEncode(x.getBytes(StandardCharsets.UTF_8));
             } catch (Exception ex) {
             }
             return null;

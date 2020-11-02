@@ -13,6 +13,7 @@
 package io.njiwa.common;
 
 import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 /*
@@ -183,7 +184,7 @@ public class Charset {
          }
 
          if (convert_to_utf8)
-             return convertToUTF8(decoded.toByteArray(), INLINE_7BIT).getBytes("UTF-8");
+             return convertToUTF8(decoded.toByteArray(), INLINE_7BIT).getBytes(StandardCharsets.UTF_8);
          else
              return decoded.toByteArray();
      }

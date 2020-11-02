@@ -46,6 +46,7 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.security.MessageDigest;
 import java.security.PrivateKey;
@@ -241,7 +242,7 @@ public class WSUtils {
                         try {
                             Utils.removeRecursively(n, Node.COMMENT_NODE, null); // Everything but comments
                             String xml = Utils.XML.getNodeString(n);
-                            ByteArrayInputStream inputStream = new ByteArrayInputStream(xml.getBytes("UTF-8"));
+                            ByteArrayInputStream inputStream = new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8));
                             return new OctetStreamData(inputStream);
                             // return new DOMSubTreeData(n,true);
                         } catch (Exception ex) {
@@ -274,9 +275,9 @@ public class WSUtils {
             String userid = rpa.getOutgoingWSuserid();
             String passwd = rpa.getOutgoingWSpassword();
             MessageDigest md = MessageDigest.getInstance("SHA-1");
-            md.update(nonce.getBytes("UTF-8"));
-            md.update(date.getBytes("UTF-8"));
-            md.update(passwd.getBytes("UTF-8"));
+            md.update(nonce.getBytes(StandardCharsets.UTF_8));
+            md.update(date.getBytes(StandardCharsets.UTF_8));
+            md.update(passwd.getBytes(StandardCharsets.UTF_8));
             byte[] out = md.digest();
             String digest = DatatypeConverter.printBase64Binary(out);
             Document doc = soapenv.getOwnerDocument();
@@ -305,7 +306,7 @@ public class WSUtils {
             utNode.appendChild(cNode);
             Element nNode = doc.createElementNS("http://docs.oasis-open" +
                     ".org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd", "Nonce");
-            nNode.appendChild(doc.createTextNode(DatatypeConverter.printBase64Binary(nonce.getBytes("UTF-8"))));
+            nNode.appendChild(doc.createTextNode(DatatypeConverter.printBase64Binary(nonce.getBytes(StandardCharsets.UTF_8))));
             utNode.appendChild(nNode);
         }
 

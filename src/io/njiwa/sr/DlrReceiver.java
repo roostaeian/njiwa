@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 
@@ -68,13 +69,13 @@ public class DlrReceiver extends HttpServlet {
     private void handle_request(String params, HttpServletResponse response) throws ServletException, IOException {
         try {
             Map<String, Object> plist = Utils.CGIDecoder.parseCGIStr(params);
-            String msisdn = new String((byte[]) plist.get("from"), "UTF-8");
+            String msisdn = new String((byte[]) plist.get("from"), StandardCharsets.UTF_8);
             byte[] text = (byte[]) plist.get("data");
-            String tag  = new String ((byte[]) plist.get("dlr_tag"), "UTF-8");
-            String xsmsId = new String ((byte[]) plist.get("sms_id"), "UTF-8");
-            String xtagId = new String ((byte[]) plist.get("dlr_id"), "UTF-8");
-            String xdlrCode = new String ((byte[]) plist.get("dlr"), "UTF-8");
-            String xpartNo = new String ((byte[]) plist.get("part_no"), "UTF-8");
+            String tag  = new String ((byte[]) plist.get("dlr_tag"), StandardCharsets.UTF_8);
+            String xsmsId = new String ((byte[]) plist.get("sms_id"), StandardCharsets.UTF_8);
+            String xtagId = new String ((byte[]) plist.get("dlr_id"), StandardCharsets.UTF_8);
+            String xdlrCode = new String ((byte[]) plist.get("dlr"), StandardCharsets.UTF_8);
+            String xpartNo = new String ((byte[]) plist.get("part_no"), StandardCharsets.UTF_8);
 
             int dlrCode = Integer.parseInt(xdlrCode);
             long tagID = Long.parseLong(xtagId);

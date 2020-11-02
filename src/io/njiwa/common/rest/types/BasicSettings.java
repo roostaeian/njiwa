@@ -19,8 +19,11 @@ import java.math.BigInteger;
 import java.security.cert.X509CRL;
 import java.security.cert.X509CRLEntry;
 import java.security.cert.X509Certificate;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 import static io.njiwa.common.ECKeyAgreementEG.AUTHORITY_KEY_IDENTIFIER_OID;
@@ -40,9 +43,9 @@ public class BasicSettings {
 
     public String additionalDiscretionaryDataTlvs; // Additional TLVs, discretionary data. HEX-coded.
     // Out data:
-    CertificateInfo ciCertificateInfo;
-    CertificateInfo serverCertificateInfo;
-    CRLInfo crlInfo;
+    public CertificateInfo ciCertificateInfo;
+    public CertificateInfo serverCertificateInfo;
+    public CRLInfo crlInfo;
 
     public static class CertificateInfo {
         public BigInteger serialNumber;
@@ -79,12 +82,13 @@ public class BasicSettings {
 
     public static class CRLInfo {
         public String issuer;
-        public Date updatedOn;
-        public Date nextUpdateOn;
+        public String updatedOn;
+        public String nextUpdateOn;
         public Integer version;
         public Set<BigInteger> revocationList;
+        public Integer nCerts;
 
-        public static CRLInfo create(String crldata) {
+        public static CRLInfo create(byte[] crldata) {
             try {
                 X509CRL crl = Utils.parseCRL(crldata);
                 return create(crl);
@@ -95,14 +99,24 @@ public class BasicSettings {
 
         public static CRLInfo create(X509CRL crl) {
             CRLInfo crlInfo = new CRLInfo();
-            crlInfo.issuer = crl.getIssuerX500Principal().toString();
-            crlInfo.updatedOn = crl.getThisUpdate();
-            crlInfo.nextUpdateOn = crl.getNextUpdate();
+            crlInfo.issuer = crl.getIssuerX500Principal().getName();
+            DateFormat df = DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault());
+            try {
+                crlInfo.updatedOn =  df.format( crl.getThisUpdate());
+            } catch (Exception ex) {
+
+            }
+            try {
+                crlInfo.nextUpdateOn = df.format( crl.getNextUpdate());
+            } catch (Exception ex) {
+            }
             crlInfo.version = crl.getVersion();
             crlInfo.revocationList = new HashSet<>();
-            for (X509CRLEntry entry: crl.getRevokedCertificates())
-                crlInfo.revocationList.add(entry.getSerialNumber());
-
+            try {
+                for (X509CRLEntry entry : crl.getRevokedCertificates())
+                    crlInfo.revocationList.add(entry.getSerialNumber());
+            } catch (Exception ex) {}
+            crlInfo.nCerts = crlInfo.revocationList.size();
             return crlInfo;
         }
     }
@@ -115,7 +129,9 @@ public class BasicSettings {
         BasicSettings settings = new BasicSettings();
         try {
             settings.ciCertificateInfo = CertificateInfo.create(ServerSettings.getCiCertAndAlias().l);
-        } catch (Exception ex) {}
+        } catch (Exception ex) {
+            String xs = ex.getMessage();
+        }
         try {
             settings.serverCertificateInfo = CertificateInfo.create(ServerSettings.getServerCert());
         } catch (Exception ex) {}

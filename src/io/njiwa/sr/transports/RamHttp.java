@@ -46,6 +46,7 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.Calendar;
 import java.util.Date;
@@ -619,7 +620,7 @@ public class RamHttp extends Transport {
             byte[] rawPsk = os.toByteArray();
             // This is as per Sec 3.7.3 of the GP RAM HTTP doc
             byte[] version = new byte[]{2, (byte) keyVer, (byte) keyIdx};
-            return new Utils.Pair<>(Utils.HEX.b2H(rawPsk).getBytes("UTF-8"), version); // Because it
+            return new Utils.Pair<>(Utils.HEX.b2H(rawPsk).getBytes(StandardCharsets.UTF_8), version); // Because it
             // must
             // be a UTF-8 literal
         } catch (Exception ex) {
@@ -1082,12 +1083,12 @@ public class RamHttp extends Transport {
 
             // Put in the Agent ID as ICCID
             String agentID = formatRamHTTPXAdminFrom(sim);
-            Utils.BER.appendTLV(postParams, AGENT_ID_PARAM_TAG, agentID.getBytes("UTF-8"));
+            Utils.BER.appendTLV(postParams, AGENT_ID_PARAM_TAG, agentID.getBytes(StandardCharsets.UTF_8));
 
             // Put in transaction ID and fetchAFewPending URL
             String rUri = DISPATCHER_URI;
             String adminUri = String.format("/%s/%s", rUri, tid);
-            Utils.BER.appendTLV(postParams, RamHttp.ADMIN_URI_PARAM_TAG, adminUri.getBytes("UTF-8"));
+            Utils.BER.appendTLV(postParams, RamHttp.ADMIN_URI_PARAM_TAG, adminUri.getBytes(StandardCharsets.UTF_8));
 
             // Now build the agent conf params according to Sec 13.3.2.9.2 of the SCWS or Sec 3.7 of GP 2.2 Adendum B
             ByteArrayOutputStream confParams = new ByteArrayOutputStream();

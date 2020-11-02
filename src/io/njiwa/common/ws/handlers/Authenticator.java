@@ -46,6 +46,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ObjectInputStream;
 import java.net.InetSocketAddress;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
@@ -160,8 +161,8 @@ public class Authenticator implements SOAPHandler<SOAPMessageContext> {
         else
             md.update(DatatypeConverter.parseBase64Binary(nonce));
         // Write created
-        md.update(created.getBytes("UTF-8"));
-        md.update(ourPass.getBytes("UTF-8"));
+        md.update(created.getBytes(StandardCharsets.UTF_8));
+        md.update(ourPass.getBytes(StandardCharsets.UTF_8));
 
         byte[] out = md.digest();
 
@@ -274,7 +275,7 @@ public class Authenticator implements SOAPHandler<SOAPMessageContext> {
                                     Utils.removeRecursively(n, Node.COMMENT_NODE, null); // Remove comments
                                     String xml = Utils.XML.getNodeString(n);
                                     ByteArrayInputStream inputStream = new ByteArrayInputStream(xml.getBytes
-                                            ("UTF-8"));
+                                            (StandardCharsets.UTF_8));
                                     return new OctetStreamData(inputStream);
                                 } catch (Exception ex) {
                                     return null;

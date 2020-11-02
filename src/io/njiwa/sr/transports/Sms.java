@@ -37,6 +37,7 @@ import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -165,7 +166,7 @@ public class Sms extends Transport {
         dev.lastUse = Calendar.getInstance().getTime();
 
         // Make the time
-        Utils.Pair<byte[], Integer> smsc = Utils.makePhoneNumber(ServerSettings.getVsmsc_number().getBytes("UTF-8"));
+        Utils.Pair<byte[], Integer> smsc = Utils.makePhoneNumber(ServerSettings.getVsmsc_number().getBytes(StandardCharsets.UTF_8));
 
         /* TP-UDHI: Page 36 of GSM 03.40 gives order */
         int h1 = (udh != null && udh.length > 0) ? (1 << 6) : 0;
@@ -194,7 +195,7 @@ public class Sms extends Transport {
 
         DataOutputStream out = new DataOutputStream(dev.socket.getOutputStream());
 
-        out.write((Utils.urlEncode(msgBytes) + "\n").getBytes("UTF-8"));
+        out.write((Utils.urlEncode(msgBytes) + "\n").getBytes(StandardCharsets.UTF_8));
         out.flush();
 
         if (request_por != 0 &&
@@ -256,14 +257,14 @@ public class Sms extends Transport {
                 ServerSettings.getSendSmsUrl(),
                 ServerSettings.getSendSmsUrl().contains("&") ? "&" : "?",
                 Utils.urlEncode(text),
-                URLEncoder.encode(msidn, "UTF-8")
+                URLEncoder.encode(msidn, StandardCharsets.UTF_8.toString())
         );
         if (udh != null && udh.length > 0)
             url += String.format("&udh=%s", Utils.urlEncode(udh));
 
         if (request_por != 0 && dlr_url != null && dlr_url.length() > 0) {
             url += String.format("&dlr-url=%s&dlr-mask=%d",
-                    URLEncoder.encode(dlr_url, "UTF-8"), request_por);
+                    URLEncoder.encode(dlr_url, StandardCharsets.UTF_8.toString()), request_por);
         }
 
         if (coding != 0)
@@ -344,7 +345,7 @@ public class Sms extends Transport {
                 ServerSettings.getMyport(),
                 ServerSettings.getDlrUri(),
                 context.sim.activeMISDN(),
-                URLEncoder.encode(context.requestID, "UTF-8"),
+                URLEncoder.encode(context.requestID, StandardCharsets.UTF_8.toString()),
                 context.tag,
                 context.tagId,
                 mask, trackerId);
@@ -394,7 +395,7 @@ public class Sms extends Transport {
         if (context.ucs2Sms)
             try {
                 // Convert to UTF-18
-                byte[] xmsg = (new String(msg, "UTF-8")).getBytes("UTF-16BE");
+                byte[] xmsg = (new String(msg, StandardCharsets.UTF_8)).getBytes(StandardCharsets.UTF_16BE);
                 msg = xmsg;
             } catch (Exception ex) {
 
@@ -652,14 +653,14 @@ public class Sms extends Transport {
                         SimpleDateFormat df = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z");
                         Date dt = Calendar.getInstance().getTime();
 
-                        out.write("HTTP/1.1 200 OK\r\n".getBytes("UTF-8"));
-                        out.write("Connection: close\r\n".getBytes("UTF-8"));
-                        out.write("Content-Type: text/plain\r\n".getBytes("UTF-8"));
-                        out.write(String.format("Content-Length: %d\r\n", r.length()).getBytes("UTF-8"));
+                        out.write("HTTP/1.1 200 OK\r\n".getBytes(StandardCharsets.UTF_8));
+                        out.write("Connection: close\r\n".getBytes(StandardCharsets.UTF_8));
+                        out.write("Content-Type: text/plain\r\n".getBytes(StandardCharsets.UTF_8));
+                        out.write(String.format("Content-Length: %d\r\n", r.length()).getBytes(StandardCharsets.UTF_8));
 
-                        out.write(String.format("Date: %s\r\n", df.format(dt)).getBytes("UTF-8"));
-                        out.write("Server: anon/1.1\r\n".getBytes("UTF-8"));
-                        out.write(("\r\n\r\n" + r).getBytes("UTF-8"));
+                        out.write(String.format("Date: %s\r\n", df.format(dt)).getBytes(StandardCharsets.UTF_8));
+                        out.write("Server: anon/1.1\r\n".getBytes(StandardCharsets.UTF_8));
+                        out.write(("\r\n\r\n" + r).getBytes(StandardCharsets.UTF_8));
                         reply = "";
                     } else if (command.equalsIgnoreCase("register")) {
                         // Device wishes to register...
@@ -798,7 +799,7 @@ public class Sms extends Transport {
                         //              break;
                         //         }
                         reply = Utils.urlEncode(sms);
-                        out.write((reply + "\n").getBytes("UTF-8"));
+                        out.write((reply + "\n").getBytes(StandardCharsets.UTF_8));
                         replySent = true;
                         final byte[] xsms = sms, xudh = udh;
                         final String xfrom = from;
@@ -826,7 +827,7 @@ public class Sms extends Transport {
 
                     if (reply != null) {
                         if (!replySent)
-                            out.write((reply + "\n").getBytes("UTF-8"));
+                            out.write((reply + "\n").getBytes(StandardCharsets.UTF_8));
                         Utils.lg.info(String.format("VSMSC [%s:%d]--->%s", xsocket.getInetAddress(), xsocket.getPort(), reply));
                     }
                     if (socket != null)
@@ -835,7 +836,7 @@ public class Sms extends Transport {
                     Utils.lg.severe(String.format("Error in vsmsc: %s", ex));
                     if (out != null)
                         try {
-                            out.write("Error".getBytes("UTF-8"));
+                            out.write("Error".getBytes(StandardCharsets.UTF_8));
                         } catch (Exception ex2) {
                         }
                 } finally {

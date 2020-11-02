@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 
@@ -76,7 +77,7 @@ public class MoHandler extends HttpServlet {
         byte[] x;
         plist = Utils.CGIDecoder.parseCGIStr(params);
         x = (byte[]) plist.get("from");
-        final String msisdn = new String(x, "UTF-8");
+        final String msisdn = new String(x, StandardCharsets.UTF_8);
 
         final byte[] text = (byte[]) plist.get("text");
         final byte[] udh = (byte[]) plist.get("udh");

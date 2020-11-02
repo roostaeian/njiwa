@@ -17,6 +17,7 @@ import io.njiwa.common.model.ServerConfigurations;
 import javax.persistence.EntityManager;
 import java.io.ByteArrayOutputStream;
 import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
@@ -175,7 +176,7 @@ public class ServerSettings {
                     for (String s : xl)
                         try {
                             os.write(s.length());
-                            os.write(s.getBytes("UTF-8"));
+                            os.write(s.getBytes(StandardCharsets.UTF_8));
                         } catch (Exception ex) {
                         }
                     return os.toByteArray();
@@ -463,11 +464,12 @@ public class ServerSettings {
         // Try to load it from keystore
 
             KeyStore ks = Utils.getKeyStore();
-            X509Certificate ciCert = (X509Certificate) ks.getCertificate(alias);
-            if (ciCert == null)
-                throw new Exception("Certificate not found");
-            return new Utils.Pair<>(alias, ciCert);
+            X509Certificate cert = (X509Certificate) ks.getCertificate(alias);
+            if (cert == null)
+                throw new Utils.KeyStoreEntryNotFound("Certificate not found");
+            return new Utils.Pair<>(alias, cert);
     }
+
 
     private static void updateCert(EntityManager em, String propkey, X509Certificate certificate) throws Exception {
         KeyStore ks = Utils.getKeyStore();
@@ -507,7 +509,7 @@ public class ServerSettings {
 
     public static void updateOid(EntityManager em, String oid) throws Exception {
         String xoid = oid.trim();
-        if (!Pattern.matches("^([1-9][0-9]{0,3}|0)(\\.([1-9][0-9]{0,3}|0)){5,13}$", xoid))
+        if (!Pattern.matches("^([1-9][0-9]{0,3}|0)([.]([1-9][0-9]{0,6}|0)){5,13}$", xoid))
             throw new Exception("Invalid OID");
         updateProp(em, SERVER_OID, xoid);
     }
@@ -515,15 +517,15 @@ public class ServerSettings {
     public static X509CRL getCRL() {
         String pem = (String) propertyValues.get(CRL_X509_CONTENT);
         try {
-            return Utils.parseCRL(pem);
+            return Utils.parseCRL(pem.getBytes(StandardCharsets.UTF_8));
         } catch (Exception ex) {
             return null;
         }
     }
 
-    public void updateCRL(EntityManager em, String crldata) throws Exception {
+    public static void updateCRL(EntityManager em, byte[] crldata) throws Exception {
         X509CRL crl = Utils.parseCRL(crldata); // Will throw exception...
-        updateProp(em, CRL_X509_CONTENT, crldata);
+        updateProp(em, CRL_X509_CONTENT,   new String(crldata, StandardCharsets.UTF_8));
     }
 
     public static byte[] getAdditionalDiscretionaryDataTlvs() {
@@ -815,7 +817,7 @@ public class ServerSettings {
         }
 
         protected byte[] getBytes(String value) throws Exception {
-            return hexCoded ? Utils.HEX.h2b(value) : value.getBytes("UTF-8");
+            return hexCoded ? Utils.HEX.h2b(value) : value.getBytes(StandardCharsets.UTF_8);
         }
     }
 
