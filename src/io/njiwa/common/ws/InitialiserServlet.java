@@ -13,6 +13,7 @@
 package io.njiwa.common.ws;
 
 import io.njiwa.common.ECKeyAgreementEG;
+import io.njiwa.common.ServerSettings;
 import io.njiwa.common.Utils;
 
 import javax.servlet.ServletConfig;
@@ -29,7 +30,7 @@ import java.security.cert.X509Certificate;
 public class InitialiserServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
-
+/*
     private void outputKeyCerts() throws  Exception {
 
 
@@ -39,6 +40,7 @@ public class InitialiserServlet extends HttpServlet {
         PrivateKey ciPkey = (PrivateKey) ciKeyStore.getKey("ci", "test1234".toCharArray());
         X509Certificate ciCert = (X509Certificate)ciKeyStore.getCertificate("ci");
         byte[] sig = ECKeyAgreementEG.makeCertSigningData(ciCert,
+                2,
                 ECKeyAgreementEG.CI_DEFAULT_DISCRETIONARY_DATA,
 
                 (byte)0, ECKeyAgreementEG.DST_VERIFY_KEY_TYPE);
@@ -52,7 +54,9 @@ public class InitialiserServlet extends HttpServlet {
         // Get EUM
         X509Certificate certificate = (X509Certificate) Utils.getKeyStore().getCertificate("eum-ec");
         // Now write to file
-        sig = ECKeyAgreementEG.makeCertSigningData(certificate, ECKeyAgreementEG.EUM_DEFAULT_DISCRETIONARY_DATA,
+        sig = ECKeyAgreementEG.makeCertSigningData(certificate,
+                2,
+                ECKeyAgreementEG.EUM_DEFAULT_DISCRETIONARY_DATA,
                 (byte)0, ECKeyAgreementEG.DST_VERIFY_KEY_TYPE);
 
         // Write to file
@@ -60,7 +64,7 @@ public class InitialiserServlet extends HttpServlet {
         Utils.DGI.append(f,0x7f21,sig);
         f.close();
     }
-
+*/
     public void init(ServletConfig config) throws ServletException {
         // Get keystore param
 
@@ -69,6 +73,10 @@ public class InitialiserServlet extends HttpServlet {
         String keystorePass = config.getInitParameter("keyfilepassword");
         String privkeyalias = config.getInitParameter("privatekeyalias");
         String privkeypasswd = config.getInitParameter("privatekeypassword");
+        String jcaProvider = config.getInitParameter("jcaprovider");
+        if (jcaProvider != null)
+            ServerSettings.Constants.jcaProvider = jcaProvider;
+
         String keyfile = config.getServletContext().getRealPath("/WEB-INF/" + keystoreFile);
 
         Utils.setPrivateKeyAliasAndPassword(privkeyalias, privkeypasswd);

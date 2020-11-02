@@ -13,6 +13,7 @@
 package io.njiwa.sr.ws.handlers;
 
 
+import io.njiwa.common.ServerSettings;
 import io.njiwa.common.Utils;
 import io.njiwa.common.model.RpaEntity;
 import org.w3c.dom.Node;
@@ -86,8 +87,13 @@ public class ES1SignatureVerifyHandler implements SOAPHandler<SOAPMessageContext
             XMLSignatureFactory fac = XMLSignatureFactory.getInstance("DOM");
 
             // Get our CI certificate
-            X509Certificate ci_cert = RpaEntity.getCI(em);
+            X509Certificate ci_cert;
 
+            try {
+                ci_cert = ServerSettings.getCiCert();
+            } catch (Exception ex) {
+                ci_cert = null;
+            }
 
             if (ci_cert == null) {
                 System.out.println("No CI certificate in storage!");

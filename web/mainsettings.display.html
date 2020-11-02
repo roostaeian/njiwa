@@ -47,7 +47,8 @@
                         <label class="custom-file-label" for="cicrl">Choose file</label>
                     </div>
                     <p class="form-text text-muted">
-                        Certificate Revocation List </p>
+                        Certificate Revocation List
+                    </p>
                     <em id="cicrl-info"></em>
                 </div>
             </div>
@@ -80,6 +81,20 @@
                         Hex-coded EC private key corresponding to the ECDSA certificate. </p>
                     <em id="ecdsa-key-info"></em>
                 </div>
+            </div>
+
+            <div class="item form-group">
+                <label class="col-form-label col-md-3 col-sm-3 label-align">
+                    Site Additional Discretionary Data for Signatures:
+                </label>
+                <div class="col-md-6 col-sm-6">
+                    <input type="text" placeholder="ASN.1 OID"  id="server-tlvs" class="form-control">
+                    <p class="form-text text-muted">
+                       Hex-coded additional site TLVs used in discretionary data for SM-SR/SM-DP signed info (see below).
+                        Optional.
+                    </p>
+                </div>
+
             </div>
 
             <div class="item form-group">
@@ -126,3 +141,7 @@
         </form>
     </div>
 </div>
+<script type="application/javascript">
+
+ //@ sourceURL=mainsettings.js
+</script>

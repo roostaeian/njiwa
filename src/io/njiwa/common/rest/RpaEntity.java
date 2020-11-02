@@ -126,7 +126,7 @@ public class RpaEntity {
             cx.oID = ci.getOid();
            // cx.iIN = ci.getCertificateIIN();
             cx.certSubject = ci.getX509Subject();
-            return Response.ok(io.njiwa.common.rest.Utils.buildJSON(cx)).build();
+            return Response.ok(Utils.buildJSON(cx)).build();
         });
 
     }
@@ -145,9 +145,11 @@ public class RpaEntity {
             X509Certificate certificate = entity.secureMessagingCert();
             try {
                 byte[] sdata = ECKeyAgreementEG.makeCertSigningData(certificate,
+                        t == io.njiwa.common.model.RpaEntity.Type.SMSR ? ECKeyAgreementEG.SM_SR_CERTIFICATE_TYPE :
+                                ECKeyAgreementEG.SM_DP_CERTIFICATE_TYPE,
                         t == io.njiwa.common.model.RpaEntity.Type.SMSR ?
                                 ECKeyAgreementEG.SM_SR_DEFAULT_DISCRETIONARY_DATA :
-                                ECKeyAgreementEG.SM_DP_DEFAULT_DISCRETIONARY_DATA, (byte) 0, ECKeyAgreementEG.DST_VERIFY_KEY_TYPE);
+                                ECKeyAgreementEG.SM_DP_DEFAULT_DISCRETIONARY_DATA, ECKeyAgreementEG.DST_VERIFY_KEY_TYPE);
                 String fname = type + "-signing-req-data.der";
                 return Response.ok(sdata, MediaType.APPLICATION_OCTET_STREAM).header("Content-Disposition",
                         "attachment; filename=\"" + fname + "\"").build();
@@ -177,7 +179,7 @@ public class RpaEntity {
                     X509Certificate certificate = (X509Certificate) ks.getCertificate(entity.getWskeyStoreAlias());
                     if (certificate != null) cx.dsaCertSubject = certificate.getSubjectDN().getName();
                 }
-                return Response.ok(io.njiwa.common.rest.Utils.buildJSON(cx)).build();
+                return Response.ok(Utils.buildJSON(cx)).build();
             } catch (Exception ex) {
                 return null;
             }
@@ -226,7 +228,7 @@ public class RpaEntity {
             if (entity == null) {
                 if (kp == null || kp.k == null || kp.l == null) return "Error: Missing Certificate and Private key";
                 entity = new io.njiwa.common.model.RpaEntity(io.njiwa.common.model.RpaEntity.Type.SMSR,
-                        wskeyStoreAlias, Certificate.LOCAL_SM_SR_KEYSTORE_ALIAS, info.oID, true, null, (byte) 0, null
+                        wskeyStoreAlias, Certificate.LOCAL_SM_SR_KEYSTORE_ALIAS, info.oID, true, null, null
                         , kp.k.getSubjectDN().getName());
                 em.persist(entity);
             } else
@@ -238,7 +240,7 @@ public class RpaEntity {
             if (entity == null) {
                 if (kp == null || kp.k == null || kp.l == null) return "Error: Missing Certificate and Private key";
                 entity = new io.njiwa.common.model.RpaEntity(io.njiwa.common.model.RpaEntity.Type.SMDP,
-                        wskeyStoreAlias, Certificate.LOCAL_SM_DP_KEYSTORE_ALIAS, info.oID, true, null, (byte) 0, null
+                        wskeyStoreAlias, Certificate.LOCAL_SM_DP_KEYSTORE_ALIAS, info.oID, true, null, null
                         , kp.k.getSubjectDN().getName());
                 em.persist(entity);
             } else
@@ -248,7 +250,7 @@ public class RpaEntity {
             return "OK";
         });
 
-        return Response.ok(io.njiwa.common.rest.Utils.buildJSON(res)).build();
+        return Response.ok(Utils.buildJSON(res)).build();
     }
 
     @POST
@@ -265,7 +267,7 @@ public class RpaEntity {
             // ks.deleteEntry(Certificate.CI_CERTIFICATE_ALIAS);
             ks.setCertificateEntry(Certificate.CI_CERTIFICATE_ALIAS, ciCert);
         } catch (Exception ex) {
-            return Response.ok(io.njiwa.common.rest.Utils.buildJSON("Failed: " + ex.getMessage())).build();
+            return Response.ok(Utils.buildJSON("Failed: " + ex.getMessage())).build();
         }
 
         String res = po.doTransaction((PersistenceUtility po, EntityManager em) -> {
@@ -275,7 +277,7 @@ public class RpaEntity {
 
                 ci = new io.njiwa.common.model.RpaEntity(io.njiwa.common.model.RpaEntity.Type.CI,
                         Certificate.CI_CERTIFICATE_ALIAS, rpaEntityInfo.oID, Certificate.CI_CERTIFICATE_ALIAS, false,
-                        null, (byte) 0, null, rpaEntityInfo.x509Certificate.getSubjectDN().getName());
+                        null, null, rpaEntityInfo.x509Certificate.getSubjectDN().getName());
                 em.persist(ci);
             }
 
@@ -285,7 +287,7 @@ public class RpaEntity {
 
         });
 
-        return Response.ok(io.njiwa.common.rest.Utils.buildJSON(res)).build();
+        return Response.ok(Utils.buildJSON(res)).build();
     }
 
     @POST
@@ -306,8 +308,8 @@ public class RpaEntity {
                     rpa = em.find(io.njiwa.common.model.RpaEntity.class, rpaEntityInfo.id);
                     if (rpaEntityInfo.oID != null) rpa.setOid(rpaEntityInfo.oID);
                 } else {
-                    rpa = new io.njiwa.common.model.RpaEntity(t, null, null, rpaEntityInfo.oID, false, null, (byte) 0
-                            , null, null);
+                    rpa = new io.njiwa.common.model.RpaEntity(t, null, null, rpaEntityInfo.oID, false, null, null,
+                            null);
                     em.persist(rpa);
                 }
 
@@ -330,11 +332,11 @@ public class RpaEntity {
                     }
                     ks.setCertificateEntry(alias, dsa_kp.k);
                 }
-                return Response.ok(io.njiwa.common.rest.Utils.buildJSON("OK")).build();
+                return Response.ok(Utils.buildJSON("OK")).build();
             } catch (Exception ex) {
                 Utils.lg.severe("Error creating RPA entity: " + ex.getMessage());
                 // ex.printStackTrace();
-                return Response.ok(io.njiwa.common.rest.Utils.buildJSON("Error: " + ex.getLocalizedMessage())).build();
+                return Response.ok(Utils.buildJSON("Error: " + ex.getLocalizedMessage())).build();
             }
 
             /*

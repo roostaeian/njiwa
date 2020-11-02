@@ -12,8 +12,8 @@
 
 package io.njiwa.common.rest;
 
+import io.njiwa.common.Utils;
 import io.njiwa.common.model.Group;
-import io.njiwa.common.rest.auth.Authenticator;
 import io.njiwa.common.rest.auth.UserData;
 import io.njiwa.common.rest.types.RestResponse;
 import io.njiwa.common.rest.types.Roles;
@@ -25,7 +25,6 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -60,7 +59,7 @@ public class Auth {
     public Response logout() {
       if (identity.isLoggedIn())
           identity.logout();
-      return Response.ok(io.njiwa.common.rest.Utils.buildJSON(new RestResponse(RestResponse.Status.Success,""))).build();
+      return Response.ok(io.njiwa.common.Utils.buildJSON(new RestResponse(RestResponse.Status.Success,""))).build();
     }
 
     @POST
@@ -98,7 +97,7 @@ public class Auth {
             response.response = this.identity.getAccount();
             response.errors.add("Already logged on!");
         }
-        return Response.ok(io.njiwa.common.rest.Utils.buildJSON(response))
+        return Response.ok(io.njiwa.common.Utils.buildJSON(response))
                 .cookie(new NewCookie("JSESSIONID", sessId))
                 .build();
     }
@@ -117,7 +116,7 @@ public class Auth {
             response.response = "false";
         }
 
-        return Response.ok(io.njiwa.common.rest.Utils.buildJSON(response))
+        return Response.ok(Utils.buildJSON(response))
                 .build();
     }
 

@@ -13,6 +13,7 @@
 package io.njiwa.common.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.njiwa.common.Utils;
 import io.njiwa.common.model.Group;
 import io.njiwa.common.rest.annotations.RestRoles;
 import io.njiwa.common.rest.types.RestResponse;
@@ -57,7 +58,7 @@ public class Users {
         User u = getUserById(id);
         UserResponse r = new UserResponse(em, u);
 
-        return Response.ok(io.njiwa.common.rest.Utils.buildJSON(r)).build();
+        return Response.ok(io.njiwa.common.Utils.buildJSON(r)).build();
     }
 
 
@@ -84,7 +85,7 @@ public class Users {
             r = new RestResponse(RestResponse.Status.Failed, false);
             r.errors.add(ex.getMessage());
         }
-        return Response.ok(io.njiwa.common.rest.Utils.buildJSON(r)).build();
+        return Response.ok(io.njiwa.common.Utils.buildJSON(r)).build();
     }
 
     @GET
@@ -97,7 +98,7 @@ public class Users {
         List<User> rl = q.getResultList();
         UserListResponse r = new UserListResponse(em, rl);
 
-        return Response.ok(io.njiwa.common.rest.Utils.buildJSON(r)).build();
+        return Response.ok(io.njiwa.common.Utils.buildJSON(r)).build();
     }
 
     private org.picketlink.idm.model.basic.User getUserById(long id) {
@@ -151,7 +152,7 @@ public class Users {
         } catch (Exception ex) {
             r = new RestResponse(RestResponse.Status.Failed, ex.getMessage());
         }
-        return Response.ok(io.njiwa.common.rest.Utils.buildJSON(r)).build();
+        return Response.ok(io.njiwa.common.Utils.buildJSON(r)).build();
     }
 
     @PUT
@@ -166,7 +167,7 @@ public class Users {
             r = new RestResponse(RestResponse.Status.Success, "updated");
         } else
             r = new RestResponse(RestResponse.Status.Failed, "Empty password");
-        return Response.ok(io.njiwa.common.rest.Utils.buildJSON(r)).build();
+        return Response.ok(Utils.buildJSON(r)).build();
     }
 
     class UserResponse extends RestResponse {

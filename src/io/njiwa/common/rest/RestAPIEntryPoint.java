@@ -19,5 +19,5 @@ import javax.ws.rs.core.Application;
  * Created by bagyenda on 29/05/2017.
  */
 @ApplicationPath("/rest")
-public class RestWSEntryPoint extends Application {
+public class RestAPIEntryPoint extends Application {
 }

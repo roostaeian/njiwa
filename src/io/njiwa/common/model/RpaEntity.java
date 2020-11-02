@@ -140,16 +140,12 @@ public class RpaEntity {
     private String outgoingWSpassword; //!< Outgoing password
     @Column(name = "islocal", columnDefinition = "boolean not null default false")
     private Boolean islocal; //!< This is true if our current server also represents this entity (can only be true
-    // for SMSR
-    // and SMDP type entitities
-    @Column
-    private Byte signatureKeyParameterReference; //!< Used in the signature generation. This is extracted from the
     // certificate data
     @Column
-    private byte[] discretionaryData; //!< Discretionary data as per GPC Ammendment E. This is extracted from the
+    private byte[] additionalDiscretionaryData; //!< Discretionary data as per GPC Ammendment E. This is extracted from the
     // certificate
     // data
-    @Column
+    @Column(columnDefinition = "Additional discretionary data TLVs")
     private byte[] signature; //!< Public key signature according to GPC Ammendment E and SGP v3.1. This is extract
     // from the
     // certificate date
@@ -174,30 +170,16 @@ public class RpaEntity {
     }
 
 
-    public RpaEntity(Type type, String wskeyStoreAlias, String sMkeyStoreAlias, String oid, boolean islocal, byte[] discretionaryData, byte signatureKeyParameterReference, byte[] signature, String x509Subject) {
+    public RpaEntity(Type type, String wskeyStoreAlias, String sMkeyStoreAlias, String oid, boolean islocal, byte[] additionalDiscretionaryData, byte[] signature, String x509Subject) {
         setType(type);
         setWskeyStoreAlias(wskeyStoreAlias);
-        setDiscretionaryData(discretionaryData);
+        setAdditionalDiscretionaryData(additionalDiscretionaryData);
         setX509Subject(x509Subject);
         setIslocal(islocal);
         setsMkeyStoreAlias(sMkeyStoreAlias);
         setSignature(signature);
-        setSignatureKeyParameterReference(signatureKeyParameterReference);
+
         setOid(oid);
-    }
-
-    public static X509Certificate getCI(EntityManager em) throws Exception {
-        // First find the first CI
-        String alias;
-        try {
-            RpaEntity rpaEntity = em.createQuery("from RpaEntity  WHERE type = :t", RpaEntity.class).setParameter("t"
-                    , Type.CI).setMaxResults(1).getSingleResult();
-            alias = rpaEntity.getWskeyStoreAlias();
-        } catch (Exception ex) {
-
-            return null;
-        }
-        return (X509Certificate) Utils.getKeyStore().getCertificate(alias);
     }
 
     public static RpaEntity getCIEntity(EntityManager em) throws Exception {
@@ -540,20 +522,12 @@ public class RpaEntity {
         this.sMkeyStoreAlias = sMkeyStoreAlias;
     }
 
-    public Byte getSignatureKeyParameterReference() {
-        return signatureKeyParameterReference;
+    public byte[] getAdditionalDiscretionaryData() {
+        return additionalDiscretionaryData;
     }
 
-    public void setSignatureKeyParameterReference(Byte signatureKeyParameterReference) {
-        this.signatureKeyParameterReference = signatureKeyParameterReference;
-    }
-
-    public byte[] getDiscretionaryData() {
-        return discretionaryData;
-    }
-
-    public void setDiscretionaryData(byte[] discretionaryData) {
-        this.discretionaryData = discretionaryData;
+    public void setAdditionalDiscretionaryData(byte[] discretionaryData) {
+        this.additionalDiscretionaryData = discretionaryData;
     }
 
     public byte[] getSignature() {

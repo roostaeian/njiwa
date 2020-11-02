@@ -495,9 +495,11 @@ public class DownloadProfileTransaction extends BaseTransactionType implements S
                 final SDCommand.APDU inst_p = ECKeyAgreementEG.isdpKeySetEstablishmentINSTALLCmd(isdp.getAid());
                 RpaEntity smdp = RpaEntity.getLocal(em, RpaEntity.Type.SMDP);
 
+
                 final SDCommand.APDU store_data_p = ECKeyAgreementEG.isdKeySetEstablishmentSendCert(smdp
-                                .secureMessagingCert(), smdp.getDiscretionaryData(), smdp.getSignatureKeyParameterReference(),
-                        smdp.getSignature());
+                                .secureMessagingCert(),
+                        ECKeyAgreementEG.SM_DP_CERTIFICATE_TYPE,
+                        smdp.getAdditionalDiscretionaryData(), smdp.getSignature());
                 // Make data
                 ByteArrayOutputStream os = new ByteArrayOutputStream() {
                     {

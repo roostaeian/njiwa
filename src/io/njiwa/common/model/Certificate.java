@@ -1,27 +1,37 @@
 /*
  * Njiwa Open Source Embedded M2M UICC Remote Subscription Manager
- * 
- * 
+ *
+ *
  * Copyright (C) 2019 - , Digital Solutions Ltd. - http://www.dsmagic.com
  *
  * Njiwa Dev <dev@njiwa.io>
- * 
+ *
  * This program is free software, distributed under the terms of
  * the GNU General Public License.
- */ 
+ */
 
 package io.njiwa.common.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import io.njiwa.common.ServerSettings;
 import io.njiwa.common.Utils;
+import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
+import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.openssl.PEMKeyPair;
+import org.bouncycastle.openssl.PEMParser;
+import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.PushbackInputStream;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.security.PrivateKey;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509CRL;
+import java.security.cert.X509Certificate;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -29,9 +39,7 @@ import java.util.Date;
  * Created by bagyenda on 20/04/2016.
  */
 @Entity
-@Table(name = "certificates", indexes = {
-        @Index(columnList = "idx,keyset_id", name = "cert_idx1")
-})
+@Table(name = "certificates", indexes = {@Index(columnList = "idx,keyset_id", name = "cert_idx1")})
 @SequenceGenerator(name = "certificates", sequenceName = "certificate_seq", allocationSize = 1)
 @JsonIgnoreProperties(value = {"hibernateLazyInitializer", "keyset"})
 @DynamicUpdate
@@ -49,24 +57,19 @@ public class Certificate {
     @javax.persistence.Id
     @Column(name = "id", unique = true, nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "certificates")
-    private
-    Long Id;
+    private Long Id;
 
     @Column(nullable = false, name = "idx")
-    private
-    Integer index;
+    private Integer index;
 
     @Column(nullable = false, columnDefinition = "text")
-    private
-    String caId; // CA Identifier
+    private String caId; // CA Identifier
 
     @Column(nullable = false, name = "certificate", columnDefinition = "text")
-    private
-    String value;
+    private String value;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    private
-    KeySet keyset; // Upward link
+    private KeySet keyset; // Upward link
 
     public Certificate() {
     }
@@ -144,10 +147,11 @@ public class Certificate {
                         Utils.BER.appendTLV(this, (short) 0x42, Utils.HEX.h2b(CaIIN));
                         Utils.DGI.append(this, 0x5F20, Utils.HEX.h2b(subjectIdentifier));
                         if (effectiveDate != null)
-                            Utils.DGI.append(this, 0x5F25, Utils.HEX.h2b(new SimpleDateFormat("yyyyMMdd").format(effectiveDate)));
-                        Utils.DGI.append(this, 0x5F24, Utils.HEX.h2b(new SimpleDateFormat("yyyyMMdd").format(expireDate)));
-                        if (discretionaryData != null)
-                            Utils.BER.appendTLV(this, (short) 0x53, discretionaryData);
+                            Utils.DGI.append(this, 0x5F25,
+                                    Utils.HEX.h2b(new SimpleDateFormat("yyyyMMdd").format(effectiveDate)));
+                        Utils.DGI.append(this, 0x5F24,
+                                Utils.HEX.h2b(new SimpleDateFormat("yyyyMMdd").format(expireDate)));
+                        if (discretionaryData != null) Utils.BER.appendTLV(this, (short) 0x53, discretionaryData);
                     }
                 }.toByteArray();
             } catch (Exception ex) {
@@ -181,7 +185,7 @@ public class Certificate {
                     tag = xres.k;
                 } else {
                     Utils.Pair<InputStream, Integer> xres = Utils.BER.decodeTLV(in);
-                    xdata =Utils.getBytes(xres.k);
+                    xdata = Utils.getBytes(xres.k);
                     tag = xres.l;
                 }
                 switch (tag) {
@@ -247,4 +251,5 @@ public class Certificate {
             return d;
         }
     }
+
 }

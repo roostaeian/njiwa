@@ -1,14 +1,14 @@
 /*
  * Njiwa Open Source Embedded M2M UICC Remote Subscription Manager
- * 
- * 
+ *
+ *
  * Copyright (C) 2019 - , Digital Solutions Ltd. - http://www.dsmagic.com
  *
  * Njiwa Dev <dev@njiwa.io>
- * 
+ *
  * This program is free software, distributed under the terms of
  * the GNU General Public License.
- */ 
+ */
 
 package io.njiwa.common;
 
@@ -19,9 +19,12 @@ import java.io.ByteArrayOutputStream;
 import java.net.InetAddress;
 import java.security.KeyStore;
 import java.security.PrivateKey;
+import java.security.cert.Certificate;
+import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 
 
 /**
@@ -97,6 +100,9 @@ public class ServerSettings {
 
     private static final String SERVER_OID = "oid";
     private static final String CRL_X509_CONTENT = "ci_crl_content";
+    private static final String ADDITIONAL_DISCRETIONARY_DATA_TLVS = "discretionary_data_tlvs";
+    private static final String SIGNED_SM_DP_DATA = "signed-sm-dp-data";
+    private static final String SIGNED_SM_SR_DATA = "signed-sm-sr-data";
 
     // This stores all the config params, with their validators and current values
     private static final Map<String, BaseValidator> configValidators = new ConcurrentHashMap<String, BaseValidator>() {
@@ -120,8 +126,7 @@ public class ServerSettings {
                 }
             });
 
-            put(NETWORK_CODES, new StringListValidator(new String[]{"1",},
-                    new IntegerValuesValidator(0)));
+            put(NETWORK_CODES, new StringListValidator(new String[]{"1",}, new IntegerValuesValidator(0)));
 
             put(NUMBER_LENGTH, new IntegerValuesValidator(12));
 
@@ -148,7 +153,8 @@ public class ServerSettings {
 
             put(BASEDEPLOYMENTURI, new BaseValidator("/dstk"));
 
-            put(SENDSMS_URL, new BaseValidator("http://localhost:13013/cgi-bin/sendsms?username=tester&password=foobar"));
+            put(SENDSMS_URL, new BaseValidator("http://localhost:13013/cgi-bin/sendsms?username=tester&password" +
+                    "=foobar"));
 
             put(VIRTUAL_SMSC_PORT, new IntegerValuesValidator(8182));
 
@@ -161,21 +167,20 @@ public class ServerSettings {
             put(SMS_THROUGHPUT1, new IntegerValuesValidator(10));
 
             put(BIP_APN, new ByteArrayValidator("internet") {
-                        @Override
-                        protected byte[] getBytes(String value) throws Exception {
-                            String[] xl = value.split("[.]");
-                            String out = "";
-                            ByteArrayOutputStream os = new ByteArrayOutputStream();
-                            for (String s : xl)
-                                try {
-                                    os.write(s.length());
-                                    os.write(s.getBytes("UTF-8"));
-                                } catch (Exception ex) {
-                                }
-                            return os.toByteArray();
+                @Override
+                protected byte[] getBytes(String value) throws Exception {
+                    String[] xl = value.split("[.]");
+                    String out = "";
+                    ByteArrayOutputStream os = new ByteArrayOutputStream();
+                    for (String s : xl)
+                        try {
+                            os.write(s.length());
+                            os.write(s.getBytes("UTF-8"));
+                        } catch (Exception ex) {
                         }
-                    }
-            );
+                    return os.toByteArray();
+                }
+            });
             put(BIP_TITLE, new BaseValidator("Accept"));
 
             put(BIP_ME_BUFFER, new IntegerValuesValidator(512));
@@ -204,7 +209,8 @@ public class ServerSettings {
 
             put(RAMHTTP_ADMIN_PORT, new PositiveIntegerValuesValidator(9443));
             put(RAM_ADMIN_BACKLOG, new PositiveIntegerValuesValidator(10));
-            put(RAM_ADMIN_HTTP_KEEP_ALIVE_TIMEOUT, new PositiveIntegerValuesValidator(120)); // HTTP Connection considered dead after 120 seconds.
+            put(RAM_ADMIN_HTTP_KEEP_ALIVE_TIMEOUT, new PositiveIntegerValuesValidator(120)); // HTTP Connection
+            // considered dead after 120 seconds.
             put(RAM_ADMIN_MAX_HTTP_REQUESTS_PER_SESSION, new PositiveIntegerValuesValidator(100));
 
             put(RAM_RETRY_TIMEOUT, new PositiveIntegerValuesValidator(120));
@@ -218,9 +224,13 @@ public class ServerSettings {
             put(MAX_EVENTS_HOURS, new PositiveIntegerValuesValidator(1));
             put(STATS_INTERVALS, new PositiveIntegerListValidator(new int[]{5, 30, 60, 3600}));
             put(CI_CERTIFICATE_ALIAS, new BaseValidator("ci-certificate"));
+            put(CRL_X509_CONTENT, new BaseValidator(""));
             put(SERVER_ECDSA_CERTIFICATE_ALIAS, new BaseValidator("server-ecda-certificate"));
             put(SERVER_ECDSA_SECRET_KEY_ALIAS, new BaseValidator("server-pkey"));
             put(SERVER_OID, new BaseValidator("1.2.3.4"));
+            put(ADDITIONAL_DISCRETIONARY_DATA_TLVS, new TLVsValidator(""));
+            put(SIGNED_SM_DP_DATA, new ByteArrayValidator("", true));
+            put(SIGNED_SM_SR_DATA, new ByteArrayValidator("", true));
         }
     };
 
@@ -392,16 +402,16 @@ public class ServerSettings {
     }
 
     /**
-     * @brief Get the HTTP TCP Port number
      * @return
+     * @brief Get the HTTP TCP Port number
      */
     public static int getRamhttpAdminPort() {
         return (Integer) propertyValues.get(RAMHTTP_ADMIN_PORT);
     }
 
     /**
-     * @brief Get the HTTP Port backlog
      * @return
+     * @brief Get the HTTP Port backlog
      */
     public static int getRamAdminBackLog() {
         return (Integer) propertyValues.get(RAM_ADMIN_BACKLOG);
@@ -412,8 +422,8 @@ public class ServerSettings {
     }
 
     /**
-     * @brief Get the Keep Alive Timeout
      * @return
+     * @brief Get the Keep Alive Timeout
      */
     public static int getRAMAdminHttpKeepAliveTimeOut() {
         return (Integer) propertyValues.get(RAM_ADMIN_HTTP_KEEP_ALIVE_TIMEOUT);
@@ -423,29 +433,51 @@ public class ServerSettings {
         return (Integer) propertyValues.get(RAM_ADMIN_MAX_HTTP_REQUESTS_PER_SESSION);
     }
 
-    public static Utils.Pair<String, X509Certificate> getCiCert() {
+    public static Utils.Pair<String, X509Certificate> getCiCertAndAlias() throws Exception {
         return getCert(CI_CERTIFICATE_ALIAS);
     }
-    public static Utils.Pair<String, X509Certificate> getServerCert() {
+
+    public static X509Certificate getCiCert() throws Exception {
+        return getCiCertAndAlias().l;
+    }
+
+    public static void updateCiCert(EntityManager em, X509Certificate certificate) throws Exception {
+        updateCert(em, CI_CERTIFICATE_ALIAS, certificate);
+    }
+
+    public static Utils.Pair<String, X509Certificate> getServerCertAndAlias() throws Exception {
         return getCert(SERVER_ECDSA_CERTIFICATE_ALIAS);
     }
 
-    private static Utils.Pair<String,X509Certificate> getCert(String propertykey) {
-        String alias = (String)propertyValues.get(propertykey);
+    public static X509Certificate getServerCert() throws Exception {
+        return getServerCertAndAlias().l;
+    }
+
+    public static void updateServerCert(EntityManager em, X509Certificate certificate) throws Exception {
+        updateCert(em, SERVER_ECDSA_CERTIFICATE_ALIAS, certificate);
+    }
+
+    private static Utils.Pair<String, X509Certificate> getCert(String propertykey) throws Exception {
+        String alias = (String) propertyValues.get(propertykey);
 
         // Try to load it from keystore
-        try {
-            KeyStore ks = Utils.getKeyStore();
-            X509Certificate ciCert =  (X509Certificate)ks.getCertificate(alias);
-            return new Utils.Pair<>(alias,ciCert);
-        } catch (Exception ex) {
 
-        }
-        return new Utils.Pair<>(alias,null);
+            KeyStore ks = Utils.getKeyStore();
+            X509Certificate ciCert = (X509Certificate) ks.getCertificate(alias);
+            if (ciCert == null)
+                throw new Exception("Certificate not found");
+            return new Utils.Pair<>(alias, ciCert);
+    }
+
+    private static void updateCert(EntityManager em, String propkey, X509Certificate certificate) throws Exception {
+        KeyStore ks = Utils.getKeyStore();
+        String alias = (String) propertyValues.get(propkey);
+        ks.setCertificateEntry(alias, certificate);
+        updateProp(em, propkey, alias);
     }
 
     public static PrivateKey getServerECDAPrivateKey() {
-        String alias = (String)propertyValues.get(SERVER_ECDSA_SECRET_KEY_ALIAS);
+        String alias = (String) propertyValues.get(SERVER_ECDSA_SECRET_KEY_ALIAS);
         try {
             KeyStore ks = Utils.getKeyStore();
             return (PrivateKey) ks.getKey(alias, null);
@@ -454,49 +486,95 @@ public class ServerSettings {
         }
     }
 
+    public static void updateServerECDAPrivateKey(EntityManager em, PrivateKey pkey) throws Exception {
+        X509Certificate cert = getServerCert();
+        updatePrivateKey(em, SERVER_ECDSA_SECRET_KEY_ALIAS, pkey, cert);
+    }
+
+    private static void updatePrivateKey(EntityManager em, String propkey, PrivateKey pkey,
+                                         X509Certificate certificate) throws Exception {
+        KeyStore ks = Utils.getKeyStore();
+        String alias = (String) propertyValues.get(propkey);
+        Certificate[] chain = new Certificate[]{certificate, getCiCertAndAlias().l};
+        ks.setKeyEntry(alias, pkey, null, chain);
+    }
+
+
     public static String getOid() {
-        return (String)propertyValues.get(SERVER_OID);
+        return (String) propertyValues.get(SERVER_OID);
     }
 
-    public static void updateOid(EntityManager em, String oid)
-    {
-        updateProp(em,SERVER_OID, oid);
+
+    public static void updateOid(EntityManager em, String oid) throws Exception {
+        String xoid = oid.trim();
+        if (!Pattern.matches("^([1-9][0-9]{0,3}|0)(\\.([1-9][0-9]{0,3}|0)){5,13}$", xoid))
+            throw new Exception("Invalid OID");
+        updateProp(em, SERVER_OID, xoid);
     }
 
+    public static X509CRL getCRL() {
+        String pem = (String) propertyValues.get(CRL_X509_CONTENT);
+        try {
+            return Utils.parseCRL(pem);
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
+    public void updateCRL(EntityManager em, String crldata) throws Exception {
+        X509CRL crl = Utils.parseCRL(crldata); // Will throw exception...
+        updateProp(em, CRL_X509_CONTENT, crldata);
+    }
+
+    public static String getAdditionalDiscretionaryDataTlvs() {
+        return (String) propertyValues.get(ADDITIONAL_DISCRETIONARY_DATA_TLVS);
+    }
+
+    public static void updateAdditionalDiscretionaryDataTlvs(EntityManager em, String data) throws Exception {
+        Utils.HEX.h2b(data); // So it fails..
+        updateProp(em, ADDITIONAL_DISCRETIONARY_DATA_TLVS, data);
+    }
+
+    public static byte[] getSMDPSignedData() {
+        return (byte[]) propertyValues.get(SIGNED_SM_DP_DATA);
+    }
+
+    public static byte[] getSMSRSignedData() {
+        return (byte[]) propertyValues.get(SIGNED_SM_SR_DATA);
+    }
+
+    public static void updateSMDPSignedData(EntityManager em, String data) throws Exception {
+        updateProp(em, SIGNED_SM_DP_DATA, data);
+    }
+
+    public static void updateSMSRSignedData(EntityManager em, String data) throws Exception {
+        updateProp(em, SIGNED_SM_SR_DATA, data);
+    }
 
     /* Load the system properties from the db */
-    public static void loadProps(EntityManager em)
-    {
-        Map<String,String> m = ServerConfigurations.load(em);
+    public static void loadProps(EntityManager em) {
+        Map<String, String> m = ServerConfigurations.load(em);
         propertyValues = validateProps(m);
     }
 
-    public static void updateProp(EntityManager em, String key, Object value)
-    {
-        try {
-            Object nvalue = updateProp(key,value);
-            if (nvalue != null)
-                ServerConfigurations.updateSetting(em,key,nvalue.toString());
-        } catch (Exception ex) {
+    public static void updateProp(EntityManager em, String key, String value) throws Exception {
 
-        }
-    }
-    public static Object updateProp(String key, Object value)
-    {
-        try {
-            BaseValidator validator = configValidators.get(key);
-            Object nvalue = validator.value(value);
-            if (nvalue != null) {
-                propertyValues.put(key, nvalue);
-            }
-            return nvalue;
-        } catch (Exception ex) {
+        Object nvalue = updateProp(key, value);
+        if (nvalue != null) ServerConfigurations.updateSetting(em, key, nvalue.toString());
+        else throw new Exception("Invalid format");
 
-        }
-        return null;
     }
 
-    private static Map<String, Object> validateProps(Map<String,String> p) {
+    public static Object updateProp(String key, String value) throws Exception {
+        BaseValidator validator = configValidators.get(key);
+        Object nvalue = validator.value(value);
+        if (nvalue != null) {
+            propertyValues.put(key, nvalue);
+        } else throw new Exception("Invalid format");
+        return value;
+    }
+
+    private static Map<String, Object> validateProps(Map<String, String> p) {
 
         Set<String> keys = p == null ? new HashSet<>() : p.keySet();
 
@@ -508,8 +586,7 @@ public class ServerSettings {
 
                 Object nvalue = validator.value(v.toString());
 
-                if (nvalue != null)
-                    vals.put(k.toString(), nvalue);
+                if (nvalue != null) vals.put(k.toString(), nvalue);
             } catch (Exception ex) {
             }
 
@@ -517,16 +594,14 @@ public class ServerSettings {
         Set<String> vkeys = configValidators.keySet();
         for (String k : vkeys)
 
-            if (!keys.contains(k))
-                try {
-                    BaseValidator validator = configValidators.get(k);
-                    Object xvalue = validator.getDefault();
-                    Object nvalue = validator.value(xvalue);
-                    if (nvalue != null)
-                        vals.put(k, nvalue);
-                } catch (Exception ex) {
-                    Utils.lg.severe(String.format("Properties Load: Error validating [%s]: %s", k, ex));
-                }
+            if (!keys.contains(k)) try {
+                BaseValidator validator = configValidators.get(k);
+                Object xvalue = validator.getDefault();
+                Object nvalue = validator.value(xvalue);
+                if (nvalue != null) vals.put(k, nvalue);
+            } catch (Exception ex) {
+                Utils.lg.severe(String.format("Properties Load: Error validating [%s]: %s", k, ex));
+            }
 
         return vals;
     }
@@ -546,7 +621,6 @@ public class ServerSettings {
         }
 
         /**
-         *
          * @param val - The value read from the conf file
          * @return - The value, validated and cleaned up
          * @throws Exception - exception is thrown if value is of the wrong type
@@ -556,8 +630,8 @@ public class ServerSettings {
         }
 
         /**
-         * @brief Get the default value, to be used if none was supplied in the configuration file
          * @return The default value
+         * @brief Get the default value, to be used if none was supplied in the configuration file
          */
         final Object getDefault() {
             return default_value;
@@ -574,12 +648,11 @@ public class ServerSettings {
 
         @Override
         Object value(Object val) throws Exception {
-            if (val instanceof Integer)
-                return val;
-            else if (val instanceof String)
-                return Integer.parseInt(val.toString());
+            if (val instanceof Integer) return val;
+            else if (val instanceof String) return Integer.parseInt(val.toString());
 
-            throw new Exception(String.format("Must be a number [default: %s]", default_value != null ? default_value : "n/a"));
+            throw new Exception(String.format("Must be a number [default: %s]", default_value != null ?
+                    default_value : "n/a"));
         }
     }
 
@@ -593,13 +666,13 @@ public class ServerSettings {
 
         @Override
         Object value(Object val) throws Exception {
-            if (val instanceof Integer)
-                return val;
+            if (val instanceof Integer) return val;
             else if (val instanceof String) {
                 int x = Integer.parseInt(val.toString());
                 return x < 0 ? default_value : x;
             }
-            throw new Exception(String.format("Must be a number [default: %s]", default_value != null ? default_value : "n/a"));
+            throw new Exception(String.format("Must be a number [default: %s]", default_value != null ?
+                    default_value : "n/a"));
         }
     }
 
@@ -613,12 +686,11 @@ public class ServerSettings {
 
         @Override
         Object value(Object val) throws Exception {
-            if (val instanceof Double)
-                return val;
-            else if (val instanceof String)
-                return Double.parseDouble(val.toString());
+            if (val instanceof Double) return val;
+            else if (val instanceof String) return Double.parseDouble(val.toString());
 
-            throw new Exception(String.format("Must be a number [default: %s]", default_value != null ? default_value : "n/a"));
+            throw new Exception(String.format("Must be a number [default: %s]", default_value != null ?
+                    default_value : "n/a"));
         }
     }
 
@@ -634,10 +706,10 @@ public class ServerSettings {
         Object value(Object val) throws Exception {
             if (val instanceof String)
                 return InetAddress.getByName(val.toString()).getAddress(); // Return as byte array
-            else if (val instanceof InetAddress)
-                return ((InetAddress) val).getAddress();
+            else if (val instanceof InetAddress) return ((InetAddress) val).getAddress();
 
-            throw new Exception(String.format("Must be a hostname [default: %s]", default_value != null ? default_value : "n/a"));
+            throw new Exception(String.format("Must be a hostname [default: %s]", default_value != null ?
+                    default_value : "n/a"));
         }
     }
 
@@ -651,14 +723,12 @@ public class ServerSettings {
 
         @Override
         Object value(Object val) throws Exception {
-            if (val instanceof Boolean)
-                return val;
+            if (val instanceof Boolean) return val;
 
-            else if (val instanceof String)
-                return Boolean.parseBoolean(val.toString());
-            else if (val instanceof Integer)
-                return 0 != (Integer) val;
-            throw new Exception(String.format("Must be a boolean value \"true\" or \"false\" [default: %s]", default_value != null ? default_value : "n/a"));
+            else if (val instanceof String) return Boolean.parseBoolean(val.toString());
+            else if (val instanceof Integer) return 0 != (Integer) val;
+            throw new Exception(String.format("Must be a boolean value \"true\" or \"false\" [default: %s]",
+                    default_value != null ? default_value : "n/a"));
         }
     }
 
@@ -679,14 +749,13 @@ public class ServerSettings {
             if (val instanceof String) {
                 String[] vals = val.toString().split("[,]");
 
-                if (elementValidator != null)
-                    for (String xv : vals)
-                        elementValidator.value(xv); // Validate and hope for the best
+                if (elementValidator != null) for (String xv : vals)
+                    elementValidator.value(xv); // Validate and hope for the best
                 return vals;
-            } else if (val instanceof String[])
-                return val;
+            } else if (val instanceof String[]) return val;
 
-            throw new Exception(String.format("Must be a  comma-separated list of strings [default: %s]", default_value != null ? default_value : "n/a"));
+            throw new Exception(String.format("Must be a  comma-separated list of strings [default: %s]",
+                    default_value != null ? default_value : "n/a"));
         }
     }
 
@@ -708,18 +777,16 @@ public class ServerSettings {
                 for (String xv : vals)
                     try {
                         int x = Integer.parseInt(xv);
-                        if (x <= 0)
-                            throw new Exception("expected positive integer");
+                        if (x <= 0) throw new Exception("expected positive integer");
                         l.add(x);
                     } catch (Exception ex) {
                         throw new Exception("Invalid item [" + xv + "] in +ve integer list: " + ex.getMessage());
                     }
                 return l.stream().mapToInt(i -> i).toArray();
-            } else if (val instanceof int[])
-                return val;
+            } else if (val instanceof int[]) return val;
 
-            throw new Exception(String.format("Must be a  comma-separated list of integers [default: %s]", default_value
-                    != null ? default_value : "n/a"));
+            throw new Exception(String.format("Must be a  comma-separated list of integers [default: %s]",
+                    default_value != null ? default_value : "n/a"));
         }
     }
 
@@ -727,23 +794,47 @@ public class ServerSettings {
      * Byte arrays valiator
      */
     private static class ByteArrayValidator extends BaseValidator {
+        protected boolean hexCoded;
+
         public ByteArrayValidator(String val) {
             super(val);
+            hexCoded = false;
+        }
+
+        public ByteArrayValidator(String val, boolean hexCoded) {
+            super(val);
+            this.hexCoded = hexCoded;
         }
 
         @Override
         Object value(Object val) throws Exception {
-            if (val instanceof String)
-                return getBytes(val.toString());
+            if (val instanceof String) return getBytes(val.toString());
 
-            throw new Exception(String.format("Value must be a string, default: %s", default_value != null ? default_value : "n/a"));
+            throw new Exception(String.format("Value must be a string, default: %s", default_value != null ?
+                    default_value : "n/a"));
         }
 
         protected byte[] getBytes(String value) throws Exception {
-            return value.getBytes("UTF-8");
+            return hexCoded ? Utils.HEX.h2b(value) : value.getBytes("UTF-8");
         }
     }
 
+    /**
+     * TLVs validator
+     */
+    private static class TLVsValidator extends ByteArrayValidator {
+        public TLVsValidator(String val) {
+            super(val, true);
+        }
+
+        @Override
+        Object value(Object val) throws Exception {
+            byte[] value = getBytes((String) val);
+            if (value == null || value.length == 0) return null;
+            Utils.BER.decodeTLVs(value); // So it can fail.
+            return value;
+        }
+    }
 
     /**
      * @brief These are constants inside the system properties. No change to them, naturally.
@@ -754,10 +845,12 @@ public class ServerSettings {
         public static final String version = "1.0";
         public static final String build = "20190207";
         public static final String release = String.format("v%s (Build %s)", version, build);
-        public static final String serverName = String.format("eUICC Remote Subscription Management Server %s", release);
+        public static final String serverName = String.format("eUICC Remote Subscription Management Server %s",
+                release);
 
         public static final int DEFAULT_VALIDITY = 3600 * 24;
 
+        public static String jcaProvider = "BC";
     }
 }
 /**

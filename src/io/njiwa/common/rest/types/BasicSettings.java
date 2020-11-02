@@ -12,13 +12,10 @@
 
 package io.njiwa.common.rest.types;
 
+import io.njiwa.common.ServerSettings;
 import io.njiwa.common.Utils;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
-import java.security.cert.CertificateFactory;
 import java.security.cert.X509CRL;
 import java.security.cert.X509CRLEntry;
 import java.security.cert.X509Certificate;
@@ -37,10 +34,11 @@ public class BasicSettings {
     public String oid; // SM-SR/SM-DP OID. In/out.
     public String serverCertificate; // SM-DP/SM-DP Certificate. X509 PEM-encoded for inbound. Must be signed by CI. for outbound, see serverCertInfo;
     public String serverPrivateKey; // ECDSA Private key for the server. Inbound format is hex, for outbound, not set.
-    public String smdpSignedData; // Signed SM-DP info for keyagreement (table XX of SGP 02). Inbound is hex-coded. Outbound will be non-null if set.
+    public String smdpSignedData; // Signed SM-DP info for keyagreement (table 77 of SGP 02). Inbound is hex-coded. Outbound will be non-null if set.
 
-    public String smsrSignedData; // Signed SM-SR info for keyagreement (table XX of SGP 02). Inbound is hex-coded. Outbound will be non-null if set.
+    public String smsrSignedData; // Signed SM-SR info for keyagreement (table 39 of SGP 02). Inbound is hex-coded. Outbound will be non-null if set.
 
+    public String additionalDiscretionaryDataTlvs; // Additional TLVs, discretionary data. HEX-coded.
     // Out data:
     CertificateInfo ciCertificateInfo;
     CertificateInfo serverCertificateInfo;
@@ -68,6 +66,7 @@ public class BasicSettings {
 
             return certificateInfo;
         }
+
     }
 
     public static class CRLInfo {
@@ -79,14 +78,13 @@ public class BasicSettings {
 
         public static CRLInfo create(String crldata) {
             try {
-                CertificateFactory cf = CertificateFactory.getInstance("X.509");
-                InputStream in = new ByteArrayInputStream(crldata.getBytes(StandardCharsets.UTF_8));
-                X509CRL crl = (X509CRL)cf.generateCRL(in);
+                X509CRL crl = Utils.parseCRL(crldata);
                 return create(crl);
             } catch (Exception ex) {
                 return null;
             }
         }
+
         public static CRLInfo create(X509CRL crl) {
             CRLInfo crlInfo = new CRLInfo();
             crlInfo.issuer = crl.getIssuerX500Principal().toString();
@@ -101,4 +99,28 @@ public class BasicSettings {
         }
     }
 
+    /**
+     * @brief return the current settings
+     * @return
+     */
+    public static BasicSettings get() {
+        BasicSettings settings = new BasicSettings();
+        try {
+            settings.ciCertificateInfo = CertificateInfo.create(ServerSettings.getCiCertAndAlias().l);
+        } catch (Exception ex) {}
+        try {
+            settings.serverCertificateInfo = CertificateInfo.create(ServerSettings.getServerCert());
+        } catch (Exception ex) {}
+        try {
+            settings.crlInfo = CRLInfo.create(ServerSettings.getCRL());
+        } catch (Exception ex) {}
+        settings.oid = ServerSettings.getOid();
+        try {
+            settings.smdpSignedData = Utils.HEX.b2H(ServerSettings.getSMDPSignedData());
+        } catch (Exception ex) {}
+        try {
+            settings.smsrSignedData = Utils.HEX.b2H(ServerSettings.getSMSRSignedData());
+        } catch (Exception ex){}
+        return settings;
+    }
 }

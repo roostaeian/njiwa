@@ -12,6 +12,7 @@
 
 package io.njiwa.common.ws.handlers;
 
+import io.njiwa.common.ServerSettings;
 import io.njiwa.common.StatsCollector;
 import io.njiwa.common.Utils;
 import io.njiwa.common.model.RpaEntity;
@@ -248,8 +249,12 @@ public class Authenticator implements SOAPHandler<SOAPMessageContext> {
                     XMLSignatureFactory fac = XMLSignatureFactory.getInstance("DOM");
 
                     // Get our CI certificate
-                    X509Certificate ci_cert = RpaEntity.getCI(em);
-
+                    X509Certificate ci_cert;
+                    try {
+                        ci_cert = ServerSettings.getCiCert();
+                    } catch (Exception ex) {
+                        ci_cert = null;
+                    }
                     if (ci_cert == null) {
                         System.out.println("No CI certificate in storage!");
                         return false;

@@ -243,7 +243,8 @@ public class Test {
 
         String iin = "433322233334444";
         byte[] sdata = ECKeyAgreementEG.makeCertSigningData(certificate,
-                ECKeyAgreementEG.SM_SR_DEFAULT_DISCRETIONARY_DATA, (byte) 0, ECKeyAgreementEG.DST_VERIFY_KEY_TYPE);
+                2,
+                ECKeyAgreementEG.SM_SR_DEFAULT_DISCRETIONARY_DATA, ECKeyAgreementEG.DST_VERIFY_KEY_TYPE);
 
         byte[] sig = Utils.ECC.genpkcs7sig(sdata, certificate, ciPkey);
 
@@ -268,8 +269,10 @@ public class Test {
         f.close();
 
         iin = "533322233335555";
-        sdata = ECKeyAgreementEG.makeCertSigningData(certificate, ECKeyAgreementEG.SM_DP_DEFAULT_DISCRETIONARY_DATA,
-                (byte) 0, ECKeyAgreementEG.DST_VERIFY_KEY_TYPE);
+        sdata = ECKeyAgreementEG.makeCertSigningData(certificate,
+                1,
+                ECKeyAgreementEG.SM_DP_DEFAULT_DISCRETIONARY_DATA,
+                 ECKeyAgreementEG.DST_VERIFY_KEY_TYPE);
 
         sig = Utils.ECC.genpkcs7sig(sdata, certificate, ciPkey);
 
@@ -284,7 +287,7 @@ public class Test {
         verifySignedData(sig,sdata,ciCert);
 
     }
-
+/*
     private void bootstrapKeysDB() throws Exception {
         X509Certificate certificate;
 
@@ -307,6 +310,7 @@ public class Test {
         certificate = (X509Certificate) ks.getCertificate("sm-sr");
 
         byte[] sig = ECKeyAgreementEG.genCertificateSignature(ciPkey, certificate,
+                ECKeyAgreementEG.SM_SR_CERTIFICATE_TYPE,
                 ECKeyAgreementEG.SM_SR_DEFAULT_DISCRETIONARY_DATA, (byte) 0, ECKeyAgreementEG.DST_VERIFY_KEY_TYPE);
         RpaEntity sr = new RpaEntity(RpaEntity.Type.SMSR, "sm-sr-ws", "sm-sr", "1.3.6.1.4.1.1234569.22", true,
                 ECKeyAgreementEG.SM_SR_DEFAULT_DISCRETIONARY_DATA, (byte) 0, sig, certificate.getSubjectDN().getName());
@@ -315,13 +319,14 @@ public class Test {
 
         certificate = (X509Certificate) ks.getCertificate("sm-dp");
         sig = ECKeyAgreementEG.genCertificateSignature(ciPkey, certificate,
+                ECKeyAgreementEG.SM_DP_CERTIFICATE_TYPE,
                 ECKeyAgreementEG.SM_DP_DEFAULT_DISCRETIONARY_DATA, (byte) 0, ECKeyAgreementEG.DST_VERIFY_KEY_TYPE);
         RpaEntity dp = new RpaEntity(RpaEntity.Type.SMDP, "sm-dp-ws", "sm-dp", "1.3.6.1.4.1.1234569.2", true,
                 ECKeyAgreementEG.SM_DP_DEFAULT_DISCRETIONARY_DATA, (byte) 0, sig, certificate.getSubjectDN().getName());
 
         saveRpaEntity(dp);
     }
-
+*/
     private List testReadPT() throws Exception {
         FileInputStream f = new FileInputStream("/tmp/8991800099110000870.der");
         byte[] b = new byte[f.available()];
@@ -340,7 +345,7 @@ public class Test {
         PemReader pf = new PemReader(r);
         PemObject o;
 
-        KeyFactory kf = KeyFactory.getInstance("EC", "BC");
+        KeyFactory kf = KeyFactory.getInstance("EC", ServerSettings.Constants.jcaProvider);
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
 
         while ((o = pf.readPemObject()) != null) {

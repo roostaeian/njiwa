@@ -12,11 +12,15 @@
 
 package io.njiwa.common;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.njiwa.common.ws.InitialiserServlet;
 import io.njiwa.sr.Session;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
+import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaCertStore;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cms.*;
 import org.bouncycastle.cms.jcajce.JcaSignerInfoGeneratorBuilder;
 import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoVerifierBuilder;
@@ -41,7 +45,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import redis.clients.jedis.Jedis;
 
-
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
@@ -57,10 +60,10 @@ import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.cert.Certificate;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
+import java.security.cert.*;
 import java.security.interfaces.ECKey;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
@@ -78,10 +81,10 @@ import java.util.logging.Logger;
 public class Utils {
 
     public static final Date infiniteDate; //!< General infinite date
-   // public final static org.apache.log4j.Logger lg =
-   //         org.apache.log4j.Logger.getLogger(InitialiserServlet.class.getName()); //!< The
+    // public final static org.apache.log4j.Logger lg =
+    //         org.apache.log4j.Logger.getLogger(InitialiserServlet.class.getName()); //!< The
     public final static Logger lg = Logger.getLogger(InitialiserServlet.class.getName());
-   private static final boolean[] unreserved_url_chars; //!< This is the list allowed URL characters.
+    private static final boolean[] unreserved_url_chars; //!< This is the list allowed URL characters.
     // logger for the entire system
     private static KeyStore ks = null; //!< The key store...
     private static String privKeyAlias = "dsa", privKeyPassword = "test";
@@ -297,17 +300,16 @@ public class Utils {
     }
 
     /**
-     * @brief Put separators between hex-coded bytes.
      * @param hexBytes - the hex encoded bytes
-     * @param sep - the separator to insert
+     * @param sep      - the separator to insert
      * @return
+     * @brief Put separators between hex-coded bytes.
      */
-    public static String formatHexBytes(String hexBytes, char sep)
-    {
+    public static String formatHexBytes(String hexBytes, char sep) {
         StringBuilder out = new StringBuilder();
         String sepStr = "";
-        for (int i = 0; i < hexBytes.length(); i = i +2) {
-            String b = hexBytes.substring(i,i+2);
+        for (int i = 0; i < hexBytes.length(); i = i + 2) {
+            String b = hexBytes.substring(i, i + 2);
             out.append(sepStr);
             out.append(b);
             sepStr = String.valueOf(sep);
@@ -691,16 +693,16 @@ public class Utils {
     }
 
 
-    public static void loadKeyStore( String keyfile,String type, String password) throws Exception {
+    public static void loadKeyStore(String keyfile, String type, String password) throws Exception {
         loadKeyStore(keyfile, type, password, true);
     }
 
-    public static KeyStore loadKeyStore( String keyfile, String password, boolean setDefault) throws Exception {
+    public static KeyStore loadKeyStore(String keyfile, String password, boolean setDefault) throws Exception {
         return loadKeyStore(keyfile, null, password, setDefault);
     }
 
     public static KeyStore loadKeyStore(String keyfile, String type, String password, boolean setDefault) throws Exception {
-       String ktype = type == null || type.length() == 0 ? KeyStore.getDefaultType() : type;
+        String ktype = type == null || type.length() == 0 ? KeyStore.getDefaultType() : type;
         KeyStore xks = KeyStore.getInstance(ktype);
         try {
             FileInputStream fis = new FileInputStream(keyfile);
@@ -816,7 +818,7 @@ public class Utils {
         return new Jedis(ServerSettings.getRedis_server(), ServerSettings.getRedis_port());
     }
 
-    public static java.security.cert.X509Certificate certificateFromBytes(byte[] cert) {
+    public static X509Certificate certificateFromBytes(byte[] cert) {
         try {
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
 
@@ -825,6 +827,9 @@ public class Utils {
 
         }
         return null;
+    }
+    public static X509Certificate certificateFromBytes(String cert) throws Exception {
+        return certificateFromBytes(cert.getBytes("UTF-8"));
     }
 
     public static Key keyFromFile(byte[] data) {
@@ -848,6 +853,71 @@ public class Utils {
         }
 
         return null;
+    }
+
+    public static void checkCertificateTrust(X509Certificate certificate) throws Exception {
+        X509Certificate ciCert;
+        try {
+            ciCert = ServerSettings.getCiCertAndAlias().l;
+        } catch (Exception ex) {
+            throw new Exception("CI certificate not loaded!");
+        }
+        try {
+            certificate.verify(ciCert.getPublicKey());
+        } catch (Exception ex) {
+            throw new CertificateException("Certificate not trusted");
+        }
+        try {
+            certificate.checkValidity();
+        } catch (Exception ex) {
+            throw new CertificateException("Certificate not trusted or has expired");
+        }
+
+        X509CRL crl = ServerSettings.getCRL();
+        if (crl != null && crl.getRevokedCertificate(certificate.getSerialNumber()) != null)
+            throw new CertificateException("Revoked certificate!");
+
+    }
+
+    public static Pair<X509Certificate, PrivateKey> getKeyPairFromPEM(String pem) {
+        try {
+            PEMParser pr = new PEMParser(new StringReader(pem));
+            X509Certificate c = null;
+            PrivateKey p = null;
+            Object o;
+            while ((o = pr.readObject()) != null) try {
+                if (o instanceof X509CertificateHolder)
+                    c = new JcaX509CertificateConverter().getCertificate((X509CertificateHolder) o);
+                else if (o instanceof PrivateKeyInfo) {
+                    p = new JcaPEMKeyConverter().getPrivateKey((PrivateKeyInfo) o);
+                } else if (o instanceof PEMKeyPair) {
+                    p = new JcaPEMKeyConverter().getKeyPair((PEMKeyPair) o).getPrivate();
+                }
+            } catch (Exception ex) {
+                String xs = ex.getMessage();
+            }
+            return new Pair<>(c, p);
+        } catch (Exception ex) {
+            String xs = ex.getMessage();
+        }
+        return null;
+    }
+
+    public static X509CRL parseCRL(String crldata) throws Exception {
+        CertificateFactory cf = CertificateFactory.getInstance("X.509");
+        InputStream in = new ByteArrayInputStream(crldata.getBytes(StandardCharsets.UTF_8));
+        return (X509CRL) cf.generateCRL(in);
+    }
+
+    public static String buildJSON(Object resp) {
+        ObjectMapper objMapper = new ObjectMapper();
+        String objectJson = null;
+        try {
+            objectJson = objMapper.writeValueAsString(resp);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return objectJson;
     }
 
     public enum HttpRequestMethod {
@@ -911,7 +981,7 @@ public class Utils {
          * @param a
          * @param offset
          * @param len
-         * @return
+         * @returnsmdpSignedData
          * @brief Convert a slice of a byte sequence to hex
          */
         public static String b2H(byte[] a, int offset, int len) {
@@ -966,7 +1036,7 @@ public class Utils {
             for (int i = 0; i < len; i++) {
                 int x1 = hex[2 * i] & 0xFF;
                 int x2 = hex[2 * i + 1] & 0xFF;
-                String s = Character.toString((char) x1) + Character.toString((char) x2);
+                String s = (char) x1 + Character.toString((char) x2);
                 int x = Integer.parseInt(s, 16);
                 os.write(x);
 
@@ -991,6 +1061,8 @@ public class Utils {
 
             for (int i = 0; i < hex.length(); i++) {
                 int ch = hex.charAt(i);
+                if (Character.isWhitespace(ch))
+                    continue; // Skip space. Right??
                 os.write(ch & 0xFF);
             }
 
@@ -1093,10 +1165,9 @@ public class Utils {
     public static class ECC {
 
         /**
-         * @brief known curves according to Table 4-3 of GPC Ammendment E
+         * @brief known curves according to Table 4-3 of GPC Ammendment E, and Table 24 of SGP.02 v4.1
          */
-        private static final Map<Integer, AlgorithmParameterSpec> KNOWN_ECC_CURVES = new ConcurrentHashMap<Integer,
-                AlgorithmParameterSpec>() {{
+        private static final Map<Integer, AlgorithmParameterSpec> KNOWN_ECC_CURVES = new ConcurrentHashMap<Integer, AlgorithmParameterSpec>() {{
             put(0, new ECGenParameterSpec("P-256"));
             put(1, new ECGenParameterSpec("P-384"));
             put(2, new ECGenParameterSpec("P-512"));
@@ -1109,7 +1180,7 @@ public class Utils {
 
             // For this one we use explicit Parameters for ANSSI FRP256v1:
             // https://github.com/bcgit/bc-java/blob/master/core/src/main/java/org/bouncycastle/asn1/anssi
-            // /ANSSINamedCurves.java
+            // file ANSSINamedCurves.java
             BigInteger a = new BigInteger("F1FD178C0B3AD58F10126DE8CE42435B3961ADBCABC8CA6DE8FCF353D86E9C00", 16);
             BigInteger b = new BigInteger("EE353FCA5428A9300D4ABA754A44C00FDFEC0C9AE4B1A1803075ED967B7BB73F", 16);
             ECFieldFp p = new ECFieldFp(new BigInteger(
@@ -1119,7 +1190,7 @@ public class Utils {
                     "B6B3D4C356C139EB31183D4749D423958C27D2DCAF98B70164C97A2DD98F5CFF" +
                     "6142E0F7C8B204911F9271F0F3ECEF8C2701C307E8E4C9E183115A1554062CFB"));
             BigInteger n = new BigInteger("F1FD178C0B3AD58F10126DE8CE42435B53DC67E140D2BF941FFDD459C6D655E1", 16);
-            put(0x40, new ECParameterSpec(curve, G, n, 1));
+            put(0x40, new ECParameterSpec(curve, G, n, 1)); // Defined in Table 24 of SGP.02 v4.1 only.
         }};
 
         public static AlgorithmParameterSpec getParamSpec(int keyParamRef) {
@@ -1127,7 +1198,7 @@ public class Utils {
         }
 
         public static byte[] encode(ECPublicKey publicKey) throws Exception {
-            // X9.62 encoding (See also Sec 3.2 of BSI TS 03111
+            // X9.62 encoding (See also Sec 3.2 of BSI TS 03111)
             int f = publicKey.getParams().getCurve().getField().getFieldSize();
             int size = (f + 7) / 8;
             ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -1139,7 +1210,7 @@ public class Utils {
 
         public static byte[] encode(ECPublicKey publicKey, int keyParamRef) throws Exception {
             byte[] Q = encode(publicKey);
-            // Table 24 of SGP 02 v3.1 and 4-26 of Ammend. E
+            // Table 24 of SGP 02 v4.1 and 4-26 of Ammend. E
             return new ByteArrayOutputStream() {
                 {
                     Utils.BER.appendTLV(this, (short) 0xB0, Q);
@@ -1160,26 +1231,34 @@ public class Utils {
             Pair<ECParameterSpec, KeyFactory> p = decodeKeyParam(keyParamRef);
             ECParameterSpec params = p.k;
             KeyFactory kf = p.l;
-            /*
-            KeyFactory kf = KeyFactory.getInstance("ECDSA", "BC");
-            // Get Algo
-            AlgorithmParameterSpec spec = KNOWN_ECC_CURVES.get(keyParamRef);
 
-            ECParameterSpec params;
-            // http://stackoverflow.com/questions/26159149/how-can-i-get-a-publickey-object-from-ec-public-key-bytes
-            if (spec instanceof ECGenParameterSpec) {
-                ECGenParameterSpec xspec = (ECGenParameterSpec) spec;
-                String cname = xspec.getName();
-                ECNamedCurveParameterSpec ecspec = ECNamedCurveTable.getParameterSpec(cname);
-                params = new ECNamedCurveSpec(cname, ecspec.getCurve(), ecspec.getG(), ecspec.getN());
+            return decodePrivateKey(input,params,kf);
+        }
 
-            } else
-                params = (ECParameterSpec) spec;
+        /**
+         * @brief decode a private key from binary data
+         * @param input
+         * @param publicKey
+         * @return
+         */
+        public static ECPrivateKey decodePrivateKey(byte[] input, ECPublicKey publicKey) throws Exception
+        {
+            ECParameterSpec params = publicKey.getParams();
+            return decodePrivateKey(input, params,null);
+        }
 
-             */
-            // Decode BigInt
+        public static ECPrivateKey decodePrivateKey(byte[] input, X509Certificate certificate) throws Exception
+        {
+            ECPublicKey publicKey = (ECPublicKey)certificate.getPublicKey();
+            return decodePrivateKey(input,publicKey);
+        }
+
+        private static ECPrivateKey decodePrivateKey(byte[] input, ECParameterSpec params, KeyFactory kf) throws Exception {
+            if (kf == null)
+                kf = KeyFactory.getInstance("ECDSA", ServerSettings.Constants.jcaProvider);
             ObjectInputStream bis = new ObjectInputStream(new ByteArrayInputStream(input));
 
+            // Decode S parameter
             BigInteger s = (BigInteger) bis.readObject();
             ECPrivateKeySpec privateKeySpec = new ECPrivateKeySpec(s, params);
             return (ECPrivateKey) kf.generatePrivate(privateKeySpec);
@@ -1210,22 +1289,60 @@ public class Utils {
             return (ECPublicKey) kf.generatePublic(publicKeySpec);
         }
 
+        /**
+         * @brief decode an ec public key. We assume first char is the param ref
+         * @param input
+         * @return
+         * @throws Exception
+         */
+        public static ECPublicKey decodePublicKey(byte[] input) throws Exception {
+             int keyParamRef = input[0];
+             input = Arrays.copyOfRange(input,1,input.length);
+             return decodePublicKey(input, keyParamRef);
+        }
+
         private static Pair<ECParameterSpec, KeyFactory> decodeKeyParam(int keyParamRef) throws Exception {
-            KeyFactory kf = KeyFactory.getInstance("ECDSA", "BC");
+            KeyFactory kf = KeyFactory.getInstance("ECDSA", ServerSettings.Constants.jcaProvider);
             // Get Algo
             AlgorithmParameterSpec spec = KNOWN_ECC_CURVES.get(keyParamRef);
 
-            ECParameterSpec params;
+            ECParameterSpec params = fromAlgorithmParameterSpec(spec);
+
+            return new Pair<>(params, kf);
+        }
+
+        private static ECParameterSpec fromAlgorithmParameterSpec(AlgorithmParameterSpec spec)
+        {
             // http://stackoverflow.com/questions/26159149/how-can-i-get-a-publickey-object-from-ec-public-key-bytes
             if (spec instanceof ECGenParameterSpec) {
                 ECGenParameterSpec xspec = (ECGenParameterSpec) spec;
                 String cname = xspec.getName();
                 ECNamedCurveParameterSpec ecspec = ECNamedCurveTable.getParameterSpec(cname);
-                params = new ECNamedCurveSpec(cname, ecspec.getCurve(), ecspec.getG(), ecspec.getN());
+                return new ECNamedCurveSpec(cname, ecspec.getCurve(), ecspec.getG(), ecspec.getN());
 
-            } else params = (ECParameterSpec) spec;
+            } else
+                return (ECParameterSpec) spec;
+        }
 
-            return new Pair<>(params, kf);
+        public static int getKeyParamRefFromPublicKey(ECPublicKey publicKey) throws Exception
+        {
+            ECParameterSpec params = publicKey.getParams();
+            // Cycle through our list and try to compare things...
+            // see https://stackoverflow.com/questions/49895713/how-to-find-the-matching-curve-name-from-an-ecpublickey
+            for (Map.Entry<Integer,AlgorithmParameterSpec> e : KNOWN_ECC_CURVES.entrySet()) {
+                ECParameterSpec ecParameterSpec = fromAlgorithmParameterSpec(e.getValue());
+                if (params.getOrder().equals(ecParameterSpec.getOrder())
+                        && params.getCofactor() == ecParameterSpec.getCofactor()
+                        && params.getCurve().equals(ecParameterSpec.getCurve())
+                        && params.getGenerator().equals(ecParameterSpec.getGenerator()))
+                    return e.getKey();
+            }
+            return -1;
+        }
+
+        public static int getKeyParamRefFromCertificate(X509Certificate certificate) throws Exception
+        {
+            return getKeyParamRefFromPublicKey((ECPublicKey)certificate.getPublicKey());
         }
 
         public static int keyLength(ECKey key) {
@@ -1250,8 +1367,8 @@ public class Utils {
 
             CMSSignedDataGenerator gen = new CMSSignedDataGenerator();
             String algo = getHashAlgo((ECPrivateKey) privateKey);
-            ContentSigner cs = new JcaContentSignerBuilder(algo).setProvider("BC").build(privateKey);
-            gen.addSignerInfoGenerator(new JcaSignerInfoGeneratorBuilder(new JcaDigestCalculatorProviderBuilder().setProvider("BC").build()).build(cs, certificate));
+            ContentSigner cs = new JcaContentSignerBuilder(algo).setProvider(ServerSettings.Constants.jcaProvider).build(privateKey);
+            gen.addSignerInfoGenerator(new JcaSignerInfoGeneratorBuilder(new JcaDigestCalculatorProviderBuilder().setProvider(ServerSettings.Constants.jcaProvider).build()).build(cs, certificate));
             gen.addCertificates(certs);
             CMSSignedData csd = gen.generate(data, true); // Include data
 
@@ -1268,7 +1385,7 @@ public class Utils {
             Collection<SignerInformation> c = signers.getSigners();
 
             for (SignerInformation signer : c) {
-                if (signer.verify(new JcaSimpleSignerInfoVerifierBuilder().setProvider("BC").build(ciCert))) {
+                if (signer.verify(new JcaSimpleSignerInfoVerifierBuilder().setProvider(ServerSettings.Constants.jcaProvider).build(ciCert))) {
                     // We got it, so, return the data.
                     return (byte[]) s.getSignedContent().getContent();
                 }
@@ -1278,7 +1395,7 @@ public class Utils {
 
         public static byte[] sign(ECPrivateKey key, byte[] data) throws Exception {
             String algo = Utils.ECC.getHashAlgo(key);
-            Signature ecdaSign = Signature.getInstance(algo, "BC");
+            Signature ecdaSign = Signature.getInstance(algo, ServerSettings.Constants.jcaProvider);
             ecdaSign.initSign(key);
 
             ecdaSign.update(data);
@@ -1287,14 +1404,14 @@ public class Utils {
 
         public static boolean verifySignature(ECPublicKey key, byte[] signature, byte[] data) throws Exception {
             String algo = ECC.getHashAlgo(key);
-            Signature ecdaSign = Signature.getInstance(algo, "BC");
+            Signature ecdaSign = Signature.getInstance(algo, ServerSettings.Constants.jcaProvider);
             ecdaSign.initVerify(key);
             ecdaSign.update(data);
             return ecdaSign.verify(signature);
         }
 
         public static KeyPair genKeyPair(AlgorithmParameterSpec parameterSpec) throws Exception {
-            KeyPairGenerator g = KeyPairGenerator.getInstance("ECDSA", "BC");
+            KeyPairGenerator g = KeyPairGenerator.getInstance("ECDSA", ServerSettings.Constants.jcaProvider);
             g.initialize(parameterSpec, new SecureRandom());
             KeyPair pair = g.generateKeyPair();
             return pair;

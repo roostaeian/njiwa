@@ -245,8 +245,10 @@ public class ReceiveEISHandoverTransaction extends SmSrBaseTransaction {
                     RpaEntity smsr = RpaEntity.getLocal(em, RpaEntity.Type.SMSR);
                     X509Certificate cert = smsr.secureMessagingCert();
                     // Make cert data
-                    byte[] certSigningData = ECKeyAgreementEG.makeCertSigningData(cert, smsr.getDiscretionaryData(),
-                            smsr.getSignatureKeyParameterReference(), ECKeyAgreementEG.KEY_AGREEMENT_KEY_TYPE);
+                    byte[] certSigningData = ECKeyAgreementEG.makeCertSigningData(cert,
+                            ECKeyAgreementEG.SM_SR_CERTIFICATE_TYPE,
+                            smsr.getAdditionalDiscretionaryData(),
+                             ECKeyAgreementEG.KEY_AGREEMENT_KEY_TYPE);
                     String eid = eis.signedInfo.eid;
                     tr.setMsisdn(eid); // Fake it. For now
                     String msgId = tr.genMessageIDForTrans(em);
@@ -294,14 +296,16 @@ public class ReceiveEISHandoverTransaction extends SmSrBaseTransaction {
                 }
                 RpaEntity smsr = RpaEntity.getLocal(em, RpaEntity.Type.SMSR);
                 ECPrivateKey privateKey = smsr.secureMessagingPrivKey();
-                int paramSpec = smsr.getSignatureKeyParameterReference();
+                X509Certificate certificate = smsr.secureMessagingCert();
+                int paramSpec = Utils.ECC.getKeyParamRefFromCertificate(certificate);
                 KeyPair pair = Utils.ECC.genKeyPair(paramSpec);
                 ePk_ecka_param = paramSpec; // Store it.
                 ePk_sr_ecka = Utils.ECC.encode((ECPublicKey) pair.getPublic(), paramSpec); // Include param spec when
                 // sending it
                 eSk_sr_ecka = Utils.ECC.encode((ECPrivateKey) pair.getPrivate()); // Store both
-                byte[] cert = ECKeyAgreementEG.makeCertSigningData(smsr.secureMessagingCert(), smsr
-                        .getDiscretionaryData(), smsr.getSignatureKeyParameterReference(), ECKeyAgreementEG.KEY_AGREEMENT_KEY_TYPE);
+                byte[] cert = ECKeyAgreementEG.makeCertSigningData(smsr.secureMessagingCert(), ECKeyAgreementEG.SM_SR_CERTIFICATE_TYPE,
+                        smsr.getAdditionalDiscretionaryData(),
+                        ECKeyAgreementEG.KEY_AGREEMENT_KEY_TYPE);
                 byte[] signature = ECKeyAgreementEG.genCertificateSignature(privateKey, cert);
                 eccLength = Utils.ECC.keyLength((ECPublicKey) pair.getPublic());
                 String eccKeyLength = String.format("ECC-%d", eccLength);
