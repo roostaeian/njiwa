@@ -20,7 +20,7 @@ public class Roles {
     public static final String EntityUser = "Entity-User";
     public static final String SystemAdminUser = "SysAdmin";
     public static final String SystemUser = "SysUser";
-    public  static final String ALLOWALL = "*";
+    public  static final String ALLOWALL = "*"; // For all access
     public static final String[] ALL_ROLES = {EntityAdminUser, EntityUser, SystemUser, ALLOWALL, SystemAdminUser
     };
 

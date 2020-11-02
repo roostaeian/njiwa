@@ -47,9 +47,10 @@ public class Initialiser {
 
 
         try {
-          // delUser("admin");
+           // delUser("admin");
             createUser("admin", DEFAULT_ADMIN_GROUP);
         } catch (Exception ex) {
+            String xs = ex.getMessage();
         } // Ignore error
 
     }
@@ -64,16 +65,19 @@ public class Initialiser {
 
     private  void delUser(String admin)
     {
-        IdentityManager identityManager = partitionManager.createIdentityManager();
+        Partition partition = partitionManager.getPartition(Realm.class,Realm.DEFAULT_REALM);
+        IdentityManager identityManager = partitionManager.createIdentityManager(partition);
+
         User u = BasicModel.getUser(identityManager,admin);
         identityManager.remove(u);
     }
 
-    private void createUser(String admin, final String defaultAdminGroup) {
+    private void createUser(String admin, final String defaultAdminGroup, boolean isAdmin) {
         User u = new User(admin);
         Partition partition = partitionManager.getPartition(Realm.class,Realm.DEFAULT_REALM);
         IdentityManager identityManager = partitionManager.createIdentityManager(partition); // Add to default partition
 
+        Authenticator.setUserAdminFlag(u,isAdmin);
         identityManager.add(u);
         identityManager.updateCredential(u, new Password("test"));
 
@@ -82,6 +86,11 @@ public class Initialiser {
             g.assignUser(admin);
             return null;
         });
+    }
+
+    private void createUser(String admin, final String defaultAdminGroup)
+    {
+        createUser(admin,defaultAdminGroup,true);
     }
 
     private void assignGroupRoles(String defaultAdminGroup, final String[] slist) {

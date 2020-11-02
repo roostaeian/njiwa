@@ -137,4 +137,7 @@ public class Authenticator extends BaseAuthenticator {
             return false;
         }
     }
+    public static void setUserAdminFlag(User u, boolean flag) {
+        u.setAttribute(new Attribute<>(ADMIN_ATTRIBUTE,flag));
+    }
 }

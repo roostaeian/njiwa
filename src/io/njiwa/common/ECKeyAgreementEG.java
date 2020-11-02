@@ -389,4 +389,5 @@ public class ECKeyAgreementEG {
     public static byte[] genCertificateSignature(PrivateKey key, byte[] certSigData) throws Exception {
         return Utils.ECC.sign((ECPrivateKey) key, certSigData);
     }
+
 }

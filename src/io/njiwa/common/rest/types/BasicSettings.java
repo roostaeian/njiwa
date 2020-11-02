@@ -56,17 +56,25 @@ public class BasicSettings {
             CertificateInfo certificateInfo = new CertificateInfo();
 
             certificateInfo.serialNumber = certificate.getSerialNumber();
-            certificateInfo.subject = certificate.getSubjectX500Principal().toString();
+            certificateInfo.subject = certificate.getSubjectX500Principal().getName();
             byte[] subjectIdentifier = certificate.getExtensionValue(SUBJECT_KEY_IDENTIFIER_OID);
-            certificateInfo.keyIdentifier = Utils.formatHexBytes(Utils.HEX.b2H(subjectIdentifier),':');
+            try {
+                certificateInfo.keyIdentifier = Utils.formatHexBytes(Utils.HEX.b2H(subjectIdentifier), ':');
+            } catch (Exception ex) {}
             byte[] caid = certificate.getExtensionValue(AUTHORITY_KEY_IDENTIFIER_OID);
-            certificateInfo.authorityKeyIdentifier = Utils.formatHexBytes(Utils.HEX.b2H(caid),':');
+            try {
+                certificateInfo.authorityKeyIdentifier = Utils.formatHexBytes(Utils.HEX.b2H(caid), ':');
+            } catch (Exception ex) {}
             certificateInfo.issuer = certificate.getIssuerX500Principal().toString();
             certificateInfo.signatureAlgorithm = certificate.getSigAlgName();
 
             return certificateInfo;
         }
 
+        public static CertificateInfo create(String certdata)  throws Exception {
+            X509Certificate certificate = Utils.certificateFromBytes(Utils.Http.decodeDataUri(certdata));
+            return create(certificate);
+        }
     }
 
     public static class CRLInfo {
@@ -121,6 +129,11 @@ public class BasicSettings {
         try {
             settings.smsrSignedData = Utils.HEX.b2H(ServerSettings.getSMSRSignedData());
         } catch (Exception ex){}
+        try {
+
+        } catch (Exception ex) {
+            settings.additionalDiscretionaryDataTlvs = Utils.HEX.b2H(ServerSettings.getAdditionalDiscretionaryDataTlvs());
+        }
         return settings;
     }
 }

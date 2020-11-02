@@ -526,8 +526,8 @@ public class ServerSettings {
         updateProp(em, CRL_X509_CONTENT, crldata);
     }
 
-    public static String getAdditionalDiscretionaryDataTlvs() {
-        return (String) propertyValues.get(ADDITIONAL_DISCRETIONARY_DATA_TLVS);
+    public static byte[] getAdditionalDiscretionaryDataTlvs() {
+        return (byte[]) propertyValues.get(ADDITIONAL_DISCRETIONARY_DATA_TLVS);
     }
 
     public static void updateAdditionalDiscretionaryDataTlvs(EntityManager em, String data) throws Exception {

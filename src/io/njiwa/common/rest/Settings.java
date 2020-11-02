@@ -36,6 +36,24 @@ public class Settings {
         return BasicSettings.get();
     }
 
+
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    // @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/validatecert")
+    @RestRoles({Roles.ALLOWALL})
+    public Response validate(String certData) {
+
+        try {
+
+            BasicSettings.CertificateInfo certificateInfo = BasicSettings.CertificateInfo.create(certData);
+            return Response.ok(certificateInfo).build();
+        } catch (Exception ex) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(new RestResponse(RestResponse.Status.Failed,
+                    ex.getLocalizedMessage())).build();
+        }
+    }
+
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
@@ -53,7 +71,7 @@ public class Settings {
         if (settings.ciCertificate != null) {
             X509Certificate ciCert;
             try {
-                ciCert = Utils.certificateFromBytes(settings.ciCertificate);
+                ciCert = Utils.certificateFromBytes(Utils.Http.decodeDataUri(settings.ciCertificate));
             } catch (Exception ex) {
                 return Response.status(Response.Status.BAD_REQUEST).entity(new RestResponse(RestResponse.Status.Failed, ex.getLocalizedMessage(), "ciCertificate")).build();
             }
@@ -67,7 +85,7 @@ public class Settings {
             X509Certificate cert;
             // Read and validate it.
             try {
-                cert = Utils.certificateFromBytes(settings.serverCertificate);
+                cert = Utils.certificateFromBytes(Utils.Http.decodeDataUri(settings.serverCertificate));
                 Utils.checkCertificateTrust(cert);
             } catch (Exception ex) {
                 return Response.status(Response.Status.BAD_REQUEST).entity(new RestResponse(RestResponse.Status.Failed, ex.getLocalizedMessage(), "serverCertificate")).build();
@@ -84,7 +102,7 @@ public class Settings {
             try {
                 // First get the certificate, then use the public key params therein to load the skey
                 X509Certificate cert = ServerSettings.getServerCert();
-                byte[] input = Utils.HEX.h2b(settings.serverPrivateKey);
+                byte[] input = Utils.HEX.h2b(Utils.Http.decodeDataUri(settings.serverPrivateKey));
                 key = Utils.ECC.decodePrivateKey(input, cert);
             } catch (Exception ex) {
                 return Response.status(Response.Status.BAD_REQUEST).entity(new RestResponse(RestResponse.Status.Failed, ex.getLocalizedMessage(), "serverPrivateKey")).build();
@@ -97,32 +115,22 @@ public class Settings {
         }
 
         // Try and validate signed data
-        if (settings.smdpSignedData != null) {
-            try {
-                validateSignedData(settings.smdpSignedData, ECKeyAgreementEG.SM_DP_CERTIFICATE_TYPE);
-            } catch (Exception ex) {
-                return Response.status(Response.Status.BAD_REQUEST).entity(new RestResponse(RestResponse.Status.Failed,  ex.getLocalizedMessage(), "smdpSignedData")).build();
-            }
-
-            try {
-                ServerSettings.updateSMDPSignedData(em, settings.smdpSignedData);
-            } catch (Exception ex) {
-                return Response.status(Response.Status.BAD_REQUEST).entity(new RestResponse(RestResponse.Status.Failed, ex.getLocalizedMessage(), "smdpSignedData")).build();
-            }
+        if (settings.smdpSignedData != null) try {
+            byte[] data = Utils.Http.decodeDataUri(settings.smdpSignedData);
+            validateSignedData(data, ECKeyAgreementEG.SM_DP_CERTIFICATE_TYPE);
+            ServerSettings.updateSMDPSignedData(em, Utils.HEX.b2H(data));
+        } catch (Exception ex) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(new RestResponse(RestResponse.Status.Failed,
+                    ex.getLocalizedMessage(), "smdpSignedData")).build();
         }
 
-        if (settings.smsrSignedData != null) {
-            try {
-                validateSignedData(settings.smsrSignedData, ECKeyAgreementEG.SM_SR_CERTIFICATE_TYPE);
-            } catch (Exception ex) {
-                return Response.status(Response.Status.BAD_REQUEST).entity(new RestResponse(RestResponse.Status.Failed,  ex.getLocalizedMessage(), "smsrSignedData")).build();
-            }
-
-            try {
-                ServerSettings.updateSMSRSignedData(em, settings.smsrSignedData);
-            } catch (Exception ex) {
-                return Response.status(Response.Status.BAD_REQUEST).entity(new RestResponse(RestResponse.Status.Failed, ex.getLocalizedMessage(), "smsrSignedData")).build();
-            }
+        if (settings.smsrSignedData != null) try {
+            byte[] data = Utils.Http.decodeDataUri(settings.smsrSignedData);
+            validateSignedData(data, ECKeyAgreementEG.SM_SR_CERTIFICATE_TYPE);
+            ServerSettings.updateSMSRSignedData(em, Utils.HEX.b2H(data));
+        } catch (Exception ex) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(new RestResponse(RestResponse.Status.Failed,
+                    ex.getLocalizedMessage(), "smsrSignedData")).build();
         }
 
         try {
@@ -132,10 +140,10 @@ public class Settings {
             return Response.status(Response.Status.BAD_REQUEST).entity(new RestResponse(RestResponse.Status.Failed,
                     ex.getLocalizedMessage())).build();
         }
-        return Response.accepted(Utils.buildJSON(settings)).build();
+        return Response.ok(settings).build();
     }
 
-    private static void validateSignedData(String signedData, int certType) throws Exception {
+    private static void validateSignedData(byte[] signedData, int certType) throws Exception {
         X509Certificate ciCert, certificate;
         byte[] additionalTLVs;
 

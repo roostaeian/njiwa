@@ -2342,6 +2342,22 @@ public class Utils {
 
             }
         }
+
+        /**
+         * @brief decode a data: uri. We assume base64 encoding
+         * @param dataUri
+         * @return
+         * @throws Exception
+         */
+        public static byte[] decodeDataUri(String dataUri)  throws Exception {
+            if (dataUri.indexOf("data:") != 0)
+                return dataUri.getBytes("UTF-8");
+            int startIndex = dataUri.indexOf(",") + 1;
+            String preAmble = dataUri.substring(0, startIndex);
+            boolean isb64 = preAmble.contains("base64");
+            String data = dataUri.substring(startIndex);
+            return isb64 ? Base64.getDecoder().decode(data) : data.getBytes("UTF-8");
+        }
     }
 
     static {

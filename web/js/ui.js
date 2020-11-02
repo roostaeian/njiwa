@@ -16,11 +16,11 @@ String.prototype.toTitleCase = function () {
     });
 };
 
-
+const fileUploadKey = 'fileupload';
 function getfupload(item_id)
 {
     try {
-        return window.fileuploads[item_id];
+        return  $(item_id).data(fileUploadKey);
     }  catch(e) {
 
     }
@@ -75,7 +75,55 @@ function info_display(el, level, message, after_fn) {
         $(el).removeClassPrefix('alert');
     }
 }
+function ll(txt) {
+    // reduce length
+    if (txt.length > 16)
+        return $('<span/>', {title: txt}).append(txt.substring(0, 16) + '...');
+    else
+        return txt;
+}
+function validateCert(item_id, data, fname) {
+    var el = $('label[for="'+item_id+'"]');
+    return $.ajax('rest/settings/validatecert',
+        {
+            method: 'POST',
+            dataType: 'JSON',
+            data: data,
+            success: function(res) {
+                $(el).empty();
+                if (typeof  res === 'object')
+                    $(el)
+                    .append($('<span/>', {class:'text-info'})
+                    .append(ll(res.subject + ', Serial #: ' +res.serialNumber + ' <' + fname.name+ '>')));
+                else
+                    $(el)
+                    .append($('<span/>', {class:'text-warning'})
+                    .append('Invalid certificate'));
+            },
+            error: function(status,data) {
+                $(el)
+                .empty()
+                .append($('<span/>', {class:'text-warning'})
+                .append('Invalid certificate! Choose file...'));
+            }
+        }
 
+    );
+}
+
+function defaultFileValidator(item_id, data, fname) {
+    // Simply put the name in...
+    var el = $('label[for="'+item_id+'"]');
+    $(el)
+    .empty()
+    .append($('<span/>', {class:'text-dark'})
+        .append(fname.name));
+}
+
+function validateHex(data, item_id, fname) {
+    // do nothing for now.
+    return true;
+}
 
 $(document).ready(function () {
 
@@ -106,27 +154,28 @@ $(document).ready(function () {
         return false;
     })
     // Handle file uploads
-    .on('change', 'input[type=file].fileupload', function () {
+    .on('change', 'input[type=file][data-uploadvalidator]', function () {
         var input = $(this);
         var resType = $(input).data('result') || 'url';
         var item_id = input.prop('id') || input.prop('name');
         var dataValidator = input.data('uploadvalidator');
+        var fname = $(input).prop('files')[0];
         var fR = new FileReader();
-        window.fileuploads = window.fileuploads || {};
+
         fR.onload = function () {
             var data = fR.result;
-            window.fileuploads[item_id] = data;
+            $(input).data(window.fileuploadKey,data);
 
             console.log('Read data for as ' + (resType === 'url' ? 'data URL' : 'text') + ' #' + item_id + ', with' + ' length: ' + (data || '').length);
             console.log(data);
             try {
                 // Run validator
-                var fn = window[dataValidator];
-                fn(item_id, data);
+                var fn = window[dataValidator] || defaultFileValidator;
+                fn(item_id, data, fname);
             } catch (e) {
             }
         };
-        if (resType === 'url') fR.readAsDataURL($(input).prop('files')[0]); else fR.readAsText($(input).prop('files')[0]);
+        if (resType === 'url') fR.readAsDataURL(fname); else fR.readAsText(fname);
 
     });
 

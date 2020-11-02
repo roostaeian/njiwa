@@ -27,7 +27,7 @@
                 </label>
                 <div class="col-md-6 col-sm-6">
                     <div class="custom-file">
-                        <input type="file" required="required" id="cicert" class="custom-file-input">
+                        <input type="file" required="required" id="cicert" class="custom-file-input" data-uploadvalidator="validateCert">
                         <label class="custom-file-label" for="cicert">Choose file</label>
                     </div>
                     <p class="form-text text-muted">
@@ -43,7 +43,7 @@
                 </label>
                 <div class="col-md-6 col-sm-6">
                     <div class="custom-file">
-                        <input type="file" required="required" id="cicrl" class="custom-file-input">
+                        <input type="file" required="required" id="cicrl" class="custom-file-input"  data-uploadvalidator="noop">
                         <label class="custom-file-label" for="cicrl">Choose file</label>
                     </div>
                     <p class="form-text text-muted">
@@ -59,7 +59,7 @@
                 </label>
                 <div class="col-md-6 col-sm-6">
                     <div class="custom-file">
-                        <input type="file" required="required" id="ecda-cert" class="custom-file-input">
+                        <input type="file" required="required" id="ecda-cert" class="custom-file-input"  data-uploadvalidator="validateCert">
                         <label class="custom-file-label" for="ecda-cert">Choose file</label>
                     </div>
                     <p class="form-text text-muted">
@@ -74,7 +74,7 @@
                 </label>
                 <div class="col-md-6 col-sm-6">
                     <div class="custom-file">
-                        <input type="file" required="required" id="ecdsa-key" class="custom-file-input">
+                        <input type="file" required="required" id="ecdsa-key" class="custom-file-input"  data-uploadvalidator="validateHex">
                         <label class="custom-file-label" for="ecdsa-key">Choose file</label>
                     </div>
                     <p class="form-text text-muted">
@@ -88,7 +88,7 @@
                     Site Additional Discretionary Data for Signatures:
                 </label>
                 <div class="col-md-6 col-sm-6">
-                    <input type="text" placeholder="ASN.1 OID"  id="server-tlvs" class="form-control">
+                    <input type="text"  id="server-tlvs" class="form-control">
                     <p class="form-text text-muted">
                        Hex-coded additional site TLVs used in discretionary data for SM-SR/SM-DP signed info (see below).
                         Optional.
@@ -103,7 +103,7 @@
                 </label>
                 <div class="col-md-6 col-sm-6">
                     <div class="custom-file">
-                        <input type="file" required="required" id="sm-sr-signed-data" class="custom-file-input">
+                        <input type="file" required="required" id="sm-sr-signed-data" class="custom-file-input"  data-uploadvalidator="validateHex">
                         <label class="custom-file-label" for="sm-sr-signed-data">Choose file</label>
                     </div>
                     <p class="form-text text-muted">
@@ -120,7 +120,7 @@
                 </label>
                 <div class="col-md-6 col-sm-6">
                     <div class="custom-file">
-                        <input type="file" required="required" id="sm-dp-signed-data" class="custom-file-input">
+                        <input type="file" required="required" id="sm-dp-signed-data" class="custom-file-input"  data-uploadvalidator="validateHex">
                         <label class="custom-file-label" for="sm-dp-signed-data">Choose file</label>
                     </div>
                     <p class="form-text text-muted">
@@ -132,7 +132,7 @@
             <div class="ln_solid"></div>
             <div class="form-group item">
                 <div class="col-md-6 col-sm-6 offset-md-3">
-                    <button type="button" class="btn btn-secondary">
+                    <button type="button" class="btn btn-secondary" id="settings-update">
                         <i class="fas fa-save"></i>
                         Update
                     </button>
@@ -142,6 +142,63 @@
     </div>
 </div>
 <script type="application/javascript">
+ function loadbasicsettings(data) {
+   $('#oid').val(data.oid);
+   $('#sm-sr-signed-data').val(data.smsrSignedData);
+   $('#sm-dp-signed-data').val(data.smdpSignedData);
+   $('#server-tlvs').val(data.additionalDiscretionaryDataTlvs);
+ }
+  $(document).ready(function() {
+    // Load cert info...
+    $.ajax('rest/settings/get', {
+      dataType: 'JSON',
+      method: 'GET',
+      success: function(data) {
+        if (typeof  data == 'object') {
+          loadbasicsettings(data);
+          // Load certificate info.
+        }
+        var d = data;
+        // alert(d);
+      },
+      error: function(data) {
+        var d = data;
+       // alert(data);
+      }
+    });
 
+    $('#settings-update').on('click', function() {
+       var frm = $('#settings');
+       var validator = $(frm).validate();
+       if (!frm.valid())
+         return  false;
+        if (!confirm('Really Update?'))
+          return false;
+        var data = {
+          oid: $('#oid').val(),
+          crl : getfupload($('#cicrl')),
+          ciCertificate: getfupload($('#ci-cert')),
+          serverCertificate: getfupload($('ecda-cert')),
+          serverPrivateKey: getfupload($('#ecdsa-key')),
+          smdpSignedData: getfupload($('#sm-dp-signed-data')),
+          smsrSignedData: getfupload($('#sm-sr-signed-data')),
+          additionalDiscretionaryDataTlvs: getfupload($('#server-tlvs')),
+        };
+
+        $.ajax('rest/settings/update', {
+          method:'POST',
+          dataType: 'JSON',
+          data: data,
+          contentType: "application/json",
+          success: function(res) {
+            loadbasicsettings(res);
+          },
+          error: function(k,data) {
+            validator.showErrors({_: data});
+          }
+        })
+    });
+
+  });
  //@ sourceURL=mainsettings.js
 </script>
