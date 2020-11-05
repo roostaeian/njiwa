@@ -1239,9 +1239,11 @@ public class Utils {
             int f = publicKey.getParams().getCurve().getField().getFieldSize();
             int size = (f + 7) / 8;
             ByteArrayOutputStream os = new ByteArrayOutputStream();
-            os.write(0x04);
+            os.write(0x04); // uncompressed format
             os.write(BigIntegers.asUnsignedByteArray(size, publicKey.getW().getAffineX()));
             os.write(BigIntegers.asUnsignedByteArray(size, publicKey.getW().getAffineY()));
+
+            // return publicKey.getEncoded();  XXX may be we use this?
             return os.toByteArray();
         }
 
@@ -1305,37 +1307,10 @@ public class Utils {
             Pair<ECParameterSpec, KeyFactory> p = decodeKeyParam(keyParamRef);
             ECParameterSpec params = p.k;
             KeyFactory kf = p.l;
-            /*
-            KeyFactory kf = KeyFactory.getInstance("ECDSA", "BC");
-            // Get Algo
-            AlgorithmParameterSpec spec = KNOWN_ECC_CURVES.get(keyParamRef);
-
-            ECParameterSpec params;
             // http://stackoverflow.com/questions/26159149/how-can-i-get-a-publickey-object-from-ec-public-key-bytes
-            if (spec instanceof ECGenParameterSpec) {
-                ECGenParameterSpec xspec = (ECGenParameterSpec) spec;
-                String cname = xspec.getName();
-                ECNamedCurveParameterSpec ecspec = ECNamedCurveTable.getParameterSpec(cname);
-                params = new ECNamedCurveSpec(cname, ecspec.getCurve(), ecspec.getG(), ecspec.getN());
-
-            } else
-                params = (ECParameterSpec) spec;
-            */
             ECPoint point = ECPointUtil.decodePoint(params.getCurve(), input);
             ECPublicKeySpec publicKeySpec = new ECPublicKeySpec(point, params);
             return (ECPublicKey) kf.generatePublic(publicKeySpec);
-        }
-
-        /**
-         * @brief decode an ec public key. We assume first char is the param ref
-         * @param input
-         * @return
-         * @throws Exception
-         */
-        public static ECPublicKey decodePublicKey(byte[] input) throws Exception {
-             int keyParamRef = input[0];
-             input = Arrays.copyOfRange(input,1,input.length);
-             return decodePublicKey(input, keyParamRef);
         }
 
         private static Pair<ECParameterSpec, KeyFactory> decodeKeyParam(int keyParamRef) throws Exception {
@@ -1350,7 +1325,6 @@ public class Utils {
 
         private static ECParameterSpec fromAlgorithmParameterSpec(AlgorithmParameterSpec spec)
         {
-            // http://stackoverflow.com/questions/26159149/how-can-i-get-a-publickey-object-from-ec-public-key-bytes
             if (spec instanceof ECGenParameterSpec) {
                 ECGenParameterSpec xspec = (ECGenParameterSpec) spec;
                 String cname = xspec.getName();

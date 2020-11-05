@@ -16,9 +16,11 @@ import io.njiwa.common.ServerSettings;
 import io.njiwa.common.Utils;
 
 import java.math.BigInteger;
+import java.security.PrivateKey;
 import java.security.cert.X509CRL;
 import java.security.cert.X509CRLEntry;
 import java.security.cert.X509Certificate;
+import java.security.interfaces.ECPrivateKey;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -46,6 +48,7 @@ public class BasicSettings {
     public CertificateInfo ciCertificateInfo;
     public CertificateInfo serverCertificateInfo;
     public CRLInfo crlInfo;
+    public String serverPrivateKeyInfo;
 
     public static class CertificateInfo {
         public BigInteger serialNumber;
@@ -59,7 +62,7 @@ public class BasicSettings {
             CertificateInfo certificateInfo = new CertificateInfo();
 
             certificateInfo.serialNumber = certificate.getSerialNumber();
-            certificateInfo.subject = certificate.getSubjectX500Principal().getName();
+            certificateInfo.subject = certificate.getSubjectDN().getName();
             byte[] subjectIdentifier = certificate.getExtensionValue(SUBJECT_KEY_IDENTIFIER_OID);
             try {
                 certificateInfo.keyIdentifier = Utils.formatHexBytes(Utils.HEX.b2H(subjectIdentifier), ':');
@@ -135,6 +138,11 @@ public class BasicSettings {
         try {
             settings.serverCertificateInfo = CertificateInfo.create(ServerSettings.getServerCert());
         } catch (Exception ex) {}
+        try {
+            PrivateKey key = ServerSettings.getServerECDAPrivateKey();
+            settings.serverPrivateKeyInfo = key.getAlgorithm() + " Private Key Set";
+
+        } catch (Exception ex){}
         try {
             settings.crlInfo = CRLInfo.create(ServerSettings.getCRL());
         } catch (Exception ex) {}

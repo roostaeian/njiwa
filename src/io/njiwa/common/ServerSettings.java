@@ -443,7 +443,7 @@ public class ServerSettings {
     }
 
     public static void updateCiCert(EntityManager em, X509Certificate certificate) throws Exception {
-        updateCert(em, CI_CERTIFICATE_ALIAS, certificate);
+        updateCert(em, CI_CERTIFICATE_ALIAS, certificate,true);
     }
 
     public static Utils.Pair<String, X509Certificate> getServerCertAndAlias() throws Exception {
@@ -455,7 +455,7 @@ public class ServerSettings {
     }
 
     public static void updateServerCert(EntityManager em, X509Certificate certificate) throws Exception {
-        updateCert(em, SERVER_ECDSA_CERTIFICATE_ALIAS, certificate);
+        updateCert(em, SERVER_ECDSA_CERTIFICATE_ALIAS, certificate,false);
     }
 
     private static Utils.Pair<String, X509Certificate> getCert(String propertykey) throws Exception {
@@ -471,10 +471,15 @@ public class ServerSettings {
     }
 
 
-    private static void updateCert(EntityManager em, String propkey, X509Certificate certificate) throws Exception {
+    private static void updateCert(EntityManager em, String propkey, X509Certificate certificate, boolean trusted) throws Exception {
         KeyStore ks = Utils.getKeyStore();
         String alias = (String) propertyValues.get(propkey);
-        ks.setCertificateEntry(alias, certificate);
+        if (!trusted)
+            ks.setCertificateEntry(alias, certificate);
+        else {
+            KeyStore.TrustedCertificateEntry c = new KeyStore.TrustedCertificateEntry(certificate);
+            ks.setEntry(alias,c,null);
+        }
         updateProp(em, propkey, alias);
     }
 

@@ -142,8 +142,6 @@ public class ECKeyAgreementEG {
     public static SDCommand.APDU isdKeySetEstablishmentSendCert(X509Certificate cert, int certificate_type, byte[] discretionaryData, final byte[] sig)
             throws Exception {
         // Make the data: Table 77 of SGP.02 v4.1
-
-
         final byte[] sigdata = makeCertSigningData(cert, certificate_type, discretionaryData,  KEY_AGREEMENT_KEY_TYPE);
 
         final byte[] certData = new ByteArrayOutputStream() {

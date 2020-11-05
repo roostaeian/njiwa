@@ -110,6 +110,10 @@
                     <p class="form-text text-muted">
                         Hex-coded signed key agreement data (see Table 44 for SGP.02 v4.1, contents of TAG
                         '5F37'). If Tag '73' contains additional TLVs, please specify the TLV sequence <a href="#tlvs"> above.</a>
+
+                    </p>
+                    <p class="form-text text-muted">
+                        <a href="rest/settings/getSigningData?type=smsr" target="_blank">Click here to get SM-SR data to be signed</a>
                     </p>
                     <em id="sm-sr-signed-data-info"></em>
                 </div>
@@ -129,12 +133,17 @@
                         '5F37').
                         If Tag '73' contains additional TLVs, please specify the TLV sequence <a href="#tlvs"> above.</a>
                     </p>
+                    <p class="form-text text-muted">
+                        <a href="rest/settings/getSigningData?type=smdp" target="_blank">Click here to get SM-DP data to be signed</a>
+                    </p>
                     <em id="sm-dp-signed-data-info"></em>
                 </div>
             </div>
             <div class="ln_solid"></div>
-            <div class="form-group item row">
-                <div id="xstatus"></div>
+            <div class="form-group item ">
+                <div class="col-md-6 col-sm-6 offset-md-3">
+                <label id="xstatus"></label>
+                </div>
             </div>
             <div class="form-group item">
                 <div class="col-md-6 col-sm-6 offset-md-3">
@@ -151,17 +160,14 @@
 <script type="application/javascript">
  function loadbasicsettings(data) {
    $('#oid').val(data.oid);
-   $('#sm-sr-signed-data').val(data.smsrSignedData);
-   $('#sm-dp-signed-data').val(data.smdpSignedData);
-   $('#server-tlvs').val(data.additionalDiscretionaryDataTlvs);
 
    displayCertInfo('cicert', data.ciCertificateInfo);
    displayCertInfo('ecdsa-cert',data.serverCertificateInfo);
    displayCrlInfo('cicrl', data.crlInfo);
-   displayHexInfo('ecdsa-key',data.serverPrivateKey);
    displayHexInfo('sm-dp-signed-data', data.smdpSignedData);
    displayHexInfo('sm-sr-signed-data', data.smsrSignedData);
    displayHexInfo('server-tlvs', data.additionalDiscretionaryDataTlvs);
+   displayGeneralInfo('ecdsa-key', data.serverPrivateKeyInfo);
  }
   $(document).ready(function() {
     // Load cert info...
@@ -183,6 +189,7 @@
     });
 
     $('#settings-update').on('click', function() {
+      var btn = $(this);
        var frm = $(this).closest('form');
        var validator = $(frm).validate({
          // https://stackoverflow.com/questions/9392133/when-form-is-validated-how-to-scroll-to-the-first-error-instead-of-jumping
@@ -213,17 +220,20 @@
           additionalDiscretionaryDataTlvs: getfupload($('#server-tlvs')),
         };
 
+        $(btn).attr('disabled',true);
         $.ajax('rest/settings/update', {
           method:'POST',
           dataType: 'JSON',
           data: JSON.stringify(data),
           contentType: "application/json",
           success: function(res) {
+            $(btn).attr('disabled',false);
             $(frm)[0].reset(); // Clear form.
             loadbasicsettings(res);
             info_display('#xstatus', 'info', 'Updated!');
           },
           error: function(k,data) {
+            $(btn).attr('disabled',false);
             if (k && typeof  k === 'object' && k.responseJSON) {
               var fld = k.responseJSON.field;
               var e = k.responseJSON.response;

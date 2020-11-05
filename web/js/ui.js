@@ -29,34 +29,34 @@ function getfupload(item_id) {
 }
 
 function info_display(el, level, message, after_fn) {
-  var status_class = 'alert ';
+  var status_class = 'text-';
   var status_icon = 'fas ';
   switch (level) {
     case 'error':
     case 'fail':
     case 'exception':
-      status_class += ' alert-danger';
+      status_class += 'danger';
       status_icon += 'fa-exclamation-circle';
       break;
     case 'warn':
     case 'warning':
-      status_class += ' alert-warning';
+      status_class += 'warning';
       status_icon += 'fa-exclamation-circle';
       break;
     case 'ok':
     case 'pass':
     case 'success':
-      status_class += ' alert-success';
+      status_class += 'success';
       status_icon += 'fa-check-circle';
       break;
     default:
     case 'info':
-      status_class += ' alert-info';
-      status_icon += 'fa-info';
+      status_class += 'info';
+      status_icon += 'fa-info-circle';
       break;
   }
 
-  var icon_el = $('<span>', {'class': status_icon});
+  var icon_el = $('<i>', {'class': status_icon});
   var message_el = $('<span>').html(message);
 
   $(el).empty();
@@ -66,14 +66,14 @@ function info_display(el, level, message, after_fn) {
     }).append(icon_el).append(' ').append(message_el);
     setTimeout(function() { // Clear after a wait period
       $(el).empty();
-      $(el).removeClassPrefix('alert');
+      $(el).removeClassPrefix('text-');
       if ($.isFunction(after_fn))
         after_fn();
     }, 5000);
   }
-  else {
-    $(el).removeClassPrefix('alert');
-  }
+  else
+    $(el).removeClassPrefix('text-');
+
 }
 
 function ll(txt, container) {
@@ -133,6 +133,24 @@ function displayHexInfo(item_id, res, fname)
 
         append($('<span/>', {class: 'text-info'}).
             append(ll( (res.length/2) + ' hex-coded bytes', el))).
+        append((typeof fname === 'object') && fname.name ? (' | File: ' + fname.name )
+            : '');
+  else
+    $(el)
+    .prop('title', 'Choose File')
+    .empty()
+    .append('Choose File...');
+}
+
+function displayGeneralInfo(item_id, res, fname)
+{
+  var el = $('label[for="' + item_id + '"]');
+  if (res && typeof res === 'string')
+    $(el).
+        empty().
+
+        append($('<span/>', {class: 'text-info'}).
+            append(ll( res, el))).
         append((typeof fname === 'object') && fname.name ? (' | File: ' + fname.name )
             : '');
   else
@@ -208,7 +226,8 @@ $(document).ready(function() {
     var div = $(this).data('div') || 'main';
     var link_id = $(this).attr('id');
     localStorage.lastlink = JSON.stringify(link_id); // Keep it
-
+    var t = $(this).html();
+    $('#page_title').empty().append(t);
     $('#' + div).load(url + '.display.html');
     return false;
   })
