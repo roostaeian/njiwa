@@ -1,0 +1,420 @@
+<div class="x_panel">
+    <div class="x_title">
+        <h2>
+            RSP Elements (SM-SR, SM-DP, MNOs, etc.)
+        </h2>
+        <div class="clearfix"></div>
+    </div>
+    <div class="x_content">
+        <div>
+            <div class="pull-right">
+             <button type="button" class="btn btn-secondary btn-sm float-right"
+                     id="add-new-entity"
+                     title="Add new MNO, SM-SR, EUM or SM-DP element">
+                 <i class="fas fa-plus-circle"></i>
+                 New RSP Element
+             </button>
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+         <div class="d-flex justify-content-center"> <h4>Entity List</h4></div>
+        <table id="rps-table" class="table table-responsive" width="100%">
+            <tr><td width="100%"><i>No entities</i></td></tr>
+        </table>
+
+        <div class="clearfix"></div>
+
+        <h4 id="entity-form-title" class="entity-form">Add New Element</h4>
+        <form id="entity-form" class="form-horizontal form-label-left entity-form">
+            <div class="item form-group">
+                <label class="col-form-label col-md-3 col-sm-3 label-align">
+                     OID:
+                </label>
+                <div class="col-md-6 col-sm-6">
+                    <input type="text" placeholder="ASN.1 OID" required="required" name="oid" id="oid" class="form-control" data-rule-oid="true">
+                    <p class="form-text text-muted">
+                        Server OID. Must be unique.
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="item form-group">
+                <label class="col-form-label col-md-3 col-sm-3 label-align">
+                    DNS Name:
+                </label>
+                <div class="col-md-6 col-sm-6">
+                    <input type="text" required="required" name="dns_name" id="dns_name" class="form-control" data-rule-dns="true">
+                    <p class="form-text text-muted">
+                         DNS Name. Must be unique.
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="item form-group">
+                <label class="col-form-label col-md-3 col-sm-3 label-align">
+                    Type:
+                </label>
+                <div class="col-md-6 col-sm-6">
+                    <select required="required" name="type" id="type" class="form-control toggles-elements">
+                        <option value="EUM">eUICC Manufacturer (EUM)</option>
+                        <option value="SMSR">Secure Messaging Server (SM-SR)</option>
+                        <option value="SMDP">Data Preparation Server (SM-DP)</option>
+                        <option value="MNO">Mobile Network Operator</option>
+                        <option value="M2MSP">M2M Service Provider</option>
+                    </select>
+                    <p class="form-text text-muted">
+                        Element Type
+                    </p>
+                </div>
+
+            </div>
+            <div class="item form-group">
+                <label class="col-form-label col-md-3 col-sm-3 label-align">
+                     ECDSA Certificate:
+                </label>
+                <div class="col-md-6 col-sm-6">
+                    <div class="custom-file">
+                        <input type="file"  id="ecdsa-cert" class="custom-file-input"  data-uploadvalidator="validateCert">
+                        <label class="custom-file-label" for="ecdsa-cert">Choose file</label>
+                    </div>
+                    <p class="form-text text-muted">
+                        PEM-encoded X509 signed element certificate signed by the CI.
+                    </p>
+                    <em id="cert-info"></em>
+                </div>
+            </div>
+
+            <fieldset>
+                <legend>Authentication</legend>
+                <div class="item form-group">
+                    <label class="col-form-label col-md-3 col-sm-3 label-align">
+                        Inbound Web Services Security Credentials:
+                    </label>
+                    <div class="col-md-3 col-sm-3">
+                        <span>Username</span>
+                        <input class="form-control" type="text" name="incoming-user" id="incoming-user"
+                        placeholder="WSSE Username Token">
+                    </div>
+                    <div class="col-md-3 col-sm-3">
+                        <span>Password</span>
+                        <input class="form-control" type="password" name="incoming_pass" id="incoming-pass"
+                               placeholder="WSSE Password Token">
+                        <p class="form-text text-muted updating">
+                            Leave blank unless updating
+                        </p>
+                    </div>
+                </div>
+                <div class="item form-group">
+                    <label class="col-form-label col-md-3 col-sm-3 label-align">
+                        Outbound Web Services Security Credentials:
+                    </label>
+                    <div class="col-md-3 col-sm-3">
+                        <span>Username</span>
+                        <input class="form-control" type="text" name="outgoing-user" id="outgoing-user"
+                               placeholder="WSSE Username Token">
+                    </div>
+                    <div class="col-md-3 col-sm-3">
+                        <span>Password</span>
+                        <input class="form-control" type="password" name="outgoing_pass" id="outgoing-pass"
+                               placeholder="WSSE Password Token">
+                        <p class="form-text text-muted updating">
+                            Leave blank unless updating
+                        </p>
+                    </div>
+                </div>
+            </fieldset>
+            <fieldset>
+                <legend>Web Services Interface Endpoints</legend>
+                <div class="item form-group toggled-element" data-field="type" data-value="EUM">
+                    <label class="col-form-label col-md-3 col-sm-3 label-align">
+                        ES1 Endpoint:
+                    </label>
+                    <div class="col-md-6 col-sm-6">
+                        <input type="text" placeholder="https://" required="required" name="es1" id="es1" class="form-control">
+                        <p class="form-text text-muted">
+                            ES1 interface URL at the EUM.
+                        </p>
+                    </div>
+                </div>
+                <div class="item form-group toggled-element" data-field="type" data-value="MNO">
+                    <label class="col-form-label col-md-3 col-sm-3 label-align">
+                        ES2 Endpoint:
+                    </label>
+                    <div class="col-md-6 col-sm-6">
+                        <input type="text" placeholder="https://" required="required" name="es2" id="es2" class="form-control">
+                        <p class="form-text text-muted">
+                            ES2 interface URL at the MNO.
+                        </p>
+                    </div>
+                </div>
+                <div class="item form-group toggled-element" data-field="type" data-value="MNO,M2MSP">
+                    <label class="col-form-label col-md-3 col-sm-3 label-align">
+                        ES4 Endpoint:
+                    </label>
+                    <div class="col-md-6 col-sm-6">
+                        <input type="text" placeholder="https://" required="required" name="es4" id="es4" class="form-control">
+                        <p class="form-text text-muted">
+                            ES4 interface URL at the MNO/M2M service provider.
+                        </p>
+                    </div>
+                </div>
+                <div class="item form-group toggled-element" data-field="type" data-value="SMDP">
+                    <label class="col-form-label col-md-3 col-sm-3 label-align">
+                        ES3 Endpoint:
+                    </label>
+                    <div class="col-md-6 col-sm-6">
+                        <input type="text" placeholder="https://" required="required" name="es3" id="es3" class="form-control">
+                        <p class="form-text text-muted">
+                            ES3 interface URL at the SMDP.
+                        </p>
+                    </div>
+                </div>
+                <div class="item form-group toggled-element" data-field="type" data-value="SMSR">
+                    <label class="col-form-label col-md-3 col-sm-3 label-align">
+                        ES7 Endpoint:
+                    </label>
+                    <div class="col-md-6 col-sm-6">
+                        <input type="text" placeholder="https://" required="required" name="es7" id="es7" class="form-control">
+                        <p class="form-text text-muted">
+                            ES7 interface URL at the SM-SR.
+                        </p>
+                    </div>
+                </div>
+            </fieldset>
+            <fieldset>
+                <legend>Admin Logon User ID</legend>
+                <div class="item form-group">
+                    <label class="col-form-label col-md-3 col-sm-3 label-align">
+                        User ID:
+                    </label>
+                    <div class="col-md-6 col-sm-6">
+                        <div class="input-group">
+                            <input type="text" placeholder="Enter admin user ID" required="required" name="admin" id="admin" class="form-control">
+                            <div class="input-group-append">
+                                <span class="input-group-text" id="user-domain">@example.com</span>
+                            </div>
+                        </div>
+                        <p class="form-text text-muted">
+                            This is the (first) admin user for the web UI
+                        </p>
+                    </div>
+
+                </div>
+                <div class="item form-group">
+                    <label class="col-form-label col-md-3 col-sm-3 label-align">
+                        Password:
+                    </label>
+                    <div class="col-md-6 col-sm-6">
+                            <input type="password"  name="admin_pass" id="admin_pass" class="form-control">
+
+                        <p class="form-text text-muted">
+                            User Password.
+                        </p>
+                        <p class="form-text text-muted updating">
+                            Leave blank unless updating
+                        </p>
+                    </div>
+
+                </div>
+            </fieldset>
+
+            <div class="ln_solid"></div>
+            <div class="form-group item ">
+                <div class="col-md-6 col-sm-6 offset-md-3">
+                    <label id="xstatus"></label>
+                </div>
+            </div>
+            <div class="form-group item">
+                <div class="col-md-4 col-sm-4 offset-md-3">
+                    <button type="button" class="btn btn-secondary" id="entity-update">
+                        <i class="fas fa-save"></i>
+                        <span id="add-button-text">Update</span>
+                    </button>
+                </div>
+                <div class="col-md-4 col-sm-4">
+                    <button type="button" class="btn btn-outline-secondary" id="entity-clear">
+                        <i class="fas fa-redo"></i>
+                        Clear
+                    </button>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+
+      $('.entity-form').hide(); // Initially hidden.
+
+      $('#entity-clear').on('click', function() {
+            $('#entity-form')[0].reset();
+        $('.entity-form').hide();
+        $('html, body').animate({
+          scrollTop: $('#rps-table').offset().top
+        }, 2000);
+      });
+      // Load table
+      dtdraw($('#rps-table'), 'rest/rpa/list', ["OID", "Type", "Date", "DNS Name"], "OID", function(lnkdata) {
+
+        var xid = lnkdata.id;
+        return $.ajax('rest/rpa/get/' + xid, {
+          method: 'GET',
+          dataType: 'JSON',
+          success: function(data) {
+            $('.entity-form').show();
+            $('#entity-form').data('id',xid); // Store the id
+            $('#entity-form')[0].reset();
+            $('h3.entity-form').empty().append('Update ' + data.type + ' Element');
+
+            $('#add-button-text').empty().append('Update');
+            $('html, body').animate({
+              scrollTop: $('#entity-form-title').offset().top
+            }, 2000);
+
+            // fill data
+            $('#oid').val(data.oid);
+            $('#dns_name').val(data.dns_name).change();
+            $('#type').val(data.type).change();
+
+            displayCertInfo('ecdsa-cert', data.certificateInfo);
+            // cert: $('#ecdsa-cert').data(fileUploadKey),
+            $('#incoming-user').val(data.inbound_user);
+            // inbound_pass: $('#incoming-pass').val(),
+            $('#outgoing-user').val(data.outbound_user);
+            //outbound_pass: $('#outgoing-pass').val(),
+
+            $('#es1').val(data.es1);
+            $('#es2').val(data.es2);
+            $('#es3').val(data.es3);
+            $('#es4').val(data.es4);
+            $('#es7').val(data.es7);
+
+            var u = data.admin || '';
+            var i = u.indexOf('@');
+            if (i >= 0)
+               u = u.substring(0,i);
+            $('#admin').val(u);
+            $('#admin').attr('disabled',true);
+            $('#dns_name').attr('disabled',true);
+            $('#oid').attr('disabled',true);
+
+            $('.updating').show();
+          },
+          error: function(da) {
+            console.log(da);
+          }
+        });
+
+      });
+
+      // DNS name changes thingie down
+
+      $('#dns_name').on('change', function() {
+            var domain = $(this).val();
+            $('#user-domain').empty().append('@').append(domain);
+      });
+
+      $('#add-new-entity').on('click', function() {
+        $('.entity-form').show();
+        $('#entity-form').data('id',undefined); // Clear the id.
+        $('#entity-form')[0].reset();
+        $('h3.entity-form').empty().append('Add New Entity');
+        $('#type').trigger('change',{}); // force hide stuff
+        $('#add-button-text').empty().append('Add');
+
+        $('#admin').attr('disabled',false);
+        $('#dns_name').attr('disabled',false);
+        $('#oid').attr('disabled',false);
+        $('.updating').hide();
+        $('html, body').animate({
+          scrollTop: $('#entity-form-title').offset().top
+        }, 2000);
+      });
+
+      $('#entity-update').on('click', function() {
+        var btn = $(this);
+         var frm = $(this).closest('form');
+         var adding = !$(frm).data('id');
+          var validator = $(frm).validate();
+          if (!frm.valid())
+                return false;
+          if (adding) {
+            if (!$('#admin_pass').val()) {
+              validator.showErrors({admin_pass: 'Please provide the password'});
+              return false;
+            }
+            if (!$('#outgoing-pass').val()) {
+              validator.showErrors({outgoing_pass: 'Please provide the password'});
+              return false;
+            }
+            if (!$('#incoming-pass').val()) {
+              validator.showErrors({incoming_pass: 'Please provide the password'});
+              return false;
+            }
+          }
+          if (!confirm('Really save data?'))
+            return false;
+          // build data
+          var d = {
+             id: $(frm).data('id'),
+             oid: $('#oid').val(),
+             dns_name: $('#dns_name').val(),
+             type: $('#type').val(),
+             cert: $('#ecdsa-cert').data(fileUploadKey),
+             inbound_user: $('#incoming-user').val(),
+             inbound_pass: $('#incoming-pass').val(),
+            outbound_user: $('#outgoing-user').val(),
+            outbound_pass: $('#outgoing-pass').val(),
+
+            es1: $('#es1').val(),
+            es2: $('#es2').val(),
+            es3: $('#es3').val(),
+            es4: $('#es4').val(),
+            es7: $('#es7').val(),
+
+            admin: $('#admin').val(),
+            admin_pass: $('#admin_pass').val()
+          };
+         btn.attr('disabled', true);
+         return $.ajax('rest/rpa/update', {
+            method: 'POST',
+           dataType: 'JSON',
+           data: JSON.stringify(d),
+           contentType: "application/json",
+           success: function(d) {
+              console.log(d);
+             $(btn).attr('disabled',false);
+
+             info_display('#xstatus', 'info', 'Updated!');
+             $('#rps-table').trigger('refresh');
+             $(frm)[0].reset();
+             $('html, body').animate({
+               scrollTop: $('#rps-table').offset().top
+             }, 2000);
+           },
+            error: function(k, data) {
+              $(btn).attr('disabled',false);
+              console.log(d);
+
+              if (k && typeof  k === 'object' && k.responseJSON) {
+                var fld = k.responseJSON.field;
+                var e = k.responseJSON.response;
+                var err = {};
+                err[fld] = e;
+                if (fld)
+                  validator.showErrors(err);
+                else
+                  info_display('#xstatus', 'error', e || 'Error saving data');
+              } else
+                info_display('#xstatus', 'error', 'Error saving data');
+            }
+         });
+      });
+    });
+    //@ sourceURL=rpa.js
+</script>

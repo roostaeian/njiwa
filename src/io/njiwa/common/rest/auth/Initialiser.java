@@ -73,14 +73,7 @@ public class Initialiser {
     }
 
     private void createUser(String admin, final String defaultAdminGroup, boolean isAdmin) {
-        User u = new User(admin);
-        Partition partition = partitionManager.getPartition(Realm.class,Realm.DEFAULT_REALM);
-        IdentityManager identityManager = partitionManager.createIdentityManager(partition); // Add to default partition
-
-        Authenticator.setUserAdminFlag(u,isAdmin);
-        identityManager.add(u);
-        identityManager.updateCredential(u, new Password("test"));
-
+        Realm.addUser(partitionManager,admin,"test",true);
         po.doTransaction((po, em) -> {
             Group g = Group.getByName(em, defaultAdminGroup);
             g.assignUser(admin);
@@ -90,6 +83,7 @@ public class Initialiser {
 
     private void createUser(String admin, final String defaultAdminGroup)
     {
+
         createUser(admin,defaultAdminGroup,true);
     }
 

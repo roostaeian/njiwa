@@ -1,7 +1,7 @@
 <div class="x_panel">
     <div class="x_title">
-        <h2>Site Settings
-            <small>SM-DP & SM-SR Certificates, OIDs, etc.</small>
+        <h2>
+           OID, CI, SM-DP & SM-SR Certificates, etc.
         </h2>
         <div class="clearfix"></div>
     </div>
@@ -13,7 +13,7 @@
                     Site OID:
                 </label>
                 <div class="col-md-6 col-sm-6">
-                    <input type="text" placeholder="ASN.1 OID" required="required" name="oid" id="oid" class="form-control">
+                    <input type="text" placeholder="ASN.1 OID" required="required" name="oid" id="oid" class="form-control" data-rule-oid="true">
                     <p class="form-text text-muted">
                         Server OID.
                     </p>
@@ -191,20 +191,7 @@
     $('#settings-update').on('click', function() {
       var btn = $(this);
        var frm = $(this).closest('form');
-       var validator = $(frm).validate({
-         // https://stackoverflow.com/questions/9392133/when-form-is-validated-how-to-scroll-to-the-first-error-instead-of-jumping
-         focusInvalid: false,
-         invalidHandler: function(form, validator) {
-
-           if (!validator.numberOfInvalids())
-             return;
-
-           $('html, body').animate({
-             scrollTop: $(validator.errorList[0].element).offset().top
-           }, 2000);
-
-         }
-       });
+       var validator = $(frm).validate({});
        if (!frm.valid())
          return  false;
         if (!confirm('Really Update?'))

@@ -204,6 +204,102 @@ function defaultFileValidator(item_id, data, fname) {
   $(el).empty().append($('<span/>', {class: 'text-dark'}).append(fname.name));
 }
 
+const dtIdFieldClass = "x-dt-row-detail-link";
+const dtcellClass = 'x-dt-cell';
+const dtrowClass = 'x-dt-row';
+function dtdraw(el, uri, cols, lnkFld, lnkfn)
+{
+
+  // idfield = idfield || 'ID';
+  function show_table() {
+    // Draw a data table
+    var tbl = $(el)
+        .empty();
+
+    var thead = $('<thead/>');
+
+    // Add headers.
+
+    var tr = $('<tr/>').appendTo(thead);
+    $.each(cols, function(i, c) {
+      var th = $('<th/>').append(c);
+      tr.append(th);
+    });
+
+    tbl.append(thead);
+
+    var tbody = $('<tbody/>').appendTo(tbl);
+
+    // Call URI, get data, build table.
+    return $.ajax(uri, {
+      method: 'GET', dataType: 'JSON',
+       success: function(res) {
+        var hdrs = res.headers;
+        var colIndex = {}; // Holds the index of each column in the received data.
+        for (var i = 0; i < hdrs.length; i++) {
+          var h = hdrs[i];
+          colIndex[h] = i;
+        }
+        // Now output rows
+        var rows = res.rows;
+        if (rows.length === 0)
+          tbody.append($('<tr/>').append($('<td/>', {colspan: hdrs.length }).append($('<i/>').append('No data found!'))));
+        else
+          $.each(rows, function(i, row) {
+          var tr = $('<tr/>', {class: dtrowClass}).appendTo(tbody);
+          var row_data = {};
+          // build row data
+          $.each(colIndex, function(i, c) {
+             row_data[i] = row[c];
+          });
+
+          // Output the data in column order
+          $.each(cols, function(i, c) {
+            var xi = colIndex[c];
+            if (xi !== undefined) {
+              var td = $('<td/>', {class: dtcellClass}).appendTo(tr);
+              var datum = row[xi];
+
+              if (lnkFld !== undefined && lnkFld === c) {
+                  // This is the detail link.
+                var a = $('<a/>',
+                    {class: dtIdFieldClass, href: '#'}).
+                    append(datum);
+                td.append(a);
+                $(a).on('click', function() {
+                  if ($.isFunction(lnkfn))
+                    lnkfn(row_data);
+                });
+              }
+              else
+                td.append(datum);
+
+            }
+          });
+
+          $(tr).data('data', row_data); // Store the full data as object
+        });
+
+        console.log(res);
+        if (rows.length !== 0)
+          $(tbl).dataTable({
+            response: true, pageLength: 100,
+          });
+        $(tbl).on('refresh',
+            function() {
+              $(tbl).dataTable().fnDestroy();
+              show_table();
+            }); // refresh does a re-draw
+      }, error: function(d, x) {
+        console.log(d);
+        console.log(x);
+      }
+    });
+  }
+
+  return  show_table();
+}
+
 $(document).ready(function() {
 
   $.fn.removeClassPrefix = function(prefix) {
@@ -261,14 +357,56 @@ $(document).ready(function() {
               fname);
         }
 
+      })
+      // Handle toggle display of items
+      .on('change', '.toggles-elements', function() {
+          var e = $(this);
+          var v = $(e).val();
+          var nm = $(e).attr('id'); // Get the id.
+
+         // Go over the toggled ones
+         $('.toggled-element').each(function () {
+              var el = $(this);
+              var d = $(el).data('field');
+              if (d !== nm)
+                return; // No match. Go away
+              var vv = ($(el).data('value') || '').split(',');
+              for (var i = 0; i<vv.length; i++)
+                if (vv[i] === v) {
+                  $(el).show();
+                  return;
+                }
+           $(el).hide();
+         });
       });
+
+  ;
 
   // Add validator methods
   $.validator.addMethod('oid', function(v, el) {
-    if (v) return true;
+    if (!v) return true;
     // See https://www.regextester.com/96618
-    var re = new RegExp('^([1-9][0-9]{0,3}|0)(\\.([1-9][0-9]{0,3}|0)){5,13}$');
+    var re = new RegExp('^([1-9][0-9]{0,3}|0)([.]([1-9][0-9]{0,6}|0)){5,13}$');
     if (!re.test(v)) return false; else return true;
   }, 'Please enter a valid OID, e.g. 1.2.3.4....');
 
+  $.validator.addMethod('dns', function(v, el) {
+    if (!v) return true;
+    var re = new RegExp('^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9][.][a-zA-Z]{2,}$');
+    if (!re.test(v)) return false; else return true;
+  }, 'Please enter a valid domain name');
+
+  // Set validator defaults
+  $.validator.setDefaults({
+    // https://stackoverflow.com/questions/9392133/when-form-is-validated-how-to-scroll-to-the-first-error-instead-of-jumping
+    //  focusInvalid: false,
+    invalidHandler: function(form, validator) {
+
+      if (!validator.numberOfInvalids()) return;
+
+      $('html, body').animate({
+        scrollTop: $(validator.errorList[0].element).offset().top
+      }, 2000);
+    }
+  });
 });

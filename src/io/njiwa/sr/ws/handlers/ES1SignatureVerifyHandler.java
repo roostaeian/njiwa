@@ -201,11 +201,7 @@ public class ES1SignatureVerifyHandler implements SOAPHandler<SOAPMessageContext
                     // Make sure the algorithm is compatible
                     // with the method.
                     if (algEquals(method.getAlgorithm(), key.getAlgorithm())) {
-                        return new KeySelectorResult() {
-                            public Key getKey() {
-                                return key;
-                            }
-                        };
+                        return () -> key;
                     }
                     throw new Exception("Lookup failed");
                 } catch (Exception ex) {

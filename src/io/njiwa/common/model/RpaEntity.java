@@ -108,6 +108,9 @@ public class RpaEntity {
     @Column(nullable = false, columnDefinition = "TEXT", unique = true, name = "dns_name")
     private String dns_name;
 
+    @Column(nullable = false, columnDefinition = "TEXT", name="admin_user")
+    private String admin_user;
+
     @Column(nullable = true, columnDefinition = "TEXT")
     private String wskeyStoreAlias; //!< The alias in the java keystore, this is the key used for Web Service
     // authentication.
@@ -170,7 +173,10 @@ public class RpaEntity {
     }
 
 
-    public RpaEntity(Type type, String wskeyStoreAlias, String sMkeyStoreAlias, String oid, boolean islocal, byte[] additionalDiscretionaryData, byte[] signature, String x509Subject) {
+    public RpaEntity(Type type, String wskeyStoreAlias,
+                     String sMkeyStoreAlias, String oid,
+                     boolean islocal, byte[] additionalDiscretionaryData,
+                     byte[] signature, String x509Subject) {
         setType(type);
         setWskeyStoreAlias(wskeyStoreAlias);
         setAdditionalDiscretionaryData(additionalDiscretionaryData);
@@ -182,15 +188,6 @@ public class RpaEntity {
         setOid(oid);
     }
 
-    public static RpaEntity getCIEntity(EntityManager em) throws Exception {
-
-        try {
-            return  em.createQuery("from RpaEntity  WHERE type = :t", RpaEntity.class).setParameter("t"
-                    , Type.CI).setMaxResults(1).getSingleResult();
-        } catch (Exception ex) {
-            return null;
-        }
-    }
     private static String canonicaliseSubject(String x509Subject) {
         try {
             LdapName d = new LdapName(x509Subject);
@@ -202,13 +199,13 @@ public class RpaEntity {
         }
     }
 
-    public static RpaEntity getByDNS(EntityManager em, String dns_name) throws Exception {
+    public static RpaEntity getByDNS(EntityManager em, String dns_name)  {
         return em.createQuery("from RpaEntity  where  dns_name = :n", RpaEntity.class)
                 .setParameter("n", dns_name)
                 .getSingleResult();
     }
 
-    public static RpaEntity getByUserId(EntityManager em, String userid, Type type) throws Exception {
+    public static RpaEntity getByUserId(EntityManager em, String userid, Type type) {
         return em.createQuery("from RpaEntity WHERE wSuserid = :u and type = :t", RpaEntity.class).setParameter("t",
                 type).setParameter("u", userid).setMaxResults(1).getSingleResult();
     }
@@ -332,7 +329,8 @@ public class RpaEntity {
     public String makeKeyStoreAlias(String stype) {
         byte[] data = new byte[6];
         RANDOM.nextBytes(data);
-        return String.format("%s-%s-%s-%s", getType(), stype, getId(), Utils.HEX.b2H(data));
+        String alias = String.format("%s-%s-%s-%s", getType(), stype, getDns_name(), Utils.HEX.b2H(data));
+        return alias;
     }
 
     public ECPrivateKey secureMessagingPrivKey() throws Exception {
@@ -439,8 +437,16 @@ public class RpaEntity {
     // Fixup alias
     @PrePersist
     private void fixupAlias() {
-        String xalias = getX509Subject();
-        String x = canonicaliseSubject(xalias);
+        String x509Subject = getX509Subject();
+        if (x509Subject == null)
+            try {
+            // fix it up.
+            X509Certificate certificate = (X509Certificate)Utils.getKeyStore().getCertificate(getsMkeyStoreAlias());
+            x509Subject = certificate.getSubjectDN().getName();
+        } catch (Exception ex) {
+            String xs = ex.getMessage();
+        }
+        String x = canonicaliseSubject(x509Subject);
         setX509Subject(x);
     }
 
@@ -568,8 +574,16 @@ public class RpaEntity {
         this.dns_name = dns_name;
     }
 
+    public String getAdmin_user() {
+        return admin_user;
+    }
+
+    public void setAdmin_user(String admin) {
+        this.admin_user = admin;
+    }
+
     public enum Type {
-        MNO, SMDP, SMSR, EUM, CI; // But can we have multiple CIs? No
+        MNO, SMDP, SMSR, EUM, CI, M2MSP; // But can we have multiple CIs? No
 
         private static Type[] xvalues = values();
 

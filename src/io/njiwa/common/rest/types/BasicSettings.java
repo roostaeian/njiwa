@@ -20,10 +20,7 @@ import java.security.PrivateKey;
 import java.security.cert.X509CRL;
 import java.security.cert.X509CRLEntry;
 import java.security.cert.X509Certificate;
-import java.security.interfaces.ECPrivateKey;
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
@@ -31,7 +28,9 @@ import java.util.Set;
 import static io.njiwa.common.ECKeyAgreementEG.AUTHORITY_KEY_IDENTIFIER_OID;
 import static io.njiwa.common.ECKeyAgreementEG.SUBJECT_KEY_IDENTIFIER_OID;
 
-// @brief server settings
+/**
+ * Basic server settings
+ */
 public class BasicSettings {
 
     public String ciCertificate; // CI certificate, X509 PEM-encoded for inbound, for outbound see ciCertInfo.
@@ -77,8 +76,12 @@ public class BasicSettings {
             return certificateInfo;
         }
 
-        public static CertificateInfo create(String certdata)  throws Exception {
-            X509Certificate certificate = Utils.certificateFromBytes(Utils.Http.decodeDataUri(certdata));
+        public static CertificateInfo create(byte[] certdata)  throws Exception {
+            X509Certificate certificate = Utils.certificateFromBytes(certdata);
+            return create(certificate);
+        }
+        public static CertificateInfo create(String alias) throws Exception {
+            X509Certificate certificate = (X509Certificate)Utils.getKeyStore().getCertificate(alias);
             return create(certificate);
         }
     }

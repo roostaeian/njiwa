@@ -5,12 +5,10 @@ import io.njiwa.common.rest.annotations.RestRoles;
 import io.njiwa.common.rest.types.Roles;
 import org.apache.deltaspike.security.api.authorization.Secures;
 import org.picketlink.Identity;
-import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.basic.User;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.interceptor.InvocationContext;
-import java.io.Serializable;
 import java.util.Set;
 
 /*
@@ -52,19 +50,5 @@ public class Authoriser {
 
         return false;
     }
-    public static final String ADMIN_ATTRIBUTE = "isAdmin";
-    // @ check if a user is an admin
-    // See https://docs.jboss.org/picketlink/2/2.6.0.Beta2/reference/html_single/ Sec 6.3
-    public static boolean isUserAdmin(User u) {
-        try{
-            Attribute<Serializable> p = u.getAttribute(ADMIN_ATTRIBUTE);
-            return (Boolean)p.getValue();
-        } catch (Exception ex) {
-            return false;
-        }
-    }
-    // @brief mark a user as an admin
-    public static void setUserAdminFlag(User u, boolean flag) {
-        u.setAttribute(new Attribute<Boolean>(ADMIN_ATTRIBUTE,flag));
-    }
+
 }

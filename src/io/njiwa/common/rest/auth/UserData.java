@@ -11,6 +11,11 @@
  */
 package io.njiwa.common.rest.auth;
 
+import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.model.basic.User;
+import org.picketlink.idm.query.IdentityQuery;
+import org.picketlink.idm.query.IdentityQueryBuilder;
+
 import javax.enterprise.context.SessionScoped;
 import java.io.Serializable;
 import java.util.HashSet;
@@ -75,4 +80,5 @@ public class UserData implements Serializable {
     public void setUser(String user) {
         this.user = user;
     }
+
 }

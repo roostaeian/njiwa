@@ -15,11 +15,8 @@ import javax.persistence.EntityManager;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.security.Key;
-import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
-import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 
 @Path("/settings")
@@ -47,8 +44,8 @@ public class Settings {
     public Response validateCert(String certData) {
 
         try {
-
-            BasicSettings.CertificateInfo certificateInfo = BasicSettings.CertificateInfo.create(certData);
+            byte[] input = Utils.Http.decodeDataUri(certData);
+            BasicSettings.CertificateInfo certificateInfo = BasicSettings.CertificateInfo.create(input);
             return Response.ok(certificateInfo).build();
         } catch (Exception ex) {
             return Response.status(Response.Status.BAD_REQUEST).entity(new RestResponse(RestResponse.Status.Failed,
