@@ -80,7 +80,7 @@ public class Test {
         Random random = new SecureRandom();
         List<String> xsl;
         try {
-            xsl = em.createQuery("from RpaEntity", RpaEntity.class).getResultList().stream().filter(r -> !Utils.toBool(r.getIslocal())).map(RpaEntity::getOid).collect(Collectors.toList());
+            xsl = em.createQuery("from RpaEntity", RpaEntity.class).getResultList().stream().map(RpaEntity::getOid).collect(Collectors.toList());
         } catch (Exception ex) {
             xsl = new ArrayList<>();
         }

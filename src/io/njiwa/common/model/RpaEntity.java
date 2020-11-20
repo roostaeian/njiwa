@@ -145,8 +145,6 @@ public class RpaEntity {
     private String outgoingWSuserid; //!< User name for outgoing web service calls authentication
     @Column
     private String outgoingWSpassword; //!< Outgoing password
-    @Column(name = "islocal", columnDefinition = "boolean not null default false")
-    private Boolean islocal; //!< This is true if our current server also represents this entity (can only be true
     // certificate data
     @Column
     private byte[] additionalDiscretionaryData; //!< Discretionary data as per GPC Ammendment E. This is extracted from the
@@ -177,15 +175,12 @@ public class RpaEntity {
     }
 
 
-    public RpaEntity(Type type, String wskeyStoreAlias,
-                     String secureMessagingPrivateKeyAlias, String oid,
-                     boolean islocal, byte[] additionalDiscretionaryData,
-                     byte[] signature, String x509Subject) {
+    public RpaEntity(Type type, String wskeyStoreAlias, String secureMessagingPrivateKeyAlias, String oid, byte[] additionalDiscretionaryData, byte[] signature, String x509Subject) {
         setType(type);
         setWskeyStoreAlias(wskeyStoreAlias);
         setAdditionalDiscretionaryData(additionalDiscretionaryData);
         setX509Subject(x509Subject);
-        setIslocal(islocal);
+
         setsSecureMessagingPrivateKeyAlias(secureMessagingPrivateKeyAlias);
         setSignature(signature);
 
@@ -268,7 +263,7 @@ public class RpaEntity {
         byte[] additionalDiscretionaryDataTlvs = ServerSettings.getAdditionalDiscretionaryDataTlvs();
         byte[] sig = type == Type.SMDP ? ServerSettings.getSMDPSignedData() : ServerSettings.getSMSRSignedData();
         RpaEntity rpa = new RpaEntity(type,null,smKeyAlias,
-                ServerSettings.getOid(),true,additionalDiscretionaryDataTlvs,sig,x509Subject);
+                ServerSettings.getOid(), additionalDiscretionaryDataTlvs,sig,x509Subject);
         rpa.setSecureMessagingCertificateAlias(keyAlias);
         rpa.updateInterfaceUris(ServerSettings.getBasedeploymenturi());
         return rpa;
@@ -527,14 +522,6 @@ public class RpaEntity {
 
     public void setOutgoingWSpassword(String outgoingWSpassword) {
         this.outgoingWSpassword = outgoingWSpassword;
-    }
-
-    public Boolean getIslocal() {
-        return islocal;
-    }
-
-    public void setIslocal(Boolean islocal) {
-        this.islocal = islocal;
     }
 
     public X509Certificate secureMessagingCert() {
