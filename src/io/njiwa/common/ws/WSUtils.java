@@ -12,7 +12,6 @@
 
 package io.njiwa.common.ws;
 
-import io.njiwa.common.PersistenceUtility;
 import io.njiwa.common.model.RpaEntity;
 import io.njiwa.common.StatsCollector;
 import io.njiwa.common.Utils;
@@ -58,35 +57,8 @@ import java.util.*;
  */
 public class WSUtils {
 
-    public final static String REQUESTING_ENTITY_KEY = WSUtils.class.getCanonicalName() + ".REQUESTING_ENTITY";
+    public final static String REQUESTING_ENTITY_TYPE = WSUtils.class.getCanonicalName() + ".REQUESTING_ENTITY";
     public final static String REQUEST_URI_KEY = WSUtils.class.getCanonicalName() + ".REQUEST_URI";
-
-    private static Long getRequestorId(EntityManager em, RpaEntity.Type type) {
-        try {
-            return getMyRpa(em, type).getId();
-        } catch (Exception ex) {
-        }
-
-        return null;
-    }
-
-    public static RpaEntity getMyRpa(EntityManager em, RpaEntity.Type type) {
-        return RpaEntity.getLocal(em, type);
-    }
-
-    public static RpaEntity getMyRpa(PersistenceUtility po, final RpaEntity.Type type) {
-        return po.doTransaction(new PersistenceUtility.Runner<RpaEntity>() {
-            @Override
-            public RpaEntity run(PersistenceUtility po, EntityManager em) throws Exception {
-                return getMyRpa(em, type);
-            }
-
-            @Override
-            public void cleanup(boolean success) {
-
-            }
-        });
-    }
 
     public static <T> T getPort(String namespace,
                                 String portName, WsaEndPointReference sendTo, Class<T> cls, RpaEntity
@@ -97,7 +69,7 @@ public class WSUtils {
         Service s = Service.create(sName);
         QName pName = new QName(namespace, portName);
 
-        Long requestorId = getRequestorId(em, ourType);
+
         if (sendTo != null)
             s.addPort(pName, "http://schemas.xmlsoap.org/soap/", sendTo.makeAddress());
         T proxy = s.getPort(pName, cls);
@@ -109,7 +81,7 @@ public class WSUtils {
         Binding binding = provider.getBinding();
         Map<String, Object> ctx = provider.getRequestContext();
         try {
-            ctx.put(REQUESTING_ENTITY_KEY, requestorId);
+            ctx.put(REQUESTING_ENTITY_TYPE, ourType);
             ctx.put(REQUEST_URI_KEY, sendTo.makeAddress());
         } catch (Exception ex) {
         }
@@ -322,8 +294,8 @@ public class WSUtils {
             String url = (String) context.get(REQUEST_URI_KEY);
             RpaEntity rpa;
             try {
-                long rId = (Long) context.get(REQUESTING_ENTITY_KEY);
-                rpa = em.find(RpaEntity.class, rId);
+                RpaEntity.Type  rtype = (RpaEntity.Type) context.get(REQUESTING_ENTITY_TYPE);
+                rpa =  RpaEntity.getLocal(rtype);
             } catch (Exception ex) {
                 rpa = null;
             }

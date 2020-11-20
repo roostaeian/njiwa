@@ -128,7 +128,7 @@ public class ES2Impl {
 
         // We have it. Get it's URL, call the SMS-SR, get back a response...
         try {
-            final RpaEntity myRpa = WSUtils.getMyRpa(po, RpaEntity.Type.SMDP);
+           // final RpaEntity myRpa = WSUtils.getMyRpa(po, RpaEntity.Type.SMDP);
             final String xrelatesTo = UUID.randomUUID().toString();
             io.njiwa.sr.ws.types.GetEISResponse response = po.doTransaction(new PersistenceUtility.Runner<io.njiwa.sr.ws.types.GetEISResponse>() {
                 @Override

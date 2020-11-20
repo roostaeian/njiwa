@@ -139,6 +139,19 @@
                     <em id="sm-dp-signed-data-info"></em>
                 </div>
             </div>
+            <div class="item form-group">
+                <label class="col-form-label col-md-3 col-sm-3 label-align">
+                    Secure Messaging Web Services Base URL:
+                </label>
+                <div class="col-md-6 col-sm-6">
+                    <input type="text" placeholder="http://" required="required" name="wsUrlPrefix" id="wsUrlPrefix" class="form-control">
+                    <p class="form-text text-muted">
+                       base URL that external MNOs, SM-DPs, use to call the web services. SMDP interfaces are reachable as <i>URL</i>/SMDP/<i>interface</i> (e.g. http://server:8443/njiwa/SMDP/ES3)
+                    </p>
+                </div>
+
+            </div>
+
             <div class="ln_solid"></div>
             <div class="form-group item ">
                 <div class="col-md-6 col-sm-6 offset-md-3">
@@ -160,7 +173,17 @@
 <script type="application/javascript">
  function loadbasicsettings(data) {
    $('#oid').val(data.oid);
+   var url = data.wsUrlPrefix;
+   if (!url || url.indexOf('http') !== 0 ) {
+     // Make it:
+     url = window.location.href;
+     // Find last slash, remove:
+     var i = url.lastIndexOf("/");
+     if (i >= 0)
+       url = url.substr(0,i);
+   }
 
+   $('#wsUrlPrefix').val(url);
    displayCertInfo('cicert', data.ciCertificateInfo);
    displayCertInfo('ecdsa-cert',data.serverCertificateInfo);
    displayCrlInfo('cicrl', data.crlInfo);
@@ -198,6 +221,7 @@
           return false;
         var data = {
           oid: $('#oid').val(),
+          wsUrlPrefix: $('#wsUrlPrefix').val(),
           crl : getfupload($('#cicrl')),
           ciCertificate: getfupload($('#cicert')),
           serverCertificate: getfupload($('#ecdsa-cert')),

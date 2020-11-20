@@ -432,7 +432,7 @@ public class DownloadProfileTransaction extends BaseTransactionType implements S
             final ES3 proxy = WSUtils.getPort("http://namespaces.gsma.org/esim-messaging/1", "ES3Port",
                     rcptTo, ES3.class,
                     RpaEntity.Type.SMDP, em,requestingEntityId);
-            WsaEndPointReference sender = new WsaEndPointReference(WSUtils.getMyRpa(em, RpaEntity.Type.SMDP),"ES3");
+            WsaEndPointReference sender = new WsaEndPointReference(RpaEntity.getLocal(RpaEntity.Type.SMDP),"ES3");
             final Holder<String> msgType = new Holder<String>("http://gsma" +
                     ".com/ES3/ProfileManagement/ES3-CreateISDP");
             String msgID = trans.newRequestMessageID(); // Create new one.
@@ -469,7 +469,7 @@ public class DownloadProfileTransaction extends BaseTransactionType implements S
                     final ES3 proxy = WSUtils.getPort("http://namespaces.gsma.org/esim-messaging/1", "ES3Port",
                             rcptTo, ES3.class,
                             RpaEntity.Type.SMDP, em,requestingEntityId);
-                    WsaEndPointReference sender = new WsaEndPointReference(WSUtils.getMyRpa(em, RpaEntity.Type.SMDP),
+                    WsaEndPointReference sender = new WsaEndPointReference(RpaEntity.getLocal(RpaEntity.Type.SMDP),
                             "ES3");
                     final Holder<String> msgType = new Holder<String>("http://gsma" +
                             ".com/ES3/ProfileManagement/ES3-CreateISDP");
@@ -493,7 +493,7 @@ public class DownloadProfileTransaction extends BaseTransactionType implements S
             case ESTABLISHKEYSET_SEND_CERT_DP_ECDSA:
                 // Sec 4.1.3.1 of SGP 02 v3.1
                 final SDCommand.APDU inst_p = ECKeyAgreementEG.isdpKeySetEstablishmentINSTALLCmd(isdp.getAid());
-                RpaEntity smdp = RpaEntity.getLocal(em, RpaEntity.Type.SMDP);
+                RpaEntity smdp = RpaEntity.getLocal(RpaEntity.Type.SMDP);
 
 
                 final SDCommand.APDU store_data_p = ECKeyAgreementEG.isdKeySetEstablishmentSendCert(smdp
@@ -575,7 +575,7 @@ public class DownloadProfileTransaction extends BaseTransactionType implements S
                     final ES3 proxy = WSUtils.getPort("http://namespaces.gsma.org/esim-messaging/1", "ES3Port",
                             rcptTo, ES3.class,
                             RpaEntity.Type.SMDP, em,requestingEntityId);
-                    WsaEndPointReference sender = new WsaEndPointReference(WSUtils.getMyRpa(em, RpaEntity.Type.SMDP),
+                    WsaEndPointReference sender = new WsaEndPointReference(RpaEntity.getLocal(RpaEntity.Type.SMDP),
                             "ES3");
                     final Holder<String> msgType = new Holder<String>("http://gsma" +
                             ".com/ES3/ProfileManagement/ES3-ProfileDownloadCompletedRequest");
@@ -615,7 +615,7 @@ public class DownloadProfileTransaction extends BaseTransactionType implements S
                         final ES3 proxy = WSUtils.getPort("http://namespaces.gsma.org/esim-messaging/1", "ES3Port",
                                 rcptTo, ES3.class,
                                 RpaEntity.Type.SMDP, em,requestingEntityId);
-                        WsaEndPointReference sender = new WsaEndPointReference(WSUtils.getMyRpa(em, RpaEntity.Type
+                        WsaEndPointReference sender = new WsaEndPointReference(RpaEntity.getLocal(RpaEntity.Type
                                 .SMDP),
                                 "ES3");
                         final Holder<String> msgType = new Holder<String>("http://gsma" +
@@ -632,7 +632,7 @@ public class DownloadProfileTransaction extends BaseTransactionType implements S
                         return true;
                     } catch (WSUtils.SuppressClientWSRequest wsa) {
                     } catch (Exception ex) {
-                        Utils.lg.severe("Failed to issue async enableisdp call: " + ex.getMessage());
+                        Utils.lg.severe("Failed to issue async enable isdp call: " + ex.getMessage());
                         return false;
                     }
                     return true;

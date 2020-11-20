@@ -242,7 +242,7 @@ public class ReceiveEISHandoverTransaction extends SmSrBaseTransaction {
             case AUTHENTICATESMSR:
                 try {
                     // Get our RPA Entity and Data
-                    RpaEntity smsr = RpaEntity.getLocal(em, RpaEntity.Type.SMSR);
+                    RpaEntity smsr = RpaEntity.getLocal(RpaEntity.Type.SMSR);
                     X509Certificate cert = smsr.secureMessagingCert();
                     // Make cert data
                     byte[] certSigningData = ECKeyAgreementEG.makeCertSigningData(cert,
@@ -294,7 +294,7 @@ public class ReceiveEISHandoverTransaction extends SmSrBaseTransaction {
                         scenarioParam |= 0x01; // Delete existing
                 } catch (Exception ex) {
                 }
-                RpaEntity smsr = RpaEntity.getLocal(em, RpaEntity.Type.SMSR);
+                RpaEntity smsr = RpaEntity.getLocal(RpaEntity.Type.SMSR);
                 ECPrivateKey privateKey = smsr.secureMessagingPrivKey();
                 X509Certificate certificate = smsr.secureMessagingCert();
                 int paramSpec = Utils.ECC.getKeyParamRefFromCertificate(certificate);

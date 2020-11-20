@@ -88,12 +88,8 @@ public class AuditTrail {
         setOperationDate(date);
     }
 
-    public AuditTrail(EntityManager em, Eis eis, Date date,
-                      OperationType operation, RpaEntity requestor,
-                      BaseResponseType.ExecutionStatus status,
-                      String isdpAID, String iccid, String imei,
-                      String meid) {
-        this(eis, date, operation, RpaEntity.getLocal(em, RpaEntity.Type.SMSR), requestor,
+    public AuditTrail(Eis eis, Date date, OperationType operation, RpaEntity requestor, BaseResponseType.ExecutionStatus status, String isdpAID, String iccid, String imei, String meid) {
+        this(eis, date, operation, RpaEntity.getLocal(RpaEntity.Type.SMSR), requestor,
                 status,
                 isdpAID, iccid, imei, meid);
     }
@@ -159,7 +155,7 @@ public class AuditTrail {
             }
         else
             requestor = null;
-        AuditTrail a = new AuditTrail(em, eis, trObj.startDate, operation, requestor, status,
+        AuditTrail a = new AuditTrail(eis, trObj.startDate, operation, requestor, status,
                 isdpAID, iccid, imei, meid);
         eis.addToAuditTrail(em, a);
 

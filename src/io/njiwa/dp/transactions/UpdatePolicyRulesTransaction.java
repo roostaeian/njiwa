@@ -59,7 +59,7 @@ public class UpdatePolicyRulesTransaction extends BaseTransactionType {
             final ES3 proxy = WSUtils.getPort("http://namespaces.gsma.org/esim-messaging/1", "ES3Port",
                     rcptTo, ES3.class,
                     RpaEntity.Type.SMDP, em,requestingEntityId);
-            WsaEndPointReference sender = new WsaEndPointReference(WSUtils.getMyRpa(em, RpaEntity.Type.SMDP),
+            WsaEndPointReference sender = new WsaEndPointReference(RpaEntity.getLocal(RpaEntity.Type.SMDP),
                     "ES3");
             String msgID = trans.newRequestMessageID(); // Create new one.
             Holder<String> msgType = new Holder<>("http://gsma.com/ES3/ProfileManagement/ES3-UpdatePolicyRules");

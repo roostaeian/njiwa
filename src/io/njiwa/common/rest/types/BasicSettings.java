@@ -49,6 +49,8 @@ public class BasicSettings {
     public CRLInfo crlInfo;
     public String serverPrivateKeyInfo;
 
+    public String wsUrlPrefix;
+
     public static class CertificateInfo {
         public BigInteger serialNumber;
         public String subject;
@@ -150,6 +152,8 @@ public class BasicSettings {
             settings.crlInfo = CRLInfo.create(ServerSettings.getCRL());
         } catch (Exception ex) {}
         settings.oid = ServerSettings.getOid();
+        settings.wsUrlPrefix = ServerSettings.getBasedeploymenturi();
+
         try {
             settings.smdpSignedData = Utils.HEX.b2H(ServerSettings.getSMDPSignedData());
         } catch (Exception ex) {}

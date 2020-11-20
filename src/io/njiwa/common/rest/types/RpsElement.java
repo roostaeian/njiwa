@@ -46,8 +46,9 @@ public class RpsElement {
         element.es7 = rpaEntity.getEs7URL();
 
         try {
-            String alias = rpaEntity.getsMkeyStoreAlias();
-            if (alias != null) element.certificateInfo = BasicSettings.CertificateInfo.create(alias);
+            String alias = rpaEntity.getSecureMessagingCertificateAlias();
+            if (alias != null)
+                element.certificateInfo = BasicSettings.CertificateInfo.create(alias);
         } catch (Exception ex) {}
         return element;
     }
@@ -96,10 +97,10 @@ public class RpsElement {
         // Do certificate
         if (!Utils.isEmpty(cert))
             try {
-                String alias = entity.getsMkeyStoreAlias();
+                String alias = entity.getSecureMessagingCertificateAlias();
                 if (Utils.isEmpty(alias)) {
                     alias = entity.makeKeyStoreAlias("ECDSA");
-                    entity.setsMkeyStoreAlias(alias);
+                    entity.setSecureMessagingCertificateAlias(alias);
                 }
                 X509Certificate certificate =  Utils.certificateFromBytes(Utils.Http.decodeDataUri(cert));
                 Utils.getKeyStore().setCertificateEntry(alias,certificate); // Save it.
