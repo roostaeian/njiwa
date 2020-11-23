@@ -113,6 +113,17 @@ public class Settings {
             return Response.status(Response.Status.BAD_REQUEST).entity(new RestResponse(RestResponse.Status.Failed,
                     ex.getLocalizedMessage(), "oid")).build();
         }
+
+        if (settings.wsUrlPrefix != null) try {
+            po.doTransaction((PersistenceUtility po, EntityManager em) -> {
+                ServerSettings.updateBaseURL(em, settings.wsUrlPrefix);
+                return true;
+            });
+        } catch (Exception ex) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(new RestResponse(RestResponse.Status.Failed,
+                    ex.getLocalizedMessage(), "wsUrlPrefix")).build();
+        }
+
         if (settings.ciCertificate != null) {
             X509Certificate ciCert;
             try {

@@ -83,7 +83,9 @@ public class RpaEntity {
                 KeyStore ks = Utils.getKeyStore();
                 String xs;
                 if ((xs = rpa.getWskeyStoreAlias()) != null) ks.deleteEntry(xs);
-                if ((xs = rpa.getsMkeyStoreAlias()) != null) ks.deleteEntry(xs);
+                if ((xs = rpa.getsSecureMessagingPrivateKeyAlias()) != null) ks.deleteEntry(xs);
+                if ((xs = rpa.getSecureMessagingCertificateAlias()) != null)
+                    ks.deleteEntry(xs);
                 em.remove(rpa);
 
                 return true;

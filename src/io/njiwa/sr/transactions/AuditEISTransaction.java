@@ -128,7 +128,7 @@ public class AuditEISTransaction extends SmSrBaseTransaction {
                         new BaseResponseType.ExecutionStatus.StatusCode("8.4", "", "4.2", ""));
             // Log to audit
             eis.addToAuditTrail(em,
-                    new AuditTrail(em, eis, startDate, AuditTrail.OperationType.eUICCCapabilityAudit,
+                    new AuditTrail(eis, startDate, AuditTrail.OperationType.eUICCCapabilityAudit,
                             requestor, status, null, null, null, null));
             // Send to the requestor, since we got all our information
             CommonImpl.sendAuditEISResponse(em, this, eis, iccids, requestor);

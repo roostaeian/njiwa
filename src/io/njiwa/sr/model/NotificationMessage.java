@@ -89,7 +89,7 @@ public class NotificationMessage {
             // Try to look for the profile, ignore failure. Right? e.g. if it is merely a network latch-on notification
             msg.profile = msg.eis.findProfileByAID(msg.isdPAid);
             // Log it to audit trail
-            RpaEntity us = RpaEntity.getLocal(em, RpaEntity.Type.SMSR);
+            RpaEntity us = RpaEntity.getLocal(RpaEntity.Type.SMSR);
             String ourOID = us != null ? us.getOid() : null;
             AuditTrail a = new AuditTrail(msg.eis, notificationType, null, msg.isdPAid, msg.profile != null ? msg.profile.getIccid()
                     : null, msg.imei, msg.meid, ourOID);

@@ -104,6 +104,7 @@ public class ServerSettings {
     private static final String ADDITIONAL_DISCRETIONARY_DATA_TLVS = "discretionary_data_tlvs";
     private static final String SIGNED_SM_DP_DATA = "signed-sm-dp-data";
     private static final String SIGNED_SM_SR_DATA = "signed-sm-sr-data";
+    private static final String WS_PREFIX = "ws-interface-prefix";
 
     // This stores all the config params, with their validators and current values
     private static final Map<String, BaseValidator> configValidators = new ConcurrentHashMap<String, BaseValidator>() {
@@ -232,6 +233,7 @@ public class ServerSettings {
             put(ADDITIONAL_DISCRETIONARY_DATA_TLVS, new TLVsValidator(""));
             put(SIGNED_SM_DP_DATA, new ByteArrayValidator("", true));
             put(SIGNED_SM_SR_DATA, new ByteArrayValidator("", true));
+            put(WS_PREFIX, new BaseValidator(""));
         }
     };
 
@@ -336,6 +338,10 @@ public class ServerSettings {
         return propertyValues.get(BASEDEPLOYMENTURI) + "/" + Constants.DLR_URI;
     }
 
+    public static String getBasedeploymenturi()
+    {
+        return (String)propertyValues.get(BASEDEPLOYMENTURI);
+    }
 
     public static String getSendSmsUrl() {
         return (String) propertyValues.get(SENDSMS_URL);
@@ -483,6 +489,9 @@ public class ServerSettings {
         updateProp(em, propkey, alias);
     }
 
+    public static String getServerEcdsaSecretKeyAlias() {
+        return (String) propertyValues.get(SERVER_ECDSA_SECRET_KEY_ALIAS);
+    }
     public static PrivateKey getServerECDAPrivateKey() {
         String alias = (String) propertyValues.get(SERVER_ECDSA_SECRET_KEY_ALIAS);
         try {
@@ -512,11 +521,16 @@ public class ServerSettings {
     }
 
 
+
     public static void updateOid(EntityManager em, String oid) throws Exception {
         String xoid = oid.trim();
         if (!Pattern.matches("^([1-9][0-9]{0,3}|0)([.]([1-9][0-9]{0,6}|0)){5,13}$", xoid))
             throw new Exception("Invalid OID");
         updateProp(em, SERVER_OID, xoid);
+    }
+
+    public static void updateBaseURL(EntityManager em, String baseUrl) throws Exception {
+        updateProp(em, BASEDEPLOYMENTURI, baseUrl);
     }
 
     public static X509CRL getCRL() {

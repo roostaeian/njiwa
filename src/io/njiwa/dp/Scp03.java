@@ -143,7 +143,6 @@ public class Scp03 {
 
         public Session(Mode mode, int keyVersion, int keyID) {
             this.mode = mode;
-            this.state = State.START;
             this.keyVersion = keyVersion;
             this.keyID = keyID;
         }

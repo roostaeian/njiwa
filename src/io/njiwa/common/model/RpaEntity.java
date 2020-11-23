@@ -14,6 +14,7 @@ package io.njiwa.common.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.njiwa.common.PersistenceUtility;
+import io.njiwa.common.ServerSettings;
 import io.njiwa.common.Utils;
 import org.apache.commons.net.util.SubnetUtils;
 import org.hibernate.annotations.DynamicInsert;
@@ -116,9 +117,12 @@ public class RpaEntity {
     // authentication.
     // Extracted by the module
 
-    @Column(nullable = true, columnDefinition = "TEXT")
-    private String sMkeyStoreAlias; //!< The Secure Messaging alias in the java keystore, this is the key used for
-    // .org/wiki/Payment_card_number#Issuer_identification_number_.28IIN.29
+    @Column(nullable = true, columnDefinition = "TEXT", name="smprivatekeyalias")
+    private String secureMessagingPrivateKeyAlias; //!< The Secure Messaging alias in the java keystore, this is the key used for
+
+    @Column(nullable = true, columnDefinition = "TEXT", name="smcertalias")
+    private String secureMessagingCertificateAlias;
+
     // authenticating to the euICC (e.g. by SM-DP or SM-SR). This is also extracted by the server
     @Column(columnDefinition = "TEXT")
     private String es1URL; //!< The URL on which to contact this entity for ES1 Web service calls
@@ -141,8 +145,6 @@ public class RpaEntity {
     private String outgoingWSuserid; //!< User name for outgoing web service calls authentication
     @Column
     private String outgoingWSpassword; //!< Outgoing password
-    @Column(name = "islocal", columnDefinition = "boolean not null default false")
-    private Boolean islocal; //!< This is true if our current server also represents this entity (can only be true
     // certificate data
     @Column
     private byte[] additionalDiscretionaryData; //!< Discretionary data as per GPC Ammendment E. This is extracted from the
@@ -173,16 +175,13 @@ public class RpaEntity {
     }
 
 
-    public RpaEntity(Type type, String wskeyStoreAlias,
-                     String sMkeyStoreAlias, String oid,
-                     boolean islocal, byte[] additionalDiscretionaryData,
-                     byte[] signature, String x509Subject) {
+    public RpaEntity(Type type, String wskeyStoreAlias, String secureMessagingPrivateKeyAlias, String oid, byte[] additionalDiscretionaryData, byte[] signature, String x509Subject) {
         setType(type);
         setWskeyStoreAlias(wskeyStoreAlias);
         setAdditionalDiscretionaryData(additionalDiscretionaryData);
         setX509Subject(x509Subject);
-        setIslocal(islocal);
-        setsMkeyStoreAlias(sMkeyStoreAlias);
+
+        setsSecureMessagingPrivateKeyAlias(secureMessagingPrivateKeyAlias);
         setSignature(signature);
 
         setOid(oid);
@@ -232,6 +231,15 @@ public class RpaEntity {
         }
     }
 
+    public void updateInterfaceUris(String prefix)
+    {
+        setEs1URL(prefix + "/SMSR");
+        setEs2URL(prefix + "/SMDP");
+        setEs3URL(prefix + "/SMDP");
+        setEs4URL(prefix + "/SMSR");
+        setEs7URL(prefix + "/SMSR");
+    }
+
     public static RpaEntity getByOID(EntityManager em, String oid, Type type) {
         try {
             return em.createQuery("from RpaEntity WHERE oid = :s and type = :t", RpaEntity.class).setParameter("t",
@@ -247,21 +255,34 @@ public class RpaEntity {
             );
     }
 
-    public static RpaEntity getLocal(EntityManager em, Type type) {
+    private static RpaEntity makeLocalEntity(Type type) throws Exception {
+        Utils.Pair<String,X509Certificate> p  = ServerSettings.getServerCertAndAlias();
+        String x509Subject = p.l.getSubjectDN().getName();
+        String keyAlias = p.k;
+        String  smKeyAlias = ServerSettings.getServerEcdsaSecretKeyAlias();
+        byte[] additionalDiscretionaryDataTlvs = ServerSettings.getAdditionalDiscretionaryDataTlvs();
+        byte[] sig = type == Type.SMDP ? ServerSettings.getSMDPSignedData() : ServerSettings.getSMSRSignedData();
+        RpaEntity rpa = new RpaEntity(type,null,smKeyAlias,
+                ServerSettings.getOid(), additionalDiscretionaryDataTlvs,sig,x509Subject);
+        rpa.setSecureMessagingCertificateAlias(keyAlias);
+        rpa.updateInterfaceUris(ServerSettings.getBasedeploymenturi());
+        return rpa;
+    }
+    public static RpaEntity getlocalSMDP() throws Exception {
+        return makeLocalEntity(Type.SMDP);
+    }
+
+    public static RpaEntity getlocalSMSR() throws Exception {
+        return makeLocalEntity(Type.SMSR);
+    }
+
+    public static RpaEntity getLocal(Type type) {
         try {
-            List<RpaEntity> l =  em.createQuery("from RpaEntity where islocal = true and type = :t", RpaEntity.class).setParameter(
-                    "t", type).getResultList();
-            return l.get(0);
+            return makeLocalEntity(type);
         } catch (Exception ex) {
             String xs = ex.getMessage();
         }
         return null;
-    }
-
-    public static RpaEntity getLocal(PersistenceUtility po, final Type type) {
-        return po.doTransaction((PersistenceUtility xpo, EntityManager em) ->
-                  getLocal(em, type)
-            );
     }
 
     public static X509Certificate getWSCertificateByOID(EntityManager em, String oid, Type type) throws Exception {
@@ -334,7 +355,7 @@ public class RpaEntity {
     }
 
     public ECPrivateKey secureMessagingPrivKey() throws Exception {
-        String alias = getsMkeyStoreAlias();
+        String alias = getsSecureMessagingPrivateKeyAlias();
         return Utils.getServerECPrivateKey(alias);
     }
 
@@ -441,7 +462,7 @@ public class RpaEntity {
         if (x509Subject == null)
             try {
             // fix it up.
-            X509Certificate certificate = (X509Certificate)Utils.getKeyStore().getCertificate(getsMkeyStoreAlias());
+            X509Certificate certificate = (X509Certificate)Utils.getKeyStore().getCertificate(getSecureMessagingCertificateAlias());
             x509Subject = certificate.getSubjectDN().getName();
         } catch (Exception ex) {
             String xs = ex.getMessage();
@@ -503,29 +524,21 @@ public class RpaEntity {
         this.outgoingWSpassword = outgoingWSpassword;
     }
 
-    public Boolean getIslocal() {
-        return islocal;
-    }
-
-    public void setIslocal(Boolean islocal) {
-        this.islocal = islocal;
-    }
-
     public X509Certificate secureMessagingCert() {
         if (cert == null) try {
-            String alias = getsMkeyStoreAlias();
+            String alias = getSecureMessagingCertificateAlias();
             cert = (X509Certificate) Utils.getKeyStore().getCertificate(alias);
         } catch (Exception ex) {
         }
         return cert;
     }
 
-    public String getsMkeyStoreAlias() {
-        return sMkeyStoreAlias;
+    public String getsSecureMessagingPrivateKeyAlias() {
+        return secureMessagingPrivateKeyAlias;
     }
 
-    public void setsMkeyStoreAlias(String sMkeyStoreAlias) {
-        this.sMkeyStoreAlias = sMkeyStoreAlias;
+    public void setsSecureMessagingPrivateKeyAlias(String sMkeyStoreAlias) {
+        this.secureMessagingPrivateKeyAlias = sMkeyStoreAlias;
     }
 
     public byte[] getAdditionalDiscretionaryData() {
@@ -580,6 +593,14 @@ public class RpaEntity {
 
     public void setAdmin_user(String admin) {
         this.admin_user = admin;
+    }
+
+    public String getSecureMessagingCertificateAlias() {
+        return secureMessagingCertificateAlias;
+    }
+
+    public void setSecureMessagingCertificateAlias(String secureMessagingCertificateAlias) {
+        this.secureMessagingCertificateAlias = secureMessagingCertificateAlias;
     }
 
     public enum Type {
